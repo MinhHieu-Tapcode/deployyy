@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { useRestaurantStore, playNotificationSound } from '../data/store';
 import { TableStatus, TableStatusLabel, OrderItemStatus } from '../types';
 import GiaKhanhLogo from './GiaKhanhLogo';
+import { TableCard } from './SharedUI';
 import {
   Search,
   Calendar,
@@ -55,47 +56,118 @@ export default function ReceptionLayout() {
   const [activeFloor, setActiveFloor] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Date and hour selector for temporal layout modeling
+  const BOOKING_OPEN_HOUR = 10;
+  const LAST_BOOKING_HOUR = 21;
+  const LAYOUT_VIEW_CLOSE_HOUR = 22;
+  const CLOSING_TIME_LABEL = '22:00';
+  const BOOKING_PREP_BUFFER_MINUTES = 30;
+  const TEMP_SESSION_MINUTES = 60;
+  const CHECKIN_EARLY_MINUTES = 15;
+  const HOLD_GRACE_MINUTES = 30;
+  const BOOKING_LEAD_TIME_MINUTES = 30;
+
+  const clampTimeToBookingWindow = (hours: number, minutes: number) => {
+    if (hours < BOOKING_OPEN_HOUR) {
+      return { hours: BOOKING_OPEN_HOUR, minutes: 0 };
+    }
+    if (hours > LAYOUT_VIEW_CLOSE_HOUR) {
+      return { hours: LAYOUT_VIEW_CLOSE_HOUR, minutes: 0 };
+    }
+    if (hours === LAYOUT_VIEW_CLOSE_HOUR && minutes > 0) {
+      return { hours: LAYOUT_VIEW_CLOSE_HOUR, minutes: 0 };
+    }
+    return { hours, minutes };
+  };
+
+  const getLocalDateValue = (date = new Date()) => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const getCurrentWorkingTimeValue = () => {
+    const now = new Date();
+    const bounded = clampTimeToBookingWindow(now.getHours(), now.getMinutes());
+    return `${String(bounded.hours).padStart(2, '0')}:${String(bounded.minutes).padStart(2, '0')}`;
+  };
+
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>(() => {
-    return new Date().toISOString().split('T')[0];
+    return getLocalDateValue();
   });
   const [selectedCalendarTime, setSelectedCalendarTime] = useState<string>(() => {
-    const now = new Date();
-    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    return getCurrentWorkingTimeValue();
   });
+  const [isViewingCurrent, setIsViewingCurrent] = useState(true);
+
+  const bookingTimeOptions = React.useMemo(() => {
+    const options: string[] = [];
+    for (let hour = BOOKING_OPEN_HOUR; hour <= LAST_BOOKING_HOUR; hour += 1) {
+      for (let minute of [0, 15, 30, 45]) {
+        if (hour === LAST_BOOKING_HOUR && minute > 0) break;
+        const hh = String(hour).padStart(2, '0');
+        const mm = String(minute).padStart(2, '0');
+        options.push(`${hh}:${mm}`);
+      }
+    }
+    return options;
+  }, []);
+
+  const [showLateBookingConfirm, setShowLateBookingConfirm] = useState(false);
+  const [pendingBookingTableId, setPendingBookingTableId] = useState<string | null>(null);
+
+  const viewMode = React.useMemo(() => {
+    try {
+      if (isViewingCurrent) return 'REAL';
+      const timePart = selectedCalendarTime && selectedCalendarTime.length >= 4 ? selectedCalendarTime : '00:00';
+      const sel = new Date(`${selectedCalendarDate}T${timePart}:00`);
+      const now = new Date();
+      if (isNaN(sel.getTime())) return 'PAST';
+      const diffMin = Math.round((sel.getTime() - now.getTime()) / 60000);
+      return diffMin > 0 ? 'FUTURE' : 'PAST';
+    } catch (e) {
+      return 'PAST';
+    }
+  }, [isViewingCurrent, selectedCalendarDate, selectedCalendarTime]);
 
   // Center Modal states for booking & session setup
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showClosingConfirm, setShowClosingConfirm] = useState(false);
   const [bookName, setBookName] = useState('');
   const [bookPhone, setBookPhone] = useState('');
+  const [bookingDateError, setBookingDateError] = useState('');
+  const [bookingTimeError, setBookingTimeError] = useState('');
   const [manualPhoneInp, setManualPhoneInp] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [showManualBookingSuccess, setShowManualBookingSuccess] = useState(false);
   const [showFormSampleId, setShowFormSampleId] = useState<string | null>(null);
 
   const [instantPhone, setInstantPhone] = useState('');
-  const [instantGuests, setInstantGuests] = useState<number>(4);
+  const [instantCustomerName, setInstantCustomerName] = useState('');
+  const [instantGuests, setInstantGuests] = useState<number>(2);
+  const [showCallConfirm, setShowCallConfirm] = useState(false);
+  const [showFullPhone, setShowFullPhone] = useState(false);
+  const [autoCancelInfo, setAutoCancelInfo] = useState<string | null>(null);
   const [tablesBeingCleaned, setTablesBeingCleaned] = useState<string[]>([]);
   const [selectedHistorySession, setSelectedHistorySession] = useState<string | null>(null);
 
-  // Today string for live session fallback
-  const todayString = new Date().toISOString().split('T')[0];
+  // Today string for live session fallback (local date)
+  const todayString = (() => {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  })();
 
   // Active bookings on the currently viewed calendar date
   const bookingsOnDate = reservations.filter(
     r => r.Ngay_dat === selectedCalendarDate && r.Trang_thai === 'Chờ đến'
   );
 
-  // Helper checking if a specific table is pre-booked on the viewed calendar date and selected time (within 30-minute window)
+  // Helper checking if a specific table is pre-booked on the viewed calendar date
   const findTableBookingAtSelectedTime = (tableId: string) => {
-    return bookingsOnDate.find(r => {
-      if (r.Ma_ban !== tableId) return false;
-      const [selH, selM] = selectedCalendarTime.split(':').map(Number);
-      const [resH, resM] = r.Gio_dat.split(':').map(Number);
-      const diff = Math.abs((selH * 60 + selM) - (resH * 60 + resM));
-      return diff <= 30;
-    });
+    return bookingsOnDate.find(r => r.Ma_ban === tableId);
   };
 
   // Search filter for tables or reservations matching name, phone, or table ID
@@ -133,31 +205,36 @@ export default function ReceptionLayout() {
     }
 
     if (selectedCalendarDate === todayString) {
-      // Only show current active occupied session if selected calendar time matches the current actual time (within 30 mins)
-      const now = new Date();
-      const currH = now.getHours();
-      const currM = now.getMinutes();
-      const [selH, selM] = selectedCalendarTime.split(':').map(Number);
-      const isCloseToCurrent = Math.abs((currH * 60 + currM) - (selH * 60 + selM)) <= 30;
-      
-      if (isCloseToCurrent) {
-        return baseStatus;
-      } else {
-        return baseStatus === TableStatus.CO_KHACH ? TableStatus.TRONG : baseStatus;
-      }
+      return baseStatus;
     }
 
     return TableStatus.TRONG;
   };
 
-  // Handle direct booking registration for selected table
-  const handleBookTableDirect = (e: React.FormEvent, tableId: string) => {
-    e.preventDefault();
-    if (!bookName.trim() || !bookPhone.trim()) {
-      alert('Vui lòng nhập đầy đủ Tên và Số điện thoại khách đặt bàn!');
-      return;
-    }
+  const bookingTimeIsLate = (time: string) => {
+    const [hour, minute = 0] = time.split(':').map(Number);
+    const totalMinutes = hour * 60 + minute;
+    return totalMinutes >= 20 * 60 && totalMinutes <= LAST_BOOKING_HOUR * 60;
+  };
 
+  const bookingTimeIsInAllowedWindow = (time: string) => {
+    const [hour, minute = 0] = time.split(':').map(Number);
+    if (Number.isNaN(hour) || Number.isNaN(minute)) return false;
+    const totalMinutes = hour * 60 + minute;
+    return totalMinutes >= BOOKING_OPEN_HOUR * 60 && totalMinutes <= LAST_BOOKING_HOUR * 60;
+  };
+
+  const bookingDateIsTodayOrAfter = (date: string) => {
+    return date >= getLocalDateValue();
+  };
+
+  const bookingDateTimeHasLeadTime = (date: string, time: string) => {
+    const selected = new Date(`${date}T${time}:00`);
+    if (isNaN(selected.getTime())) return false;
+    return selected.getTime() >= Date.now() + BOOKING_LEAD_TIME_MINUTES * 60000;
+  };
+
+  const createReservation = (tableId: string) => {
     addReservation({
       Ma_ban: tableId,
       Ten_khach_hang: bookName.trim(),
@@ -178,6 +255,43 @@ export default function ReceptionLayout() {
     }, 2000);
   };
 
+  // Handle direct booking registration for selected table
+  const handleBookTableDirect = (e: React.FormEvent, tableId: string) => {
+    e.preventDefault();
+    if (!bookName.trim() || !bookPhone.trim()) {
+      alert('Vui lòng nhập đầy đủ Họ tên và Số điện thoại khách!');
+      return;
+    }
+    if (!/^\d{10}$/.test(bookPhone.trim())) {
+      alert('Số điện thoại phải gồm đúng 10 chữ số.');
+      return;
+    }
+    if (!bookingDateIsTodayOrAfter(selectedCalendarDate)) {
+      setBookingDateError('Ngày đặt không được trước ngày hiện tại.');
+      setBookingTimeError('');
+      return;
+    }
+    setBookingDateError('');
+    if (!bookingTimeIsInAllowedWindow(selectedCalendarTime)) {
+      setBookingTimeError('');
+      alert(`Thời gian đặt bàn chỉ được chọn trong khung ${String(BOOKING_OPEN_HOUR).padStart(2, '0')}:00 - ${String(LAST_BOOKING_HOUR).padStart(2,'0')}:00.`);
+      return;
+    }
+    if (!bookingDateTimeHasLeadTime(selectedCalendarDate, selectedCalendarTime)) {
+      setBookingTimeError(`Giờ đặt phải cách thời điểm hiện tại ít nhất ${BOOKING_LEAD_TIME_MINUTES} phút.`);
+      return;
+    }
+    setBookingTimeError('');
+
+    if (bookingTimeIsLate(selectedCalendarTime)) {
+      setPendingBookingTableId(tableId);
+      setShowLateBookingConfirm(true);
+      return;
+    }
+
+    createReservation(tableId);
+  };
+
   // Begin session for reservation with pre-filled guest information
   const handleStartBookingSession = async (bookingId: string, tableId: string, phone: string) => {
     // Validate phone number: must be exactly 10 digits
@@ -188,17 +302,19 @@ export default function ReceptionLayout() {
       return;
     }
     try {
-      await startTableSession(tableId, trimmed);
+      const booking = reservations.find(r => r.Ma_dat_ban === bookingId);
+      await startTableSession(tableId, trimmed, getReservationGuestCount(booking, 4), undefined, booking?.Ten_khach_hang || 'Khách đặt trước');
       updateReservationStatus(bookingId, 'Đã nhận phiên');
       playNotificationSound('ready_dish');
       setIsModalOpen(false);
+      setSelectedTableId(null);
       alert(`Đã nhận khách đặt trước! Phiên bàn lẩu ${tableId} đã hoạt động.`);
     } catch (err: any) {
       alert(err.message || 'Hành động thất bại.');
     }
   };
 
-  const handleStartManualSession = (e: React.FormEvent, tableId: string) => {
+  const handleStartManualSession = async (e: React.FormEvent, tableId: string) => {
     e.preventDefault();
     // Validate phone number: must be 10 digits
     const trimmed = manualPhoneInp.trim();
@@ -208,17 +324,25 @@ export default function ReceptionLayout() {
       return;
     }
     setPhoneError('');
-    startTableSession(tableId, trimmed);
-    setManualPhoneInp('');
-    playNotificationSound('ready_dish');
-    setIsModalOpen(false);
-    alert(`Kích hoạt thành công phiên phục vụ cho bàn ${tableId}!`);
+    try {
+      await startTableSession(tableId, trimmed);
+      playNotificationSound('ready_dish');
+      setIsModalOpen(false);
+      setSelectedTableId(null);
+      setManualPhoneInp('');
+      alert(`Kích hoạt thành công phiên phục vụ cho bàn ${tableId}!`);
+    } catch (err: any) {
+      alert(err.message || 'Mở bàn không thành công.');
+    }
   };
 
   // Table click event opens the centered modal
   const handleTableClick = (tableId: string) => {
     setSelectedTableId(tableId);
     setShowClosingConfirm(false);
+    setShowCallConfirm(false);
+    setShowFullPhone(false);
+    setAutoCancelInfo(null);
     setIsModalOpen(true);
   };
 
@@ -246,7 +370,7 @@ export default function ReceptionLayout() {
     const sessionOrders = orders.filter(o => o.Ma_phien === session.Ma_phien);
     let cost = 0;
     sessionOrders.forEach(ord => {
-      const details = orderDetails.filter(od => od.Ma_hd_dat_mon === ord.Ma_hd_dat_mon);
+      const details = orderDetails.filter(od => od.Ma_hd_dat_mon === ord.Ma_hd_dat_mon && od.Trang_thai_mon !== OrderItemStatus.DA_HUY);
       details.forEach(det => {
         cost += det.Don_gia_tai_thoi_diem * det.So_luong;
       });
@@ -263,11 +387,205 @@ export default function ReceptionLayout() {
     };
   };
 
+  const maskPhoneNumber = (phone: string) => {
+    if (!phone) return '****';
+    return phone.replace(/\d(?=\d{4})/g, '*');
+  };
+
+  const formatDisplayDate = (date: string) => {
+    const parsed = new Date(`${date}T00:00:00`);
+    if (isNaN(parsed.getTime())) return date;
+    return parsed.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  const formatTime = (date: Date) => date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+  const getReservationGuestCount = (booking: any, tableCapacity: number) => {
+    return booking?.So_khach || booking?.So_luong_khach || booking?.guests_count || tableCapacity;
+  };
+
+  const getBookingTimeState = (booking: any) => {
+    const bookingAt = new Date(`${booking.Ngay_dat}T${booking.Gio_dat}:00`);
+    if (isNaN(bookingAt.getTime())) {
+      return {
+        key: 'waiting' as const,
+        label: 'ĐẶT TRƯỚC - CHỜ KHÁCH',
+        diffMin: 0,
+        returnBy: booking.Gio_dat,
+        tone: 'purple'
+      };
+    }
+
+    const now = new Date();
+    const diffMin = Math.round((bookingAt.getTime() - now.getTime()) / 60000);
+    const returnByDate = new Date(bookingAt.getTime() - BOOKING_PREP_BUFFER_MINUTES * 60000);
+    const returnBy = formatTime(returnByDate);
+    const canTemp = diffMin > TEMP_SESSION_MINUTES + BOOKING_PREP_BUFFER_MINUTES;
+    const canCheckIn = diffMin <= CHECKIN_EARLY_MINUTES && diffMin >= -HOLD_GRACE_MINUTES;
+    const isExpired = diffMin < -HOLD_GRACE_MINUTES;
+    const cancelled = booking.Trang_thai === 'Đã hủy do quá giờ giữ bàn' || booking.Trang_thai === 'Đã hủy do quá giờ' || booking.Trang_thai === 'Đã hủy';
+
+    if (cancelled) {
+      return { key: 'cancelled' as const, label: 'ĐÃ HỦY DO QUÁ GIỜ', diffMin, returnBy, tone: 'green' };
+    }
+    if (isExpired) {
+      return { key: 'expired' as const, label: 'QUÁ GIỜ GIỮ BÀN', diffMin, returnBy, tone: 'red' };
+    }
+    if (canCheckIn) {
+      return { key: 'checkin' as const, label: 'ĐẶT TRƯỚC - CHỜ KHÁCH', diffMin, returnBy, tone: 'purple' };
+    }
+    if (canTemp) {
+      return { key: 'temporary' as const, label: 'CÒN CÓ THỂ TẠO PHIÊN TẠM', diffMin, returnBy, tone: 'green' };
+    }
+    return { key: 'near' as const, label: 'SẮP ĐẾN GIỜ GIỮ BÀN', diffMin, returnBy, tone: 'red' };
+  };
+
+  const getBookingStateClasses = (tone: string) => {
+    if (tone === 'green') {
+      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    }
+    if (tone === 'red') {
+      return 'bg-red-50 text-[#B91C1C] border-red-200';
+    }
+    return 'bg-purple-50 text-purple-700 border-purple-200';
+  };
+
+  const formatSessionCode = (session: any) => {
+    if (!session) return '---';
+    const start = session.Thoi_gian_bat_dau
+      ? new Date(session.Thoi_gian_bat_dau).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+      : '??:??';
+    const suffix = session.Ma_phien_code ? session.Ma_phien_code.slice(-4).toUpperCase() : '----';
+    return `${currentModalTable?.Ma_ban || 'B?'}-${start}-${suffix}`;
+  };
+
   // Active table context data inside Modal
   const currentModalTable = tables.find(t => t.Ma_ban === selectedTableId);
   const simulatedStatusOfCurrentModal = currentModalTable ? getTableSimulatedStatus(currentModalTable.Ma_ban, currentModalTable.Trang_thai) : null;
   const activeSessionOfModalTable = sessions.find(s => s.Ma_ban === selectedTableId && s.Trang_thai === 'active');
   const bookedOfModalTable = currentModalTable ? findTableBookingAtSelectedTime(currentModalTable.Ma_ban) : null;
+
+  React.useEffect(() => {
+    if (!bookedOfModalTable || !currentModalTable) return;
+    try {
+      const bookingDT = new Date(`${bookedOfModalTable.Ngay_dat}T${bookedOfModalTable.Gio_dat}:00`);
+      const diffMin = (bookingDT.getTime() - Date.now()) / 60000;
+      if (diffMin < -HOLD_GRACE_MINUTES && bookedOfModalTable.Trang_thai !== 'Đã hủy do quá giờ giữ bàn') {
+        // auto cancel booking and free the table
+        updateReservationStatus(bookedOfModalTable.Ma_dat_ban, 'Đã hủy do quá giờ giữ bàn' as any);
+        if (currentModalTable?.Ma_ban) setTableStatusManual(currentModalTable.Ma_ban, TableStatus.TRONG);
+        setAutoCancelInfo('Lịch đặt đã quá thời gian giữ bàn 30 phút. Hệ thống đã tự động hủy lịch đặt và chuyển bàn về trạng thái trống.');
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [bookedOfModalTable, currentModalTable, updateReservationStatus, setTableStatusManual]);
+
+  const renderBookedActions = (booking: any) => {
+    if (!currentModalTable) return null;
+    const state = getBookingTimeState(booking);
+
+    if (state.key === 'temporary') {
+      return (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 space-y-4">
+          <div className="flex items-start gap-3">
+            <CheckCircle className="mt-0.5 text-emerald-600 shrink-0" size={20} />
+            <p className="text-sm leading-relaxed text-emerald-950 font-semibold">
+              Bàn này đã có lịch đặt lúc <strong>{booking.Gio_dat}</strong>. Bạn có thể tạo phiên tạm thời nhưng cần kết thúc trước <strong>{state.returnBy}</strong> để chuẩn bị bàn cho khách đặt trước.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              onClick={async () => {
+                const phone = window.prompt('Nhập SĐT khách đại diện cho phiên tạm thời (10 chữ số):');
+                const cleanPhone = phone?.replace(/\D/g, '') || '';
+                if (cleanPhone.length !== 10) return alert('Số điện thoại không hợp lệ.');
+                await startTableSession(currentModalTable.Ma_ban, cleanPhone, currentModalTable.Suc_chua, undefined, 'Khách vãng lai');
+                setIsModalOpen(false);
+                setSelectedTableId(null);
+                alert(`Đã tạo phiên tạm thời. Vui lòng kết thúc trước ${state.returnBy} để chuẩn bị bàn.`);
+              }}
+              className="py-3 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-wide hover:bg-emerald-700 shadow-sm"
+            >
+              TẠO PHIÊN TẠM THỜI
+            </button>
+            <button
+              onClick={() => { setIsModalOpen(false); setSelectedTableId(null); }}
+              className="py-3 rounded-xl border border-gray-300 bg-white text-gray-700 text-xs font-black uppercase tracking-wide hover:bg-gray-50"
+            >
+              CHỌN BÀN KHÁC
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (state.key === 'near') {
+      return (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 space-y-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="mt-0.5 text-[#EE3124] shrink-0" size={20} />
+            <p className="text-sm leading-relaxed text-red-950 font-semibold">
+              Bàn này sắp đến giờ giữ bàn. Vui lòng không tạo phiên mới để đảm bảo phục vụ khách đã đặt trước.
+            </p>
+          </div>
+          <button
+            onClick={() => { setIsModalOpen(false); setSelectedTableId(null); }}
+            className="w-full py-3 rounded-xl border border-gray-300 bg-white text-gray-700 text-xs font-black uppercase tracking-wide hover:bg-gray-50"
+          >
+            CHỌN BÀN KHÁC
+          </button>
+        </div>
+      );
+    }
+
+    if (state.key === 'checkin') {
+      return (
+        <div className="space-y-3">
+          <button
+            onClick={() => handleStartBookingSession(booking.Ma_dat_ban, currentModalTable.Ma_ban, booking.So_dien_thoai)}
+            className="w-full py-4 rounded-2xl bg-[#EE3124] text-white text-sm font-black uppercase tracking-wide hover:bg-[#D42A1E] shadow-lg"
+          >
+            BẮT ĐẦU PHIÊN PHỤC VỤ (CHECK-IN)
+          </button>
+          <p className="text-[11px] text-gray-500 text-center font-medium">
+            Khi bấm, hệ thống kích hoạt bàn, tạo mã phiên tự động, gắn SĐT khách đại diện và chuyển bàn sang trạng thái “Có khách”.
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-4 space-y-4">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="mt-0.5 text-[#EE3124] shrink-0" size={20} />
+          <p className="text-sm leading-relaxed text-red-950 font-semibold">
+            Lịch đặt đã quá thời gian giữ bàn 30 phút. Hệ thống đã tự động hủy lịch đặt và chuyển bàn về trạng thái trống.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="py-3 rounded-xl border border-gray-300 bg-white text-gray-700 text-xs font-black uppercase tracking-wide hover:bg-gray-50"
+          >
+            ĐÓNG
+          </button>
+          <button
+            onClick={() => {
+              setSelectedHistorySession(null);
+              setIsModalOpen(false);
+            }}
+            className="py-3 rounded-xl bg-[#EE3124] text-white text-xs font-black uppercase tracking-wide hover:bg-[#D42A1E]"
+          >
+            XEM LỊCH SỬ ĐẶT BÀN
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Table capacity for validation (use when creating immediate session)
+  const tableCapacity = currentModalTable?.Suc_chua ?? 12;
 
   // Compute receipt cost
   let sessionCost = 0;
@@ -276,7 +594,7 @@ export default function ReceptionLayout() {
   if (activeSessionOfModalTable) {
     const sessionOrders = orders.filter(o => o.Ma_phien === activeSessionOfModalTable.Ma_phien);
     sessionOrders.forEach(ord => {
-      const details = orderDetails.filter(od => od.Ma_hd_dat_mon === ord.Ma_hd_dat_mon);
+      const details = orderDetails.filter(od => od.Ma_hd_dat_mon === ord.Ma_hd_dat_mon && od.Trang_thai_mon !== OrderItemStatus.DA_HUY);
       details.forEach(det => {
         const dName = dishes.find(d => d.Ma_mon === det.Ma_mon)?.Ten_mon || 'Đặc Sản Nấu Lẩu';
         const cost = det.Don_gia_tai_thoi_diem * det.So_luong;
@@ -337,69 +655,103 @@ export default function ReceptionLayout() {
             </div>
           </div>
 
-          {/* Configuration and Dates Timeline */}
-          <div className="flex flex-wrap items-center gap-4 w-full xl:w-auto">
-            {/* Date Picker */}
-            <div className="flex items-center space-x-2 bg-white border-2 border-[#EE3124] px-4 py-2.5 rounded-lg text-sm shadow-sm min-w-[240px] w-full md:w-64 focus-within:ring-2 focus-within:ring-[#EE3124]/20 transition">
-              <Calendar size={16} className="text-[#EE3124] shrink-0" />
-              <input
-                type="date"
-                className="bg-transparent border-none font-extrabold text-[#EE3124] focus:outline-none cursor-pointer w-full text-sm"
-                value={selectedCalendarDate}
-                onChange={e => {
-                  setSelectedCalendarDate(e.target.value);
-                  setSelectedTableId(null);
-                }}
-              />
+          {/* Configuration and Date/Time selector: THỜI ĐIỂM XEM SƠ ĐỒ */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full xl:w-auto">
+            <div className="w-full sm:w-auto">
+              <div className="text-xs font-black uppercase text-gray-600 mb-1">THỜI ĐIỂM XEM SƠ ĐỒ</div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center space-x-2 bg-white border-2 border-[#EE3124] px-3 py-2 rounded-lg text-sm shadow-sm min-w-[220px]">
+                  <Calendar size={16} className="text-[#EE3124] shrink-0" />
+                  <input
+                    type="date"
+                    className="bg-transparent border-none font-extrabold text-[#EE3124] focus:outline-none cursor-pointer text-sm"
+                    value={selectedCalendarDate}
+                    onChange={e => {
+                      setSelectedCalendarDate(e.target.value);
+                      setIsViewingCurrent(false);
+                      setSelectedTableId(null);
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2 bg-white border-2 border-gray-300 px-3 py-2 rounded-lg text-sm shadow-sm min-w-[160px]">
+                  <Clock size={16} className="text-gray-600 shrink-0" />
+                  <input
+                    type="time"
+                    min="10:00"
+                    max="22:00"
+                    step={60}
+                    className="bg-transparent border-none font-bold text-gray-700 focus:outline-none text-sm"
+                    value={selectedCalendarTime}
+                    onChange={e => {
+                      const [rawHour, rawMinute] = e.target.value.split(':').map(Number);
+                      if (Number.isNaN(rawHour) || Number.isNaN(rawMinute)) return;
+                      const bounded = clampTimeToBookingWindow(rawHour, rawMinute);
+                      setSelectedCalendarTime(`${String(bounded.hours).padStart(2, '0')}:${String(bounded.minutes).padStart(2, '0')}`);
+                      setIsViewingCurrent(false);
+                      setSelectedTableId(null);
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    const now = new Date();
+                    setSelectedCalendarDate(getLocalDateValue(now));
+                    setSelectedCalendarTime(getCurrentWorkingTimeValue());
+                    setIsViewingCurrent(true);
+                    setSelectedTableId(null);
+                  }}
+                  className="px-3 py-2 bg-[#EE3124] text-white rounded-lg text-xs font-black uppercase tracking-wider shadow-sm hover:bg-[#d6281e]"
+                >
+                  XEM HIỆN TẠI
+                </button>
+              </div>
+              <div className="mt-2 text-sm text-gray-700">
+                <span className="mr-2">Đang xem sơ đồ tại</span>
+                <span className="font-mono font-bold">{selectedCalendarTime}</span>
+                <span className="mx-2">ngày</span>
+                <span className="font-mono font-bold">{selectedCalendarDate}</span>
+              </div>
             </div>
 
-            {/* Time Selector with editable input and 30-min intervals datalist */}
-            <div className="flex items-center space-x-2 bg-white border-2 border-amber-400 px-4 py-2.5 rounded-lg text-sm shadow-sm min-w-[200px] w-full md:w-56 focus-within:ring-2 focus-within:ring-amber-400/20 transition">
-              <Clock size={16} className="text-amber-600 shrink-0" />
-              <input
-                type="text"
-                list="time-intervals"
-                placeholder="Giờ đặt"
-                className="bg-transparent border-none font-bold text-amber-700 focus:outline-none w-full text-sm"
-                value={selectedCalendarTime}
-                onChange={e => {
-                  setSelectedCalendarTime(e.target.value);
-                  setSelectedTableId(null);
-                }}
-              />
-              <datalist id="time-intervals">
-                {Array.from({ length: 30 }).map((_, i) => {
-                  const hour = Math.floor(9 + i / 2);
-                  const min = i % 2 === 0 ? '00' : '30';
-                  if (hour > 23) return null;
-                  const timeStr = `${hour.toString().padStart(2, '0')}:${min}`;
-                  return <option key={timeStr} value={timeStr} />;
-                })}
-              </datalist>
-            </div>
-
-            {/* Live Search and Submit Button */}
-            <div className="flex items-center gap-2 w-full md:w-auto">
-              <div className="relative flex-1 md:w-96">
-                <Search className="absolute left-3.5 top-3.5 text-gray-400" size={16} />
-                <input
-                  type="text"
-                  placeholder="Tra cứu SĐT, Tên, Số bàn..."
-                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 text-sm bg-white focus:bg-white font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#EE3124] focus:ring-1 focus:ring-[#EE3124]/30 shadow-sm transition"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                />
+            {/* Badges and search */}
+            <div className="flex-1 flex items-center justify-between w-full gap-4">
+              <div className="flex items-center gap-3">
+                {/* mode badge */}
+                {viewMode === 'REAL' ? (
+                  <span className="px-3 py-1 rounded-full bg-red-600 text-white text-xs font-black uppercase">REAL-TIME</span>
+                ) : viewMode === 'FUTURE' ? (
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black uppercase text-white bg-gradient-to-r from-[#7B2CBF] to-[#9B5CF0] shadow-sm ring-1 ring-[#7B2CBF]/20">
+                    <BookmarkCheck size={12} className="opacity-95" />
+                    XEM THEO LỊCH
+                  </span>
+                ) : (
+                  <span className="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-xs font-black uppercase">CHẾ ĐỘ XEM LỊCH SỬ</span>
+                )}
               </div>
 
-              <button
-                onClick={() => {
-                  alert(`Đồ họa và thông tin bàn ăn đang được cập nhật thành công cho thời gian: ${selectedCalendarDate} lúc ${selectedCalendarTime}`);
-                }}
-                className="px-5 py-3 bg-[#EE3124] hover:bg-brand-red-dark text-white rounded-lg text-xs font-black uppercase tracking-widest transition shadow-md shrink-0 cursor-pointer flex items-center space-x-1"
-              >
-                <Search size={14} />
-                <span>TÌM KIẾM</span>
-              </button>
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <div className="relative flex-1 md:w-96">
+                  <Search className="absolute left-3.5 top-3.5 text-gray-400" size={16} />
+                  <input
+                    type="text"
+                    placeholder="Tra cứu SĐT, Tên, Số bàn..."
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 text-sm bg-white focus:bg-white font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#EE3124] focus:ring-1 focus:ring-[#EE3124]/30 shadow-sm transition"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  onClick={() => {
+                    alert(`Đã cập nhật góc nhìn sơ đồ: ${selectedCalendarDate} ${selectedCalendarTime}`);
+                  }}
+                  className="px-5 py-3 bg-[#EE3124] hover:bg-brand-red-dark text-white rounded-lg text-xs font-black uppercase tracking-widest transition shadow-md shrink-0 cursor-pointer flex items-center space-x-1"
+                >
+                  <Search size={14} />
+                  <span>TÌM KIẾM</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -457,7 +809,14 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    muted={viewMode === 'PAST'}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -471,7 +830,14 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    muted={viewMode === 'PAST'}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -516,7 +882,14 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    muted={viewMode === 'PAST'}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -530,7 +903,14 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    muted={viewMode === 'PAST'}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -613,7 +993,7 @@ export default function ReceptionLayout() {
                     let cost = 0;
                     const sessionOrders = orders.filter(o => o.Ma_phien === sess.Ma_phien);
                     sessionOrders.forEach(ord => {
-                      const details = orderDetails.filter(od => od.Ma_hd_dat_mon === ord.Ma_hd_dat_mon);
+                      const details = orderDetails.filter(od => od.Ma_hd_dat_mon === ord.Ma_hd_dat_mon && od.Trang_thai_mon !== OrderItemStatus.DA_HUY);
                       details.forEach(det => {
                         cost += det.Don_gia_tai_thoi_diem * det.So_luong;
                       });
@@ -691,7 +1071,7 @@ export default function ReceptionLayout() {
                   let list: { name: string; qty: number; total: number }[] = [];
                   const sessionOrders = orders.filter(o => o.Ma_phien === selectedHistorySession);
                   sessionOrders.forEach(ord => {
-                    const details = orderDetails.filter(od => od.Ma_hd_dat_mon === ord.Ma_hd_dat_mon);
+                    const details = orderDetails.filter(od => od.Ma_hd_dat_mon === ord.Ma_hd_dat_mon && od.Trang_thai_mon !== OrderItemStatus.DA_HUY);
                     details.forEach(det => {
                       const dName = dishes.find(d => d.Ma_mon === det.Ma_mon)?.Ten_mon || 'Đặc Sản Nấu Lẩu';
                       const itemCost = det.Don_gia_tai_thoi_diem * det.So_luong;
@@ -769,7 +1149,7 @@ export default function ReceptionLayout() {
       {/* 5. MAIN INTERACTIVE OVERLAY CENTER MODAL (Booking & Session Management Panel) */}
       {isModalOpen && currentModalTable && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-[#FAF9F6] border-2 border-gray-400 rounded-xl w-full max-w-lg overflow-hidden shadow-2xl relative animate-in fade-in zoom-in">
+          <div className="bg-[#FAF9F6] border-2 border-gray-400 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in">
 
             {/* Modal Custom header bar */}
             <div className="bg-[#EE3124] text-white px-6 py-4 flex justify-between items-center">
@@ -831,10 +1211,15 @@ export default function ReceptionLayout() {
                         return;
                       }
                       try {
-                        await startTableSession(currentModalTable.Ma_ban, instantPhone.trim(), instantGuests);
+                        if (instantGuests < 1 || instantGuests > tableCapacity) {
+                          return;
+                        }
+                        await startTableSession(currentModalTable.Ma_ban, instantPhone.trim(), instantGuests, undefined, instantCustomerName);
                         setInstantPhone('');
-                        setInstantGuests(4);
+                        setInstantCustomerName('');
+                        setInstantGuests(currentModalTable?.Suc_chua ?? 4);
                         setIsModalOpen(false);
+                        setSelectedTableId(null);
                         alert(`Đã BẮT ĐẦU PHIÊN và kích hoạt phục vụ cho bàn ${currentModalTable.Ma_ban}!`);
                       } catch (err: any) {
                         alert(err.message || 'Mở bàn không thành công.');
@@ -843,14 +1228,30 @@ export default function ReceptionLayout() {
                       <div className="space-y-3">
                         <div className="space-y-1">
                           <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                            Số điện thoại khách đại diện <span className="text-red-500 font-bold">*</span>
+                            TÊN KHÁCH ĐẠI DIỆN <span className="font-medium normal-case text-gray-400">Không bắt buộc</span>
+                          </label>
+                          <div className="relative">
+                            <User className="absolute left-2.5 top-2.5 text-gray-400" size={12} />
+                            <input
+                              type="text"
+                              placeholder="Nhập tên khách nếu có"
+                              className="w-full pl-7 pr-2 py-2 border border-gray-250 bg-white rounded-lg text-xs font-bold focus:border-[#EE3124] focus:outline-none"
+                              value={instantCustomerName}
+                              onChange={e => setInstantCustomerName(e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                            SĐT KHÁCH ĐẠI DIỆN <span className="text-red-500 font-bold">*</span>
                           </label>
                           <div className="relative">
                             <Phone className="absolute left-2.5 top-2.5 text-gray-400" size={12} />
                             <input
                               type="tel"
                               required
-                              placeholder="Nhập SĐT khách gồm 10 chữ số"
+                              placeholder="Nhập SĐT 10 chữ số"
                               className="w-full pl-7 pr-2 py-2 border border-gray-250 bg-white rounded-lg text-xs font-bold focus:border-[#EE3124] focus:outline-none"
                               value={instantPhone}
                               onChange={e => {
@@ -866,32 +1267,40 @@ export default function ReceptionLayout() {
 
                         <div className="space-y-1">
                           <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                            Số lượng khách ngồi bàn
+                            SỐ LƯỢNG KHÁCH <span className="text-red-500 font-bold">*</span>
                           </label>
                           <div className="relative flex items-center border border-gray-250 rounded-lg bg-white px-2.5 py-1.5">
                             <User size={12} className="text-gray-400 shrink-0 mr-1.5" />
                             <input
                               type="number"
                               min={1}
-                              max={12}
                               required
+                              placeholder="Nhập số lượng khách"
                               className="w-full py-0.5 text-xs font-bold text-gray-800 focus:outline-none"
                               value={instantGuests}
-                              onChange={e => setInstantGuests(Number(e.target.value))}
+                              onChange={e => {
+                                const raw = Number(e.target.value) || 1;
+                                setInstantGuests(Math.max(1, raw));
+                              }}
                             />
                           </div>
+                          {instantGuests > tableCapacity ? (
+                            <p className="text-[10px] text-[#EE3124] font-bold">Số khách vượt quá sức chứa bàn.</p>
+                          ) : (
+                            <p className="text-[10px] text-gray-500 font-medium">Tối đa {tableCapacity} khách.</p>
+                          )}
                         </div>
                       </div>
 
                       <button
                         type="submit"
-                        disabled={instantPhone.length !== 10}
-                        className={`w-full py-2.5 font-extrabold text-xs rounded-lg uppercase transition cursor-pointer text-center ${instantPhone.length === 10
+                        disabled={instantPhone.length !== 10 || instantGuests < 1 || instantGuests > tableCapacity || viewMode === 'PAST'}
+                        className={`w-full py-2.5 font-extrabold text-xs rounded-lg uppercase transition cursor-pointer text-center ${(instantPhone.length === 10 && instantGuests >= 1 && instantGuests <= tableCapacity)
                             ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md'
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300 shadow-none'
                           }`}
                       >
-                        Tạo phiên sử dụng
+                        BẮT ĐẦU PHIÊN PHỤC VỤ
                       </button>
                     </form>
                   </div>
@@ -899,21 +1308,21 @@ export default function ReceptionLayout() {
                   {/* Custom book reservation */}
                   <div className="bg-indigo-50/50 border border-indigo-150 p-4 rounded-lg space-y-3">
                     <div className="border-b pb-2 mb-1 border-indigo-100 flex items-center space-x-1.5">
-                      <BookmarkCheck size={14} className="text-indigo-600" />
-                      <span className="font-extrabold text-xs text-indigo-900 uppercase">ĐẶT TRƯỚC BÀNĂN (CHỌN LỊCH KHÁCH)</span>
+                      <BookmarkCheck size={14} className="text-purple-600" />
+                      <span className="font-extrabold text-xs text-purple-900 uppercase">ĐẶT BÀN TRƯỚC (CHỌN LỊCH CHO KHÁCH)</span>
                     </div>
 
+                    {/* Booking form: HỌ TÊN, SỐ ĐT, NGÀY ĐẶT, GIỜ ĐẶT */}
                     <form onSubmit={e => handleBookTableDirect(e, currentModalTable.Ma_ban)} className="space-y-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Họ tên khách *</label>
+                          <label className="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">HỌ TÊN KHÁCH *</label>
                           <div className="relative">
-                            <User className="absolute left-2.5 top-2 text-gray-400" size={12} />
+                            <User className="absolute left-2.5 top-3 text-gray-400" size={14} />
                             <input
                               type="text"
-                              required
-                              placeholder="Chị Vy, Anh Tuấn..."
-                              className="w-full pl-7 pr-2 py-1.5 border border-gray-250 bg-white rounded-lg text-xs font-bold focus:border-[#EE3124] focus:outline-none"
+                              placeholder="Nhập họ tên khách đặt bàn"
+                              className="w-full pl-10 pr-2 py-2 border border-gray-200 bg-white rounded-lg text-sm font-semibold focus:border-purple-500 focus:outline-none"
                               value={bookName}
                               onChange={e => setBookName(e.target.value)}
                             />
@@ -921,14 +1330,13 @@ export default function ReceptionLayout() {
                         </div>
 
                         <div>
-                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Số điện thoại *</label>
+                          <label className="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">SỐ ĐIỆN THOẠI *</label>
                           <div className="relative">
-                            <Phone className="absolute left-2.5 top-2 text-gray-400" size={12} />
+                            <Phone className="absolute left-2.5 top-3 text-gray-400" size={14} />
                             <input
                               type="tel"
-                              required
-                              placeholder="091xxxxxxxx..."
-                              className="w-full pl-7 pr-2 py-1.5 border border-gray-250 bg-white rounded-lg text-xs font-bold font-mono focus:border-[#EE3124] focus:outline-none"
+                              placeholder="Nhập số điện thoại khách"
+                              className="w-full pl-10 pr-2 py-2 border border-gray-200 bg-white rounded-lg text-sm font-mono font-semibold focus:border-purple-500 focus:outline-none"
                               value={bookPhone}
                               onChange={e => {
                                 setBookPhone(e.target.value);
@@ -944,59 +1352,239 @@ export default function ReceptionLayout() {
                         </div>
                       </div>
 
-                      <div className="bg-white px-3 py-1.5 rounded border text-[9px] text-gray-400 flex justify-between font-medium">
-                        <span>Lịch Đặt: Ngày {selectedCalendarDate}</span>
-                        <span>Giờ Đặt: {selectedCalendarTime}</span>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">NGÀY ĐẶT</label>
+                          <div className="relative">
+                            <Calendar className="absolute left-2.5 top-3 text-gray-400" size={14} />
+                            <input
+                              type="date"
+                              title="Chọn ngày đặt"
+                              className="w-full pl-10 pr-2 py-2 border border-gray-200 bg-white rounded-lg text-sm font-semibold focus:border-purple-500 focus:outline-none"
+                              value={selectedCalendarDate}
+                              onChange={e => {
+                                setSelectedCalendarDate(e.target.value);
+                                setBookingDateError('');
+                                setBookingTimeError('');
+                                setIsViewingCurrent(false);
+                              }}
+                            />
+                          </div>
+                          {bookingDateError && (
+                            <p className="mt-1.5 text-[10px] font-bold text-[#EE3124]">{bookingDateError}</p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">GIỜ ĐẶT</label>
+                          <div className="relative">
+                            <Clock className="absolute left-2.5 top-3 text-gray-400" size={14} />
+                            <select
+                              title="Chọn giờ đặt"
+                              className="w-full pl-10 pr-2 py-2 border border-gray-200 bg-white rounded-lg text-sm font-semibold focus:border-purple-500 focus:outline-none appearance-none"
+                              value={bookingTimeIsInAllowedWindow(selectedCalendarTime) ? selectedCalendarTime : ''}
+                              onChange={e => {
+                                setSelectedCalendarTime(e.target.value);
+                                setBookingTimeError('');
+                                setIsViewingCurrent(false);
+                              }}
+                            >
+                              <option value="" disabled>Chọn giờ đặt</option>
+                              {bookingTimeOptions.map(option => (
+                                <option key={option} value={option}>{option}</option>
+                              ))}
+                            </select>
+                          </div>
+                          {bookingTimeError && (
+                            <p className="mt-1.5 text-[10px] font-bold text-[#EE3124]">{bookingTimeError}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Time validation - must be future */}
+                      <div>
+                        {/* No inline warning shown while selecting giờ. Validation is handled on submit only. */}
                       </div>
 
                       <button
                         type="submit"
-                        className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-lg flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs transition"
+                        disabled={!(bookName.trim() && /^\d{10}$/.test(bookPhone) && bookingTimeIsInAllowedWindow(selectedCalendarTime))}
+                        className={`w-full py-2 ${bookName.trim() && /^\d{10}$/.test(bookPhone) && bookingTimeIsInAllowedWindow(selectedCalendarTime) ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'} font-extrabold text-xs rounded-lg flex items-center justify-center space-x-1.5 transition`}
                       >
                         <PlusCircle size={13} />
-                        <span>QUYẾT ĐỊNH ĐẶT TRƯỚC</span>
+                        <span>ĐẶT TRƯỚC</span>
                       </button>
                     </form>
                   </div>
                 </div>
               )}
 
-              {/* Case 2: SIMULATED BOOKED -> Show booked info and fast check-in button (Because we have phone number!) */}
-              {simulatedStatusOfCurrentModal === 'BOOKED' && bookedOfModalTable && (
-                <div className="space-y-4">
-                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 p-5 rounded-lg space-y-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <span className="text-[8px] bg-indigo-600 text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wider">
-                          KHÁCH ĐÃ ĐẶT LỊCH TRÙNG KHỚP
+              {/* Case 2: BOOKED -> reservation management */}
+              {simulatedStatusOfCurrentModal === 'BOOKED' && bookedOfModalTable && (() => {
+                const bookingState = getBookingTimeState(bookedOfModalTable);
+                const guestCount = getReservationGuestCount(bookedOfModalTable, currentModalTable.Suc_chua);
+                const phoneText = showFullPhone ? bookedOfModalTable.So_dien_thoai : maskPhoneNumber(bookedOfModalTable.So_dien_thoai);
+                const stateClasses = getBookingStateClasses(bookingState.tone);
+
+                return (
+                  <div className="space-y-5">
+                    <div className="rounded-3xl border border-purple-200 bg-white shadow-sm overflow-hidden">
+                      <div className="bg-purple-50/80 border-b border-purple-100 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="space-y-2">
+                          <span className="inline-flex w-fit items-center rounded-full bg-purple-600 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white">
+                            KHÁCH ĐÃ ĐẶT LỊCH
+                          </span>
+                          <div>
+                            <h4 className="text-xl font-black text-gray-950 tracking-tight">{bookedOfModalTable.Ten_khach_hang}</h4>
+                            <p className="text-xs font-semibold text-gray-500 mt-1">Trạng thái: Đang chờ khách đến</p>
+                          </div>
+                        </div>
+                        <span className={`inline-flex items-center justify-center rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-wide ${stateClasses}`}>
+                          {bookingState.label}
                         </span>
-                        <h4 className="font-black text-gray-800 mt-2 text-sm">{bookedOfModalTable.Ten_khach_hang}</h4>
                       </div>
-                      <span className="text-xs font-black text-indigo-750 bg-indigo-100 px-3 py-0.5 rounded border border-indigo-200 font-mono">
-                        {bookedOfModalTable.Gio_dat}
-                      </span>
-                    </div>
 
-                    <div className="text-xs text-gray-600 space-y-1 bg-white p-3 rounded order border-indigo-100 leading-relaxed font-sans">
-                      <p>Số điện thoại: <strong className="font-mono text-indigo-950 font-black">{bookedOfModalTable.So_dien_thoai}</strong></p>
-                      <p>Ngày giữ bàn: <strong className="text-gray-700">{bookedOfModalTable.Ngay_dat}</strong></p>
-                    </div>
-
-                    <div className="pt-2">
-                      <button
-                        onClick={() => handleStartBookingSession(
-                          bookedOfModalTable.Ma_dat_ban,
-                          currentModalTable.Ma_ban,
-                          bookedOfModalTable.So_dien_thoai
+                      <div className="p-5 space-y-5">
+                        {autoCancelInfo && (
+                          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-900">
+                            {autoCancelInfo}
+                          </div>
                         )}
-                        className="w-full py-3 bg-[#EE3124] hover:bg-brand-red-dark text-white font-extrabold text-xs rounded-lg flex items-center justify-center space-x-1.5 cursor-pointer shadow-md transition uppercase"
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-gray-500">Số điện thoại</p>
+                            <div className="mt-2 flex items-center justify-between gap-3">
+                              <span className="font-mono text-lg font-black text-gray-950">{phoneText}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (showFullPhone) {
+                                    window.open(`tel:${bookedOfModalTable.So_dien_thoai}`);
+                                    return;
+                                  }
+                                  setShowCallConfirm(true);
+                                }}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white px-3 py-2 text-[11px] font-black uppercase text-gray-700 hover:border-[#EE3124] hover:text-[#EE3124]"
+                              >
+                                <Phone size={14} />
+                                GỌI KHÁCH
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-gray-500">Số khách</p>
+                            <p className="mt-2 text-lg font-black text-gray-950">{guestCount} người</p>
+                          </div>
+
+                          <div className="rounded-2xl border border-gray-200 bg-white p-4">
+                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-gray-500">Ngày giữ bàn</p>
+                            <p className="mt-2 text-base font-black text-gray-950">{formatDisplayDate(bookedOfModalTable.Ngay_dat)}</p>
+                          </div>
+
+                          <div className="rounded-2xl border border-gray-200 bg-white p-4">
+                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-gray-500">Giờ giữ bàn</p>
+                            <p className="mt-2 text-base font-black text-gray-950">{bookedOfModalTable.Gio_dat}</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                          {[
+                            'ĐẶT TRƯỚC - CHỜ KHÁCH',
+                            'CÒN CÓ THỂ TẠO PHIÊN TẠM',
+                            'SẮP ĐẾN GIỜ GIỮ BÀN',
+                            'QUÁ GIỜ GIỮ BÀN',
+                            'ĐÃ HỦY DO QUÁ GIỜ'
+                          ].map(label => {
+                            const active = bookingState.label === label;
+                            const isGreen = label === 'CÒN CÓ THỂ TẠO PHIÊN TẠM' || label === 'ĐÃ HỦY DO QUÁ GIỜ';
+                            const isRed = label === 'SẮP ĐẾN GIỜ GIỮ BÀN' || label === 'QUÁ GIỜ GIỮ BÀN';
+                            return (
+                              <span
+                                key={label}
+                                className={`min-h-12 rounded-xl border px-2 py-2 text-center text-[9px] font-black uppercase leading-tight flex items-center justify-center ${
+                                  active
+                                    ? isGreen
+                                      ? 'border-emerald-300 bg-emerald-100 text-emerald-800'
+                                      : isRed
+                                        ? 'border-red-300 bg-red-100 text-red-800'
+                                        : 'border-purple-300 bg-purple-100 text-purple-800'
+                                    : 'border-gray-200 bg-gray-50 text-gray-400'
+                                }`}
+                              >
+                                {label}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {renderBookedActions(bookedOfModalTable)}
+                  </div>
+                );
+              })()}
+
+              {showCallConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/40" onClick={() => setShowCallConfirm(false)} />
+                  <div className="relative w-full max-w-sm bg-white rounded-3xl border border-gray-200 p-5 z-10 shadow-2xl">
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 rounded-2xl bg-red-50 text-[#EE3124] flex items-center justify-center shrink-0">
+                        <Phone size={18} />
+                      </div>
+                      <div>
+                        <p className="font-black text-gray-950 leading-snug">Bạn muốn hiển thị số điện thoại đầy đủ để liên hệ khách?</p>
+                        <p className="text-sm text-gray-500 mt-2">Số điện thoại sẽ được mở đầy đủ trong popup quản lý bàn sau khi xác nhận.</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3 mt-5">
+                      <button
+                        onClick={() => setShowCallConfirm(false)}
+                        className="flex-1 py-3 border border-gray-300 rounded-xl text-xs font-black uppercase text-gray-700 hover:bg-gray-50"
                       >
-                        <Play size={14} className="fill-current" />
-                        <span>🚀 BẮT ĐẦU PHIÊN PHỤC VỤ (CHECK-IN)</span>
+                        HỦY
                       </button>
-                      <p className="text-[10px] text-gray-400 text-center mt-2 font-mono">
-                        Hệ thống tự động kích hoạt bàn {currentModalTable.Ma_ban}, sinh QR ăn uống và gán SĐT.
-                      </p>
+                      <button
+                        onClick={() => { setShowFullPhone(true); setShowCallConfirm(false); }}
+                        className="flex-1 py-3 bg-[#EE3124] text-white rounded-xl text-xs font-black uppercase hover:bg-[#D42A1E]"
+                      >
+                        HIỂN THỊ
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {showLateBookingConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/40" onClick={() => setShowLateBookingConfirm(false)} />
+                  <div className="relative w-full max-w-md bg-white rounded-3xl border border-yellow-200 p-6 z-10 shadow-2xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 text-yellow-700 text-lg">⚠️</span>
+                      <h3 className="text-base font-black text-gray-900">Lưu ý giờ đóng cửa</h3>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">⚠️ Lưu ý: Nhà hàng sẽ đóng cửa vào lúc {CLOSING_TIME_LABEL}. Bạn có chắc chắn vẫn muốn giữ khung giờ đặt bàn này không?</p>
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                      <button
+                        onClick={() => {
+                          if (pendingBookingTableId) {
+                            createReservation(pendingBookingTableId);
+                          }
+                          setShowLateBookingConfirm(false);
+                          setPendingBookingTableId(null);
+                        }}
+                        className="flex-1 py-3 bg-[#EE3124] text-white rounded-lg font-black uppercase hover:bg-[#d6281e]"
+                      >
+                        Tiếp tục đặt
+                      </button>
+                      <button
+                        onClick={() => setShowLateBookingConfirm(false)}
+                        className="flex-1 py-3 border border-gray-300 bg-white text-gray-700 rounded-lg font-black uppercase hover:bg-gray-50"
+                      >
+                        Thay đổi giờ
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1005,109 +1593,97 @@ export default function ReceptionLayout() {
 
               {/* Case 4: ACTIVE / CO_KHACH -> Consumption session monitoring and billing */}
               {simulatedStatusOfCurrentModal === TableStatus.CO_KHACH && activeSessionOfModalTable && (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-start border-b pb-3 border-gray-150">
-                    <div>
-                      <span className="text-[8px] bg-red-100 text-[#EE3124] px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                        PHIÊN PHỤC VỤ TRỰC TIẾP (LIVE)
-                      </span>
-                      <h4 className="font-mono font-black text-gray-900 text-xs mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span>Liên kết SĐT: <span className="text-[#EE3124]">{activeSessionOfModalTable.Ma_phien_code || 'Khách Vãng Lai'}</span></span>
-                        {(() => {
-                          const customerPhone = customers.find(c => c.Ma_khach_hang === activeSessionOfModalTable.Ma_khach_hang)?.So_dien_thoai 
-                            || activeSessionOfModalTable.customer_phone 
-                            || (activeSessionOfModalTable.Ma_phien_code && activeSessionOfModalTable.Ma_phien_code.length === 10 ? activeSessionOfModalTable.Ma_phien_code : null);
-                          if (!customerPhone) return null;
-                          return (
-                            <>
-                              <span className="text-gray-300">|</span>
-                              <span>SĐT khách: <span className="text-[#EE3124]">{customerPhone}</span></span>
-                            </>
-                          );
-                        })()}
-                      </h4>
+                <div className="space-y-6">
+                  <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-sm">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="space-y-2">
+                        <p className="text-[9px] uppercase tracking-[0.35em] text-[#B91C1C] font-black">PHIÊN PHỤC VỤ TRỰC TIẾP (LIVE)</p>
+                        <h3 className="text-lg font-black uppercase tracking-[0.05em] text-gray-900">Mã phiên: {formatSessionCode(activeSessionOfModalTable)}</h3>
+                      </div>
+                      <span className="rounded-full border border-red-200 bg-white px-4 py-2 text-[10px] font-black uppercase text-[#991B1B]">LIVE</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 mt-5 sm:grid-cols-2">
+                      <div className="rounded-2xl bg-white p-4 border border-gray-200 shadow-sm">
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">Mã phiên</p>
+                        <p className="mt-2 text-sm font-black text-gray-900">{formatSessionCode(activeSessionOfModalTable)}</p>
+                      </div>
+                      <div className="rounded-2xl bg-white p-4 border border-gray-200 shadow-sm">
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">SĐT khách đại diện</p>
+                        <p className="mt-2 text-sm font-black text-gray-900">{maskPhoneNumber(activeSessionOfModalTable.customer_phone || activeSessionOfModalTable.So_dien_thoai || '')}</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-xs bg-gray-50 p-3 rounded-lg border border-gray-150 font-mono">
-                    <div>
-                      <span className="text-[9px] text-gray-400 block font-bold">GIỜ VÀO BÀN</span>
-                      <span className="font-semibold text-gray-750">
-                        {new Date(activeSessionOfModalTable.Thoi_gian_bat_dau).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="rounded-3xl bg-white p-4 border border-gray-200 shadow-sm">
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">GIỜ VÀO BÀN</p>
+                      <p className="mt-2 text-base font-black text-gray-900">{new Date(activeSessionOfModalTable.Thoi_gian_bat_dau).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
-                    <div className="text-right">
-                      <span className="text-[9px] text-gray-400 block font-bold">LÂM THỜI GIAN TRÔI</span>
-                      <span className="font-bold text-[#EE3124] flex items-center justify-end space-x-1">
-                        <Clock size={11} className="animate-spin-slow" />
-                        <span>{getActiveTimer(activeSessionOfModalTable.Thoi_gian_bat_dau)}</span>
-                      </span>
+                    <div className="rounded-3xl bg-white p-4 border border-gray-200 shadow-sm">
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">THỜI GIAN ĐANG SỬ DỤNG</p>
+                      <p className="mt-2 flex items-center gap-2 text-base font-black text-[#B91C1C]"><Clock size={18} className="text-[#B91C1C]" />{getActiveTimer(activeSessionOfModalTable.Thoi_gian_bat_dau)}</p>
                     </div>
                   </div>
 
-                  {/* Bill detail lists */}
-                  <div className="space-y-2">
-                    <span className="text-[10px] text-gray-400 font-extrabold block uppercase tracking-wider">Danh mục nấm và Topping đã đặt:</span>
-                    <div className="bg-white p-3 rounded-lg border border-gray-200 space-y-2 max-h-48 overflow-y-auto">
-                      {dishesSpentList.map((dl, idx) => (
-                        <div key={idx} className="flex justify-between items-center text-xs font-mono border-b border-gray-100 pb-1.5">
-                          <span className="text-gray-400 font-bold">x{dl.qty}</span>
-                          <span className="flex-1 font-bold truncate ml-2 text-gray-700 font-sans">{dl.name}</span>
-                          <span className="font-bold text-gray-900">{dl.total.toLocaleString()}đ</span>
+                  <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">DANH SÁCH MÓN ĐÃ GỌI</p>
+                    </div>
+                    <div className="space-y-3 max-h-48 overflow-y-auto">
+                      {dishesSpentList.length > 0 ? dishesSpentList.map((dl, idx) => (
+                        <div key={idx} className="flex items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-3 text-sm font-semibold text-gray-700">
+                          <span className="text-gray-500">x{dl.qty}</span>
+                          <span className="flex-1 text-left truncate">{dl.name}</span>
+                          <span className="font-black text-gray-900">{dl.total.toLocaleString()}đ</span>
                         </div>
-                      ))}
-
-                      {dishesSpentList.length === 0 && (
-                        <p className="text-center text-gray-400 italic py-6">Chưa phát sinh món ăn từ phòng bếp.</p>
+                      )) : (
+                        <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-5 text-center text-sm text-gray-500">
+                          Chưa có món nào được gọi.
+                        </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Checkout summaries */}
-                  <div className="flex justify-between items-center pt-2 text-xs border-t border-gray-250">
-                    <span className="font-black text-gray-400 uppercase tracking-widest font-sans">HAO PHÍ PHIÊN PHỤC VỤ</span>
-                    <span className="text-lg font-mono font-black text-[#EE3124]">{sessionCost.toLocaleString()}đ</span>
-                  </div>
-
-                  {/* Close Session trigger */}
-                  {!showClosingConfirm ? (
-                    <button
-                      onClick={() => {
-                        setShowClosingConfirm(true);
-                      }}
-                      className="w-full py-3 bg-[#EE3124] hover:bg-brand-red-dark text-white font-extrabold text-xs rounded-lg shadow-md cursor-pointer text-center transition uppercase"
-                    >
-                      KẾT THÚC PHIÊN PHỤC VỤ & TRẢ BÀN TRỐNG
-                    </button>
-                  ) : (
-                    <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3.5 space-y-3.5 animate-in fade-in duration-200">
-                      <p className="text-center font-black text-xs text-red-900 leading-relaxed uppercase tracking-wider">
-                        ⚠️ Xác nhận KẾT THÚC PHIÊN PHỤC VỤ & chuyển bàn {currentModalTable.Ma_ban} sang màu xanh (Trống)?
-                      </p>
-
-                      <div className="flex gap-2.5">
-                        <button
-                          onClick={() => {
-                            setShowClosingConfirm(false);
-                          }}
-                          className="flex-1 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-600 font-bold text-xs rounded-lg cursor-pointer uppercase transition text-center"
-                        >
-                          Hủy bỏ
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            closeSessionAndPay(activeSessionOfModalTable.Ma_phien);
-                            setIsModalOpen(false);
-                            setShowClosingConfirm(false);
-                          }}
-                          className="flex-1 py-2 bg-[#EE3124] hover:bg-[#d6281e] text-white font-black text-xs rounded-lg cursor-pointer uppercase transition shadow-sm text-center"
-                        >
-                          ĐỒNG Ý KẾT THÚC
-                        </button>
+                  <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">TỔNG TẠM TÍNH</p>
+                        <p className="mt-2 text-2xl font-black text-gray-900">{sessionCost.toLocaleString()}đ</p>
                       </div>
+                      <button
+                        onClick={() => setShowClosingConfirm(true)}
+                        className="rounded-2xl bg-[#EE3124] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-white shadow-xl hover:bg-[#d6281e] transition">
+                        KẾT THÚC PHIÊN & TRẢ BÀN
+                      </button>
                     </div>
-                  )}
+
+                    {showClosingConfirm && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black/40" onClick={() => setShowClosingConfirm(false)} />
+                        <div className="relative w-full max-w-md bg-white rounded-2xl border border-red-200 p-6 z-10 shadow-lg">
+                          <p className="text-center text-sm font-black uppercase tracking-[0.18em] text-red-900 mb-3">Xác nhận kết thúc phiên?</p>
+                          <p className="text-center text-sm text-gray-700 mb-4">⚠️ KẾT THÚC PHIÊN PHỤC VỤ & chuyển bàn {currentModalTable?.Ma_ban} sang trống?</p>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => setShowClosingConfirm(false)}
+                              className="flex-1 py-3 border border-gray-300 bg-white text-gray-700 rounded-lg font-bold uppercase hover:bg-gray-50">
+                              Hủy bỏ
+                            </button>
+                            <button
+                              onClick={() => {
+                                closeSessionAndPay(activeSessionOfModalTable.Ma_phien);
+                                setIsModalOpen(false);
+                                setShowClosingConfirm(false);
+                              }}
+                              className="flex-1 py-3 bg-[#EE3124] text-white rounded-lg font-black uppercase hover:bg-[#d6281e]">
+                              ĐỒNG Ý KẾT THÚC
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -1292,7 +1868,7 @@ export default function ReceptionLayout() {
           {booking ? (
             <div className="truncate text-[10px] leading-relaxed">
               <p className="font-black truncate">Khách: {booking.Ten_khach_hang}</p>
-              <p className="font-mono text-[9px] opacity-80">{booking.So_dien_thoai}</p>
+              <p className="font-mono text-[9px] opacity-80">{maskPhoneNumber(booking.So_dien_thoai)}</p>
             </div>
           ) : session ? (
             <div className="text-[10px] leading-relaxed truncate">
@@ -1300,7 +1876,7 @@ export default function ReceptionLayout() {
               <p className="font-mono text-[9px] opacity-80">{session.Ma_phien_code}</p>
             </div>
           ) : (
-            <p className="text-[10px] font-sans italic opacity-75 font-semibold">Bàn lẩu khả dụng</p>
+            <div className="min-h-5" aria-hidden="true"></div>
           )}
         </div>
 

@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRestaurantStore } from '../data/store';
 import { DishStatus, OrderItemStatus } from '../types';
-import { Phone, Users, Plus, Minus, ShoppingCart, Check, Clock, ChevronRight, ArrowLeft, Send, Heart, BookOpen, Trash2, Search, X, Home, LogOut } from 'lucide-react';
+import { Phone, Users, Plus, Minus, ShoppingCart, Check, Clock, ChevronRight, ArrowLeft, Send, Heart, BookOpen, Trash2, Search, X, Home, Sparkles, MessageCircle } from 'lucide-react';
 
 // Circular Official Brand Logo matching the uploaded image perfectly
 const BrandLogo = ({ size = 120 }: { size?: number }) => {
@@ -117,6 +117,7 @@ export default function CustomerOrderView() {
     categories,
     startTableSession,
     placeCustomerOrder,
+    cancelOrderItem,
     sessions,
     orders,
     orderDetails,
@@ -160,6 +161,9 @@ export default function CustomerOrderView() {
   }
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [assistantMode, setAssistantMode] = useState<'home' | 'guests' | 'taste' | 'budget' | 'ordered' | 'popular' | 'combo'>('home');
+  const [assistantFilter, setAssistantFilter] = useState<string>('');
 
   // Detail View configurations
   const [detailQuantity, setDetailQuantity] = useState(1);
@@ -191,12 +195,17 @@ export default function CustomerOrderView() {
     if (trimmedEntered === savedPhone) {
       setTableId(activeSess.Ma_ban);
       setCurrentSessionCode(activeSess.Ma_phien_code);
-      localStorage.setItem('giakhanh_customer_tableId', activeSess.Ma_ban);
-      localStorage.setItem('giakhanh_customer_sessionCode', activeSess.Ma_phien_code);
       setActiveStep('menu');
       setErrorMessage('');
     } else {
-      setErrorMessage('Số điện thoại không khớp với người mở bàn. Vui lòng nhập đúng SĐT mở bàn hoặc chọn "Nhập mã tham gia chung"!');
+      try {
+        const generatedCode = startTableSession(tableId, phoneNumber);
+        setCurrentSessionCode(generatedCode);
+        setActiveStep('menu');
+        setErrorMessage('');
+      } catch (err: any) {
+        setErrorMessage(err.message || 'Mở bàn không thành công.');
+      }
     }
   };
 
@@ -209,8 +218,6 @@ export default function CustomerOrderView() {
     if (foundSess) {
       setCurrentSessionCode(foundSess.Ma_phien_code);
       setTableId(foundSess.Ma_ban);
-      localStorage.setItem('giakhanh_customer_tableId', foundSess.Ma_ban);
-      localStorage.setItem('giakhanh_customer_sessionCode', foundSess.Ma_phien_code);
       setActiveStep('menu');
       setErrorMessage('');
     } else {
@@ -266,6 +273,16 @@ export default function CustomerOrderView() {
       });
   };
 
+  const handleCancelOrderItem = async (detailId: string) => {
+    const confirmed = window.confirm('Bạn muốn hủy món này khi bếp chưa tiếp nhận?');
+    if (!confirmed) return;
+
+    const result = await cancelOrderItem(detailId);
+    if (!result.success) {
+      alert(result.error || 'Không thể hủy món. Vui lòng liên hệ nhân viên để được hỗ trợ.');
+    }
+  };
+
   const selectedDish = dishes.find(d => d.Ma_mon === selectedDishId);
   
   // Filter categories to show and sort them by Thu_tu_hien_thi ascending
@@ -311,32 +328,177 @@ export default function CustomerOrderView() {
     }).filter(Boolean);
   };
 
+  type AssistantSuggestion = {
+    id: string;
+    title: string;
+    description: string;
+    price: number;
+    dishIds: string[];
+    note?: string;
+  };
+
+  const availableDishes = dishes.filter(d => d.Trang_thai === DishStatus.CON_PHUC_VU);
+  const guestCount = placedSession?.So_khach || 4;
+  const cartDishIds = cart.map(item => item.dishId);
+  const orderedDishIds = placedOrdersDetails
+    .filter(item => item.Trang_thai_mon !== OrderItemStatus.DA_HUY)
+    .map(item => item.Ma_mon);
+  const selectedDishIds = [...cartDishIds, ...orderedDishIds];
+
+  const findDishesByKeywords = (keywords: string[], limit = 3, excludeSelected = false) => {
+    const normalizedKeywords = keywords.map(k => removeDiacritics(k).toLowerCase());
+    const found = availableDishes.filter(dish => {
+      if (excludeSelected && selectedDishIds.includes(dish.Ma_mon)) return false;
+      const haystack = removeDiacritics(`${dish.Ten_mon} ${dish.Mo_ta || ''}`).toLowerCase();
+      return normalizedKeywords.some(keyword => haystack.includes(keyword));
+    });
+    const fallback = availableDishes.filter(dish => !excludeSelected || !selectedDishIds.includes(dish.Ma_mon));
+    return (found.length ? found : fallback).slice(0, limit);
+  };
+
+  const toSuggestion = (dishIds: string[], title: string, description: string, note?: string): AssistantSuggestion => {
+    const comboDishes = dishIds
+      .map(id => availableDishes.find(d => d.Ma_mon === id))
+      .filter(Boolean) as typeof availableDishes;
+    return {
+      id: `${title}_${dishIds.join('_')}`,
+      title,
+      description,
+      price: comboDishes.reduce((sum, dish) => sum + dish.Don_gia, 0),
+      dishIds,
+      note
+    };
+  };
+
+  const buildDishSuggestions = (keywordGroups: string[][], note?: string) => {
+    return keywordGroups.flatMap(keywords =>
+      findDishesByKeywords(keywords, 1, true).map(dish =>
+        toSuggestion([dish.Ma_mon], dish.Ten_mon, dish.Mo_ta || 'Món phù hợp để bổ sung cho bàn lẩu nấm.', note)
+      )
+    ).slice(0, 4);
+  };
+
+  const buildComboSuggestion = (size: 'small' | 'medium' | 'group' | 'large', budget = 'Vừa đủ') => {
+    const baseCount = size === 'small' ? 2 : size === 'medium' ? 3 : size === 'group' ? 4 : 5;
+    const pools = [
+      findDishesByKeywords(['lau', 'lẩu'], 1),
+      findDishesByKeywords(['nam', 'nấm'], 2),
+      findDishesByKeywords(['bo', 'ga', 'hai san', 'hải sản', 'topping'], 2),
+      findDishesByKeywords(['nuoc', 'trà', 'lavie', 'do uong', 'đồ uống'], 1)
+    ].flat();
+    const unique = Array.from(new Map(pools.map(d => [d.Ma_mon, d])).values()).slice(0, baseCount);
+    return toSuggestion(
+      unique.map(d => d.Ma_mon),
+      size === 'large' ? 'Combo lớn cho bàn đông' : size === 'group' ? 'Combo nhóm Gia Khánh' : size === 'medium' ? 'Combo 4 người' : 'Combo nhỏ',
+      `${budget}. Gợi ý cân bằng giữa lẩu, nấm/topping và đồ uống.`,
+      'Các món sẽ được thêm vào giỏ tạm, chưa gửi xuống bếp.'
+    );
+  };
+
+  const assistantOptions = {
+    home: ['Theo số lượng khách', 'Theo khẩu vị', 'Theo ngân sách', 'Theo món đã gọi', 'Món bán chạy', 'Combo gợi ý'],
+    taste: ['Thanh đạm', 'Cay nhẹ', 'Đậm đà', 'Ăn chay', 'Có trẻ em'],
+    budget: ['Tiết kiệm', 'Vừa đủ', 'Đầy đủ', 'Cao cấp']
+  };
+
+  const getAssistantSuggestions = (): AssistantSuggestion[] => {
+    if (assistantMode === 'guests') {
+      if (guestCount <= 2) return [buildComboSuggestion('small')];
+      if (guestCount <= 4) return [buildComboSuggestion('medium')];
+      if (guestCount <= 6) return [buildComboSuggestion('group')];
+      return [buildComboSuggestion('large', 'Nên gọi nhân viên hỗ trợ sắp bàn và khẩu phần')];
+    }
+    if (assistantMode === 'taste') {
+      const map: Record<string, string[][]> = {
+        'Thanh đạm': [['nam', 'nấm'], ['rau'], ['lau', 'lẩu']],
+        'Cay nhẹ': [['cay'], ['lau', 'lẩu'], ['bo', 'bò']],
+        'Đậm đà': [['bo', 'bò'], ['ga', 'gà'], ['hai san', 'hải sản']],
+        'Ăn chay': [['nam', 'nấm'], ['rau'], ['tau hu', 'đậu', 'chay']],
+        'Có trẻ em': [['nuoc', 'nước'], ['ga', 'gà'], ['nam', 'nấm']]
+      };
+      return buildDishSuggestions(map[assistantFilter] || map['Thanh đạm'], assistantFilter);
+    }
+    if (assistantMode === 'budget') {
+      const sorted = [...availableDishes].sort((a, b) =>
+        assistantFilter === 'Cao cấp' ? b.Don_gia - a.Don_gia : a.Don_gia - b.Don_gia
+      );
+      const count = assistantFilter === 'Tiết kiệm' ? 2 : assistantFilter === 'Cao cấp' ? 4 : 3;
+      return sorted.slice(0, count).map(d => toSuggestion([d.Ma_mon], d.Ten_mon, d.Mo_ta || `${assistantFilter} cho bàn lẩu nấm.`, assistantFilter));
+    }
+    if (assistantMode === 'ordered') {
+      const selectedText = selectedDishIds
+        .map(id => availableDishes.find(d => d.Ma_mon === id) || dishes.find(d => d.Ma_mon === id))
+        .filter(Boolean)
+        .map(d => removeDiacritics(`${d!.Ten_mon} ${d!.Mo_ta || ''}`).toLowerCase())
+        .join(' ');
+      const groups: string[][] = [];
+      if (!selectedText.includes('rau')) groups.push(['rau']);
+      if (!selectedText.includes('nam')) groups.push(['nam', 'nấm']);
+      if (!selectedText.includes('bo') && !selectedText.includes('ga') && !selectedText.includes('hai san')) groups.push(['bo', 'gà', 'hải sản', 'topping']);
+      if (!selectedText.includes('nuoc') && !selectedText.includes('lavie') && !selectedText.includes('tra')) groups.push(['nuoc', 'nước', 'lavie', 'trà']);
+      return buildDishSuggestions(groups.length ? groups : [['nam', 'nấm'], ['nuoc', 'nước']], 'Bổ sung theo món đã gọi');
+    }
+    if (assistantMode === 'popular') {
+      return availableDishes
+        .filter(d => /lẩu|nấm|bò|hải sản|gà/i.test(d.Ten_mon))
+        .concat(availableDishes)
+        .filter((dish, index, arr) => arr.findIndex(d => d.Ma_mon === dish.Ma_mon) === index)
+        .slice(0, 4)
+        .map(d => toSuggestion([d.Ma_mon], d.Ten_mon, d.Mo_ta || 'Món được nhiều bàn lựa chọn tại Gia Khánh.', 'Món bán chạy'));
+    }
+    if (assistantMode === 'combo') {
+      if (guestCount <= 2) return [buildComboSuggestion('small', assistantFilter || 'Vừa đủ')];
+      if (guestCount <= 4) return [buildComboSuggestion('medium', assistantFilter || 'Vừa đủ')];
+      if (guestCount <= 6) return [buildComboSuggestion('group', assistantFilter || 'Vừa đủ')];
+      return [buildComboSuggestion('large', assistantFilter || 'Cao cấp')];
+    }
+    return [];
+  };
+
+  const handleAssistantChoice = (label: string) => {
+    if (label === 'Theo số lượng khách') {
+      setAssistantMode('guests');
+      setAssistantFilter('');
+    } else if (label === 'Theo khẩu vị') {
+      setAssistantMode('taste');
+      setAssistantFilter('');
+    } else if (label === 'Theo ngân sách') {
+      setAssistantMode('budget');
+      setAssistantFilter('');
+    } else if (label === 'Theo món đã gọi') {
+      setAssistantMode('ordered');
+      setAssistantFilter('');
+    } else if (label === 'Món bán chạy') {
+      setAssistantMode('popular');
+      setAssistantFilter('');
+    } else if (label === 'Combo gợi ý') {
+      setAssistantMode('combo');
+      setAssistantFilter('');
+    }
+  };
+
+  const addSuggestionToCart = (suggestion: AssistantSuggestion) => {
+    suggestion.dishIds.forEach(dishId => addToCart(dishId, 1, suggestion.note || 'Gợi ý từ trợ lý món'));
+    setIsAssistantOpen(false);
+    setActiveStep('cart');
+  };
+
+  const viewSuggestionDetail = (suggestion: AssistantSuggestion) => {
+    const firstDishId = suggestion.dishIds[0];
+    if (!firstDishId) return;
+    setSelectedDishId(firstDishId);
+    setDetailQuantity(1);
+    setDishNotes(suggestion.note || '');
+    setIsAssistantOpen(false);
+    setActiveStep('dish_detail');
+  };
+
   // Keep selected category correct on start
   useEffect(() => {
     if (selectedCatId !== 'all' && activeTabsCategories.length > 0 && !activeTabsCategories.some(c => c.Ma_danh_muc === selectedCatId)) {
       setSelectedCatId('all');
     }
   }, [categories]);
-
-  // Restore customer session from localStorage on start/session update
-  useEffect(() => {
-    const savedTableId = localStorage.getItem('giakhanh_customer_tableId');
-    const savedSessionCode = localStorage.getItem('giakhanh_customer_sessionCode');
-    
-    if (savedTableId && savedSessionCode) {
-      const activeSess = sessions.find(s => s.Ma_ban === savedTableId && s.Ma_phien_code === savedSessionCode && s.Trang_thai === 'active');
-      if (activeSess) {
-        setTableId(savedTableId);
-        setCurrentSessionCode(savedSessionCode);
-        if (activeStep === 'phone' || activeStep === 'join_code') {
-          setActiveStep('menu');
-        }
-      } else {
-        localStorage.removeItem('giakhanh_customer_tableId');
-        localStorage.removeItem('giakhanh_customer_sessionCode');
-      }
-    }
-  }, [sessions]);
 
   // Floating widgets JSX
   const renderFloatingWidgets = () => {
@@ -357,8 +519,24 @@ export default function CustomerOrderView() {
           </a>
         </div>
 
-        {/* Cart Widget (Bottom Right) */}
+        {/* Assistant and Cart Widgets (Bottom Right) */}
         <div className="fixed bottom-20 right-4 z-40 flex flex-col space-y-3 items-end">
+          <button
+            onClick={() => {
+              setAssistantMode('home');
+              setAssistantFilter('');
+              setIsAssistantOpen(true);
+            }}
+            className="w-14 h-14 bg-[#EE3124] hover:bg-[#800F14] text-white rounded-full flex items-center justify-center shadow-2xl relative transition-transform transform hover:scale-110 active:scale-95"
+            title="Trợ lý gợi ý món"
+            aria-label="Mở trợ lý gợi ý món"
+          >
+            <MessageCircle size={24} />
+            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#FFE600] text-[#800F14] border-2 border-white flex items-center justify-center shadow-md">
+              <Sparkles size={10} />
+            </span>
+          </button>
+
           {/* Floating Cart Button */}
           {activeStep !== 'cart' && activeStep !== 'dish_detail' && (
             <button
@@ -379,6 +557,211 @@ export default function CustomerOrderView() {
     );
   };
 
+  const renderAssistantModal = () => {
+    if (!isAssistantOpen) return null;
+
+    const suggestions = getAssistantSuggestions();
+    const showHome = assistantMode === 'home';
+    const showTasteOptions = assistantMode === 'taste' && !assistantFilter;
+    const showBudgetOptions = assistantMode === 'budget' && !assistantFilter;
+    const showComboBudgetOptions = assistantMode === 'combo' && !assistantFilter;
+
+    return (
+      <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="bg-white w-full sm:max-w-2xl max-h-[88vh] overflow-hidden rounded-t-3xl sm:rounded-3xl shadow-2xl border border-gray-200 flex flex-col">
+          <div className="bg-[#EE3124] text-white px-5 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles size={20} />
+              <div>
+                <h3 className="text-sm font-black uppercase tracking-wider">Trợ lý gợi ý món</h3>
+                <p className="text-[10px] text-white/80 font-semibold">Chọn nhanh, không cần nhập tin nhắn</p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setIsAssistantOpen(false);
+                setAssistantMode('home');
+                setAssistantFilter('');
+              }}
+              className="h-9 w-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center"
+              aria-label="Đóng trợ lý"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="p-5 overflow-y-auto space-y-5">
+            <div className="rounded-2xl bg-gray-50 border border-gray-200 p-4">
+              <p className="text-sm font-bold text-gray-800 leading-relaxed">
+                Mình có thể gợi ý món phù hợp cho bàn của bạn. Bạn muốn gợi ý theo tiêu chí nào?
+              </p>
+              <p className="mt-2 text-[11px] text-gray-500 font-semibold">
+                Bàn {tableId} • {guestCount} khách • Giỏ tạm {cart.reduce((sum, item) => sum + item.quantity, 0)} món
+              </p>
+            </div>
+
+            {showHome && (
+              <div className="grid grid-cols-2 gap-3">
+                {assistantOptions.home.map(label => (
+                  <button
+                    key={label}
+                    onClick={() => handleAssistantChoice(label)}
+                    className="min-h-14 rounded-2xl border border-gray-200 bg-white px-3 py-3 text-xs font-black text-gray-800 hover:border-[#EE3124] hover:text-[#EE3124] hover:bg-red-50 active:scale-[0.98]"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {(showTasteOptions || showBudgetOptions || showComboBudgetOptions) && (
+              <div className="grid grid-cols-2 gap-3">
+                {(showTasteOptions ? assistantOptions.taste : assistantOptions.budget).map(label => (
+                  <button
+                    key={label}
+                    onClick={() => setAssistantFilter(label)}
+                    className="min-h-12 rounded-2xl border border-gray-200 bg-white px-3 py-3 text-xs font-black text-gray-800 hover:border-[#EE3124] hover:text-[#EE3124] hover:bg-red-50 active:scale-[0.98]"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {!showHome && !showTasteOptions && !showBudgetOptions && !showComboBudgetOptions && (
+              <div className="space-y-3">
+                {suggestions.length === 0 ? (
+                  <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 text-center text-sm text-gray-500 font-semibold">
+                    Chưa có món phù hợp. Bạn có thể chọn tiêu chí khác hoặc gọi nhân viên hỗ trợ.
+                  </div>
+                ) : (
+                  suggestions.map(suggestion => {
+                    const suggestionDishes = suggestion.dishIds
+                      .map(id => availableDishes.find(d => d.Ma_mon === id) || dishes.find(d => d.Ma_mon === id))
+                      .filter(Boolean) as typeof availableDishes;
+                    const coverDish = suggestionDishes[0];
+                    const extraDishCount = Math.max(0, suggestionDishes.length - 1);
+
+                    return (
+                    <div key={suggestion.id} className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm space-y-3">
+                      <div className="flex items-start gap-3">
+                        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-gray-100">
+                          {coverDish?.Anh_mon ? (
+                            <img
+                              src={coverDish.Anh_mon}
+                              alt={coverDish.Ten_mon}
+                              className="h-full w-full object-cover"
+                              referrerPolicy="no-referrer"
+                              loading="lazy"
+                              onError={(event) => {
+                                event.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-red-50 text-[#EE3124]">
+                              <Sparkles size={22} />
+                            </div>
+                          )}
+                          {extraDishCount > 0 && (
+                            <span className="absolute bottom-1.5 right-1.5 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-black text-white">
+                              +{extraDishCount}
+                            </span>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className="text-sm font-black uppercase text-gray-950 leading-tight line-clamp-2">{suggestion.title}</h4>
+                            <span className="shrink-0 rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-black text-[#EE3124]">
+                              {formatPrice(suggestion.price)}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-gray-600 leading-relaxed line-clamp-2">{suggestion.description}</p>
+                          {suggestion.note && (
+                            <p className="mt-1 text-[10px] text-[#EE3124] font-bold line-clamp-1">{suggestion.note}</p>
+                          )}
+                          {suggestionDishes.length > 1 && (
+                            <p className="mt-1 text-[10px] text-gray-500 font-semibold line-clamp-1">
+                              Gồm: {suggestionDishes.map(dish => dish.Ten_mon).join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => addSuggestionToCart(suggestion)}
+                          className="rounded-xl bg-[#EE3124] px-3 py-3 text-[11px] font-black uppercase text-white hover:bg-[#800F14]"
+                        >
+                          Thêm vào đơn
+                        </button>
+                        <button
+                          onClick={() => viewSuggestionDetail(suggestion)}
+                          className="rounded-xl border border-gray-200 bg-white px-3 py-3 text-[11px] font-black uppercase text-gray-700 hover:bg-gray-50"
+                        >
+                          Xem chi tiết
+                        </button>
+                        <button
+                          onClick={() => {
+                            setAssistantMode('home');
+                            setAssistantFilter('');
+                          }}
+                          className="rounded-xl border border-gray-200 bg-white px-3 py-3 text-[11px] font-black uppercase text-gray-700 hover:bg-gray-50"
+                        >
+                          Gợi ý món khác
+                        </button>
+                        <button
+                          onClick={() => {
+                            setAssistantMode('home');
+                            setAssistantFilter('');
+                          }}
+                          className="rounded-xl border border-gray-200 bg-white px-3 py-3 text-[11px] font-black uppercase text-gray-700 hover:bg-gray-50"
+                        >
+                          Quay lại
+                        </button>
+                      </div>
+                    </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-gray-200 bg-gray-50 p-4 grid grid-cols-3 gap-2">
+            <button
+              onClick={() => {
+                setAssistantMode('home');
+                setAssistantFilter('');
+              }}
+              className="rounded-xl border border-gray-200 bg-white py-3 text-[10px] font-black uppercase text-gray-700"
+            >
+              Quay lại
+            </button>
+            <button
+              onClick={() => {
+                setIsAssistantOpen(false);
+                setActiveStep('cart');
+              }}
+              className="rounded-xl border border-gray-200 bg-white py-3 text-[10px] font-black uppercase text-gray-700"
+            >
+              Xem đơn tạm
+            </button>
+            <button
+              onClick={() => {
+                setIsAssistantOpen(false);
+                handleConfirmOrder();
+              }}
+              disabled={cart.length === 0}
+              className={`rounded-xl py-3 text-[10px] font-black uppercase ${cart.length > 0 ? 'bg-[#EE3124] text-white' : 'bg-gray-200 text-gray-400'}`}
+            >
+              Xác nhận gọi món
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Header Brand Navigation Bar (Responsive website layout)
   const renderHeader = () => {
     return (
@@ -395,27 +778,11 @@ export default function CustomerOrderView() {
           </div>
 
           {/* Table ID Display */}
-          <div className="flex items-center space-x-3.5">
+          <div className="flex items-center space-x-4">
             <div className="bg-[#800F14] text-white px-3.5 py-1.5 rounded-full text-xs font-black tracking-wider shadow-sm flex items-center space-x-1">
               <span>BÀN:</span>
               <span className="text-[#FFE600]">{tableId}</span>
             </div>
-
-            <button
-              onClick={() => {
-                if (confirm("Xác nhận rời phiên bàn ăn này?")) {
-                  localStorage.removeItem('giakhanh_customer_tableId');
-                  localStorage.removeItem('giakhanh_customer_sessionCode');
-                  setCart([]);
-                  setPhoneNumber('');
-                  setEnteredCode('');
-                  setActiveStep('phone');
-                }
-              }}
-              className="px-3 py-1.5 bg-gray-50 border border-gray-200 hover:bg-red-50 hover:text-[#EE3124] hover:border-red-200 text-gray-500 font-extrabold text-[10px] rounded-xl tracking-wider transition uppercase cursor-pointer shadow-3xs"
-            >
-              Rời bàn
-            </button>
 
             {/* Desktop Quick Nav Menu */}
             <nav className="hidden md:flex items-center space-x-6 text-xs font-bold text-gray-600">
@@ -513,16 +880,6 @@ export default function CustomerOrderView() {
                   </form>
 
                   {/* Share code invitation link */}
-                  <button
-                    onClick={() => {
-                      setErrorMessage('');
-                      setActiveStep('join_code');
-                    }}
-                    className="w-full text-xs text-[#EE3124] font-black tracking-wider text-center block pt-1 cursor-pointer uppercase hover:underline"
-                  >
-                    NHẬP MÃ THAM GIA CHUNG VỚI NGƯỜI CÙNG BÀN
-                  </button>
-
                   {/* Feature Badges */}
                   <div className="rounded-2xl p-4 flex justify-between items-center bg-gray-50 border border-gray-100 shadow-3xs shrink-0 mt-6">
                     <div className="flex-1 flex items-center space-x-1.5 justify-center">
@@ -614,7 +971,7 @@ export default function CustomerOrderView() {
           <div className="w-full max-w-6xl mx-auto px-4 py-6 animate-slide-up flex flex-col space-y-6" id="customer-browsing-menu">
             
             {/* Elegant Search Input */}
-            <div className="w-full max-w-md mx-auto">
+            <div className="w-full max-w-md mx-auto space-y-3">
               <div className="relative flex items-center bg-white border border-gray-200 focus-within:border-[#EE3124] rounded-2xl shadow-2xs px-4 py-3.5 transition duration-150">
                 <Search size={18} className="text-gray-400 mr-3 shrink-0" />
                 <input
@@ -1086,9 +1443,11 @@ export default function CustomerOrderView() {
                     if (!dish) return null;
                     const steps = [OrderItemStatus.DANG_CHO, OrderItemStatus.DANG_CHE_BIEN, OrderItemStatus.DA_HOAN_THANH, OrderItemStatus.DA_PHUC_VU];
                     const stepIndex = steps.indexOf(item.Trang_thai_mon);
+                    const canCancel = item.Trang_thai_mon === OrderItemStatus.DANG_CHO;
+                    const isCanceled = item.Trang_thai_mon === OrderItemStatus.DA_HUY;
                     
                     return (
-                      <div key={index} className="p-4 bg-[#F9F9F9] border border-gray-200 rounded-2xl space-y-4">
+                      <div key={index} className={`p-4 border rounded-2xl space-y-4 ${isCanceled ? 'bg-gray-50 border-gray-200 opacity-75' : 'bg-[#F9F9F9] border-gray-200'}`}>
                         {/* Title details */}
                         <div className="flex justify-between items-start gap-2">
                           <div className="min-w-0 flex-1">
@@ -1100,42 +1459,68 @@ export default function CustomerOrderView() {
                               </p>
                             )}
                           </div>
-                          <span className="font-sans text-[8px] font-black uppercase text-[#EE3124] bg-red-50 border border-red-200 px-2.5 py-1 rounded-full shrink-0">
-                            {item.Trang_thai_mon === OrderItemStatus.DA_PHUC_VU ? 'ĐÃ PHỤC VỤ' : item.Trang_thai_mon.toUpperCase()}
+                          <span className={`font-sans text-[8px] font-black uppercase px-2.5 py-1 rounded-full shrink-0 ${
+                            isCanceled
+                              ? 'text-gray-600 bg-gray-100 border border-gray-200'
+                              : 'text-[#EE3124] bg-red-50 border border-red-200'
+                          }`}>
+                            {isCanceled ? 'ĐÃ HỦY' : item.Trang_thai_mon === OrderItemStatus.DA_PHUC_VU ? 'ĐÃ PHỤC VỤ' : item.Trang_thai_mon.toUpperCase()}
                           </span>
                         </div>
 
-                        {/* Visual timeline process */}
-                        <div className="flex items-center justify-between text-[8px] text-gray-400 font-bold pt-1.5 border-t border-gray-200/50">
-                          {steps.map((step, sIdx) => {
-                            const isPassed = sIdx < stepIndex;
-                            const isCurrent = sIdx === stepIndex;
-                            const isFuture = sIdx > stepIndex;
-                            const stepNames = ['Đang chờ', 'Đang nấu', 'Hoàn tất', 'Đã bưng'];
-                            
-                            return (
-                              <div key={step} className="flex-1 flex flex-col items-center relative">
-                                {/* Connector */}
-                                {sIdx < steps.length - 1 && (
-                                  <div className={`absolute top-1.5 left-1/2 w-full h-[2px] z-0 ${sIdx < stepIndex ? 'bg-[#EE3124]' : 'bg-gray-200'}`}></div>
-                                )}
+                        {isCanceled ? (
+                          <div className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-[10px] font-semibold text-gray-500">
+                            Món đã được hủy trước khi bếp tiếp nhận.
+                          </div>
+                        ) : (
+                          <>
+                            {/* Visual timeline process */}
+                            <div className="flex items-center justify-between text-[8px] text-gray-400 font-bold pt-1.5 border-t border-gray-200/50">
+                              {steps.map((step, sIdx) => {
+                                const isPassed = sIdx < stepIndex;
+                                const isCurrent = sIdx === stepIndex;
+                                const isFuture = sIdx > stepIndex;
+                                const stepNames = ['Chờ bếp tiếp nhận', 'Đang nấu', 'Hoàn tất', 'Đã bưng'];
                                 
-                                {/* Timeline Circle */}
-                                <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center border z-10 font-mono text-[8px] font-black ${
-                                  isPassed ? 'bg-[#EE3124] text-white border-[#EE3124]' :
-                                  isCurrent ? 'bg-[#EE3124] text-white border-[#EE3124] animate-pulse scale-110' :
-                                  'bg-white text-gray-300 border-gray-200'
-                                }`}>
-                                  {isPassed ? '✓' : sIdx + 1}
-                                </div>
-                                
-                                <span className={`mt-1 font-sans text-[8px] ${!isFuture ? 'text-[#EE3124] font-black' : 'text-gray-400 font-light'}`}>
-                                  {stepNames[sIdx]}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
+                                return (
+                                  <div key={step} className="flex-1 flex flex-col items-center relative">
+                                    {/* Connector */}
+                                    {sIdx < steps.length - 1 && (
+                                      <div className={`absolute top-1.5 left-1/2 w-full h-[2px] z-0 ${sIdx < stepIndex ? 'bg-[#EE3124]' : 'bg-gray-200'}`}></div>
+                                    )}
+                                    
+                                    {/* Timeline Circle */}
+                                    <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center border z-10 font-mono text-[8px] font-black ${
+                                      isPassed ? 'bg-[#EE3124] text-white border-[#EE3124]' :
+                                      isCurrent ? 'bg-[#EE3124] text-white border-[#EE3124] animate-pulse scale-110' :
+                                      'bg-white text-gray-300 border-gray-200'
+                                    }`}>
+                                      {isPassed ? '✓' : sIdx + 1}
+                                    </div>
+                                    
+                                    <span className={`mt-1 font-sans text-[8px] text-center leading-tight ${!isFuture ? 'text-[#EE3124] font-black' : 'text-gray-400 font-light'}`}>
+                                      {stepNames[sIdx]}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {canCancel ? (
+                              <button
+                                onClick={() => handleCancelOrderItem(item.Ma_detail_id)}
+                                className="w-full py-2 rounded-xl border border-red-200 bg-white text-[#EE3124] hover:bg-red-50 text-[10px] font-black uppercase flex items-center justify-center gap-1.5"
+                              >
+                                <Trash2 size={13} />
+                                <span>Hủy món</span>
+                              </button>
+                            ) : (
+                              <p className="text-[10px] text-gray-500 font-semibold leading-relaxed">
+                                Bếp đã tiếp nhận món. Nếu vẫn muốn hủy, vui lòng liên hệ nhân viên để được hỗ trợ xử lý.
+                              </p>
+                            )}
+                          </>
+                        )}
                       </div>
                     );
                   })}
@@ -1178,6 +1563,7 @@ export default function CustomerOrderView() {
               </span>
             )}
           </button>
+          
           <button
             onClick={() => setActiveStep('tracking')}
             className={`flex-1 flex flex-col items-center justify-center cursor-pointer ${
@@ -1187,25 +1573,10 @@ export default function CustomerOrderView() {
             <Clock size={18} />
             <span className="text-[8px] font-black uppercase mt-1 leading-none">Đơn đã đặt</span>
           </button>
-
-          <button
-            onClick={() => {
-              if (confirm("Xác nhận rời phiên bàn ăn này?")) {
-                localStorage.removeItem('giakhanh_customer_tableId');
-                localStorage.removeItem('giakhanh_customer_sessionCode');
-                setCart([]);
-                setPhoneNumber('');
-                setEnteredCode('');
-                setActiveStep('phone');
-              }
-            }}
-            className="flex-1 flex flex-col items-center justify-center cursor-pointer text-gray-500 hover:text-red-650"
-          >
-            <LogOut size={18} />
-            <span className="text-[8px] font-black uppercase mt-1 leading-none">Rời bàn</span>
-          </button>
         </div>
       )}
+
+      {renderAssistantModal()}
 
     </div>
   );
