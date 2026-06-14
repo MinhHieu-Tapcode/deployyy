@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRestaurantStore } from '../data/store';
 import { DishStatus, OrderItemStatus } from '../types';
-import { Phone, Users, Plus, Minus, ShoppingCart, Check, Clock, ChevronRight, ArrowLeft, Send, Heart, BookOpen, Trash2, Search, X, Home, Sparkles, MessageCircle } from 'lucide-react';
+import { Phone, Users, Plus, Minus, ShoppingCart, Check, Clock, ChevronRight, ArrowLeft, Send, Heart, BookOpen, Trash2, Search, X, Home, Sparkles, MessageCircle, LogOut } from 'lucide-react';
 
 // Circular Official Brand Logo matching the uploaded image perfectly
 const BrandLogo = ({ size = 120 }: { size?: number }) => {
@@ -174,6 +174,15 @@ export default function CustomerOrderView() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleLeaveTable = () => {
+    if (window.confirm('Bạn có chắc chắn muốn rời bàn? Giỏ hàng hiện tại chưa đặt sẽ bị xóa.')) {
+      setPhoneNumber('');
+      setCart([]);
+      setActiveStep('phone');
+      setErrorMessage('');
+    }
+  };
+
   // Submit Phone / Check in as Host
   const handlePhoneSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,21 +201,15 @@ export default function CustomerOrderView() {
     }
 
     const savedPhone = (activeSess.customer_phone || '').trim();
-    if (trimmedEntered === savedPhone) {
-      setTableId(activeSess.Ma_ban);
-      setCurrentSessionCode(activeSess.Ma_phien_code);
-      setActiveStep('menu');
-      setErrorMessage('');
-    } else {
-      try {
-        const generatedCode = startTableSession(tableId, phoneNumber);
-        setCurrentSessionCode(generatedCode);
-        setActiveStep('menu');
-        setErrorMessage('');
-      } catch (err: any) {
-        setErrorMessage(err.message || 'Mở bàn không thành công.');
-      }
+    if (savedPhone && trimmedEntered !== savedPhone) {
+      setErrorMessage('Số điện thoại không đúng với số điện thoại đăng ký cho phiên bàn này.');
+      return;
     }
+
+    setTableId(activeSess.Ma_ban);
+    setCurrentSessionCode(activeSess.Ma_phien_code);
+    setActiveStep('menu');
+    setErrorMessage('');
   };
 
   // Join Existing Shared Session
@@ -777,15 +780,23 @@ export default function CustomerOrderView() {
             </div>
           </div>
 
-          {/* Table ID Display */}
-          <div className="flex items-center space-x-4">
-            <div className="bg-[#800F14] text-white px-3.5 py-1.5 rounded-full text-xs font-black tracking-wider shadow-sm flex items-center space-x-1">
+          {/* Table ID Display & Leave Button */}
+          <div className="flex items-center space-x-3">
+            <div className="bg-[#800F14] text-white px-3.5 py-1.5 rounded-full text-[11px] font-black tracking-wider shadow-sm flex items-center space-x-1">
               <span>BÀN:</span>
               <span className="text-[#FFE600]">{tableId}</span>
             </div>
 
+            <button 
+              onClick={handleLeaveTable}
+              className="flex items-center space-x-1 bg-red-50 text-[#EE3124] hover:bg-red-100 px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider transition active:scale-95 cursor-pointer border border-red-200"
+            >
+              <LogOut size={12} />
+              <span>RỜI BÀN</span>
+            </button>
+
             {/* Desktop Quick Nav Menu */}
-            <nav className="hidden md:flex items-center space-x-6 text-xs font-bold text-gray-600">
+            <nav className="hidden md:flex items-center space-x-6 text-xs font-bold text-gray-600 pl-3">
               <button onClick={() => setActiveStep('menu')} className={`hover:text-[#EE3124] ${activeStep === 'menu' ? 'text-[#EE3124]' : ''}`}>THỰC ĐƠN</button>
               <button onClick={() => setActiveStep('cart')} className={`hover:text-[#EE3124] ${activeStep === 'cart' ? 'text-[#EE3124]' : ''}`}>GIỎ HÀNG</button>
               <button onClick={() => setActiveStep('tracking')} className={`hover:text-[#EE3124] ${activeStep === 'tracking' ? 'text-[#EE3124]' : ''}`}>ĐƠN ĐÃ ĐẶT</button>
