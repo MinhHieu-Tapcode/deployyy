@@ -28,6 +28,7 @@ export enum OrderItemStatus {
   DANG_CHE_BIEN = 'Đang chế biến',
   DA_HOAN_THANH = 'Đã hoàn thành',
   DA_PHUC_VU = 'Đã phục vụ',
+  DA_HUY = 'Đã hủy',
 }
 
 export enum MaterialStatus {

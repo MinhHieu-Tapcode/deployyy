@@ -70,7 +70,7 @@ export interface OrderDetail {
   dish_id: string;
   quantity: number;
   price_at_time: number;
-  item_status: 'Đang chờ' | 'Đang chế biến' | 'Đã hoàn thành' | 'Đã phục vụ';
+  item_status: 'Đang chờ' | 'Đang chế biến' | 'Đã hoàn thành' | 'Đã phục vụ' | 'Đã hủy';
   notes: string;
   ordered_at: string;
 }

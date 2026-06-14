@@ -608,6 +608,52 @@ app.put('/api/order-details/:id/status', (req, res) => {
   return res.json({ success: true });
 });
 
+app.post('/api/order-details/:id/cancel', (req, res) => {
+  const { id } = req.params;
+  const { operatorId, operatorName } = req.body;
+
+  const orderDetails = db.get('order_details');
+  const detailIdx = orderDetails.findIndex(od => od.id === id);
+  if (detailIdx === -1) return res.status(404).json({ error: 'Không tìm thấy chi tiết đơn hàng.' });
+
+  const item = orderDetails[detailIdx];
+  if (item.item_status !== 'Đang chờ') {
+    return res.status(400).json({ error: 'Chỉ có thể hủy món ăn khi đang ở trạng thái Đang chờ.' });
+  }
+
+  item.item_status = 'Đã hủy';
+  db.save('order_details', orderDetails);
+
+  // Recalculate parent order total price and status
+  const orders = db.get('orders');
+  const oIdx = orders.findIndex(o => o.id === item.order_id);
+  if (oIdx !== -1) {
+    const subtractedAmount = item.price_at_time * item.quantity;
+    orders[oIdx].total_amount = Math.max(0, orders[oIdx].total_amount - subtractedAmount);
+
+    const siblings = orderDetails.filter(od => od.order_id === item.order_id);
+    const nonCancelled = siblings.filter(od => od.item_status !== 'Đã hủy');
+
+    if (nonCancelled.length === 0) {
+      orders[oIdx].service_status = 'Đã phục vụ';
+    } else {
+      const allServed = nonCancelled.every(od => od.item_status === 'Đã phục vụ');
+      const allDone = nonCancelled.every(od => od.item_status === 'Đã hoàn thành' || od.item_status === 'Đã phục vụ');
+      if (allServed) {
+        orders[oIdx].service_status = 'Đã phục vụ';
+      } else if (allDone) {
+        orders[oIdx].service_status = 'Đã chế biến';
+      } else {
+        orders[oIdx].service_status = 'Đang chế biến';
+      }
+    }
+    db.save('orders', orders);
+  }
+
+  logAction(operatorId || 'guest', operatorName || 'Khách hàng', 'Hủy món ăn', `Đã hủy món ăn trong đơn ${item.order_id}: chi tiết ${item.id}`);
+  return res.json({ success: true });
+});
+
 app.post('/api/orders/:id/invoice', (req, res) => {
   const { id } = req.params;
   const { imageBase64, operatorId, operatorName } = req.body;

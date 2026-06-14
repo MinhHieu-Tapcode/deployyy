@@ -363,12 +363,14 @@ export function TableCard({
   simStatus, 
   booking, 
   session, 
+  muted,
   onClick 
 }: { 
   table: any; 
   simStatus: string; 
   booking?: any; 
   session?: any; 
+  muted?: boolean;
   onClick: () => void;
 }) {
   let cardStyle = '';
@@ -404,7 +406,7 @@ export function TableCard({
   return (
     <button
       onClick={onClick}
-      className={`w-full p-4 rounded-2xl border-2 text-left h-36 flex flex-col justify-between transition-all duration-200 hover:shadow-lg cursor-pointer select-none relative ${cardStyle}`}
+      className={`w-full p-4 rounded-2xl border-2 text-left h-36 flex flex-col justify-between transition-all duration-200 hover:shadow-lg cursor-pointer select-none relative ${cardStyle} ${muted ? 'opacity-40 grayscale-[25%]' : ''}`}
       id={`table-trigger-${table.Ma_ban}`}
     >
       <div className="flex justify-between items-start w-full">
