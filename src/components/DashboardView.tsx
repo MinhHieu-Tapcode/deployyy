@@ -142,7 +142,8 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
   const width = 800;
   const points = chartData
     .map((d, i) => {
-      const x = (i * (width - 60)) / (chartData.length - 1) + 30;
+      const divisor = chartData.length > 1 ? chartData.length - 1 : 1;
+      const x = (i * (width - 60)) / divisor + 30;
       const y = height - (d.rev * (height - 40)) / maxValY - 20;
       return `${x},${y}`;
     })
@@ -298,7 +299,8 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
 
               {/* Points circles and labels */}
               {chartData.map((d, i) => {
-                const x = (i * (width - 60)) / (chartData.length - 1) + 30;
+                const divisor = chartData.length > 1 ? chartData.length - 1 : 1;
+                const x = (i * (width - 60)) / divisor + 30;
                 const y = height - (d.rev * (height - 40)) / maxValY - 20;
                 return (
                   <g key={i}>
