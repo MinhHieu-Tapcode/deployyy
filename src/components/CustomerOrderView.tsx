@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { useRestaurantStore } from '../data/store';
 import { DishStatus, OrderItemStatus } from '../types';
-import { Phone, Users, Plus, Minus, ShoppingCart, Check, Clock, ChevronRight, ArrowLeft, Send, Heart, BookOpen, Trash2 } from 'lucide-react';
+import { Phone, Users, Plus, Minus, ShoppingCart, Check, Clock, ChevronRight, ArrowLeft, Send, Heart, BookOpen, Trash2, X } from 'lucide-react';
 
 // Circular Official Brand Logo matching the uploaded image perfectly
 const BrandLogo = ({ size = 120 }: { size?: number }) => {
@@ -180,6 +180,8 @@ export default function CustomerOrderView() {
     orders,
     orderDetails,
     customers,
+    recipes,
+    materials,
   } = useRestaurantStore();
 
   // QR Session states
@@ -206,6 +208,8 @@ export default function CustomerOrderView() {
 
   // Dish choices
   const [dishNotes, setDishNotes] = useState('');
+  const [dishSpicy, setDishSpicy] = useState('Bình thường');
+  const [detailQty, setDetailQty] = useState(1);
 
   // Submit Phone / Check in as Host
   const handlePhoneSubmit = async (e: React.FormEvent) => {
@@ -595,8 +599,16 @@ export default function CustomerOrderView() {
                     return (
                       <div
                         key={dish.Ma_mon}
-                        className={`bg-white rounded-2xl border border-gray-150 p-3 flex flex-col justify-between shadow-2xs relative overflow-hidden transition-all duration-150 ${
-                          isOutOfStock ? 'opacity-60' : 'hover:shadow-sm'
+                        onClick={() => {
+                          if (isOutOfStock) return;
+                          setSelectedDishId(dish.Ma_mon);
+                          setDetailQty(1);
+                          setDishNotes('');
+                          setDishSpicy('Bình thường');
+                          setActiveStep('dish_detail');
+                        }}
+                        className={`bg-white rounded-2xl border border-gray-150 p-3 flex flex-col justify-between shadow-2xs relative overflow-hidden transition-all duration-150 cursor-pointer ${
+                          isOutOfStock ? 'opacity-60 pointer-events-none' : 'hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]'
                         }`}
                       >
                         {/* Image Container */}
@@ -626,7 +638,6 @@ export default function CustomerOrderView() {
                             
                             {!isOutOfStock && (
                               <button
-                                onClick={() => addToCart(dish.Ma_mon, 1, '')}
                                 className="w-6 h-6 bg-[#EE3124] hover:bg-[#800F14] text-white rounded-full flex items-center justify-center shadow-md cursor-pointer hover:scale-105 active:scale-95 transition-all duration-150"
                               >
                                 <Plus size={12} className="stroke-[3]" />
@@ -674,79 +685,137 @@ export default function CustomerOrderView() {
           )}
 
           {/* SCREEN 13.4: VIEW DETAIL DIETARY NOTES (Centered Modal overlay on Desktop, Full screen slide-up on mobile) */}
-          {activeStep === 'dish_detail' && selectedDish && (
-            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in" id="customer-dish-detail">
-              <div className="bg-white rounded-[32px] max-w-lg w-full flex flex-col overflow-hidden shadow-2xl animate-slide-up relative max-h-[90vh]">
-                
-                {/* Visual Image */}
-                <div className="w-full h-64 relative bg-gray-100 shrink-0">
-                  <img
-                    src={selectedDish.Anh_mon}
-                    alt={selectedDish.Ten_mon}
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
+          {activeStep === 'dish_detail' && selectedDish && (() => {
+            const dishRecipes = recipes.filter(r => r.Ma_mon === selectedDish.Ma_mon);
+            return (
+              <div className="fixed inset-0 bg-black/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in" id="customer-dish-detail">
+                <div className="bg-[#FCFAF6] rounded-[32px] max-w-lg w-full flex flex-col overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-300 relative max-h-[90vh]">
                   
-                  {/* Floating back icon */}
-                  <button
-                    onClick={() => setActiveStep('menu')}
-                    className="absolute top-4 left-4 w-9 h-9 bg-black/40 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-black/60 transition active:scale-95"
-                  >
-                    <ArrowLeft size={18} />
-                  </button>
-                  
-                  <button
-                    className="absolute top-4 right-4 w-9 h-9 bg-black/40 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-black/60 transition active:scale-95"
-                  >
-                    <Heart size={18} className="fill-transparent stroke-white" />
-                  </button>
-                </div>
-
-                {/* Detail Content */}
-                <div className="p-6 flex-1 space-y-4 overflow-y-auto">
-                  <div>
-                    <h3 className="font-display font-black text-gray-855 text-lg leading-tight">{selectedDish.Ten_mon}</h3>
-                    <span className="text-base text-[#EE3124] font-mono font-black block mt-1">{formatPrice(selectedDish.Don_gia)}</span>
-                    <p className="text-xs text-gray-450 font-light mt-2 leading-relaxed">{selectedDish.Mo_ta || 'Lẩu nấm kết hợp tinh tế cùng nấm rừng thanh mát.'}</p>
-                  </div>
-
-                  {/* Dietary note */}
-                  <div className="space-y-2 pt-4 border-t border-gray-100">
-                    <label className="block text-[10px] font-black text-gray-805 uppercase tracking-widest">GHI CHÚ YÊU CẦU MÓN</label>
-                    <input
-                      id="guest-dish-memo-inp"
-                      type="text"
-                      className="w-full px-3.5 py-3 border border-gray-250 focus:border-[#EE3124] rounded-xl text-xs bg-gray-50 focus:bg-white transition"
-                      placeholder="VD: Không mặn, lấy thêm chanh..."
-                      value={dishNotes}
-                      onChange={e => setDishNotes(e.target.value)}
+                  {/* Visual Image */}
+                  <div className="w-full h-64 relative bg-gray-100 shrink-0">
+                    <img
+                      src={selectedDish.Anh_mon}
+                      alt={selectedDish.Ten_mon}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
                     />
+                    
+                    {/* Floating back icon */}
+                    <button
+                      onClick={() => {
+                        setSelectedDishId(null);
+                        setActiveStep('menu');
+                      }}
+                      className="absolute top-4 left-4 w-9 h-9 bg-black/40 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-black/60 transition active:scale-95 border-none"
+                    >
+                      <X size={18} />
+                    </button>
+                    
+                    <button
+                      className="absolute top-4 right-4 w-9 h-9 bg-black/40 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-black/60 transition active:scale-95 border-none"
+                    >
+                      <Heart size={18} className="fill-transparent stroke-white" />
+                    </button>
                   </div>
-                </div>
 
-                {/* Bottom buttons panel */}
-                <div className="p-6 border-t border-gray-150 flex flex-col sm:flex-row gap-3 bg-white shrink-0">
-                  <button
-                    id="btn-add-to-cart-confirm"
-                    onClick={() => addToCart(selectedDish.Ma_mon, 1, dishNotes)}
-                    className="flex-1 py-3.5 bg-[#EE3124] hover:bg-[#800F14] text-white rounded-xl font-black text-xs tracking-wider shadow active:scale-95 transition cursor-pointer text-center flex items-center justify-center space-x-1.5 uppercase"
-                  >
-                    <ShoppingCart size={13} />
-                    <span>THÊM VÀO GIỎ HÀNG</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedDishId(null);
-                      setActiveStep('menu');
-                    }}
-                    className="sm:w-28 py-3.5 border border-gray-250 text-gray-500 rounded-xl text-[10px] font-black hover:bg-gray-50 transition cursor-pointer text-center uppercase active:scale-95"
-                  >
-                    HỦY
-                  </button>
+                  {/* Detail Content */}
+                  <div className="p-6 flex-1 space-y-5 overflow-y-auto">
+                    <div className="space-y-1">
+                      <h3 className="font-display font-black text-gray-855 text-xl leading-tight">{selectedDish.Ten_mon}</h3>
+                      <span className="text-lg text-[#EE3124] font-mono font-black block mt-1">{formatPrice(selectedDish.Don_gia)}</span>
+                      <p className="text-xs text-gray-450 leading-relaxed font-light">{selectedDish.Mo_ta || 'Lẩu nấm kết hợp tinh tế cùng nấm rừng thanh mát.'}</p>
+                    </div>
+
+                    {/* Preparation Option buttons */}
+                    <div className="space-y-2 pt-4 border-t border-gray-100">
+                      <label className="block text-[10px] font-black text-gray-805 uppercase tracking-widest">LỰA CHỌN CHẾ BIẾN</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {['Bình thường', 'Ít cay', 'Không hành'].map(opt => (
+                          <button
+                            key={opt}
+                            type="button"
+                            onClick={() => setDishSpicy(opt)}
+                            className={`py-2 border rounded-xl text-xs font-bold text-center transition cursor-pointer active:scale-95 ${
+                              dishSpicy === opt
+                                ? 'bg-[#EE3124]/5 border-[#EE3124] text-[#EE3124]'
+                                : 'border-gray-200 text-gray-500 hover:bg-gray-50 bg-white'
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Auto ingredients tags */}
+                    {dishRecipes.length > 0 && (
+                      <div className="space-y-2.5 pt-4 border-t border-gray-100">
+                        <label className="block text-[10px] font-black text-gray-805 uppercase tracking-widest">THÀNH PHẦN NGUYÊN LIỆU</label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {dishRecipes.map(r => {
+                            const mat = materials.find(m => m.Ma_nvl === r.Ma_nvl);
+                            if (!mat) return null;
+                            return (
+                              <span key={r.Ma_nvl} className="px-2.5 py-1 bg-amber-50 text-amber-800 text-[10px] font-bold rounded-lg border border-amber-100/70">
+                                {mat.Ten_nvl} ({r.So_luong_dinh_luong}{r.Don_vi_tinh})
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dietary note */}
+                    <div className="space-y-2 pt-4 border-t border-gray-100">
+                      <label className="block text-[10px] font-black text-gray-805 uppercase tracking-widest">GHI CHÚ YÊU CẦU MÓN</label>
+                      <input
+                        id="guest-dish-memo-inp"
+                        type="text"
+                        className="w-full px-3.5 py-3 border border-gray-200 focus:border-[#EE3124] rounded-xl text-xs bg-white focus:bg-white transition focus:outline-none"
+                        placeholder="VD: Nhiều hành, ít cay, để riêng nước chấm..."
+                        value={dishNotes}
+                        onChange={e => setDishNotes(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Bottom buttons panel */}
+                  <div className="p-5 border-t border-gray-150 flex items-center justify-between gap-4 bg-white shrink-0">
+                    {/* Quantity Selector */}
+                    <div className="flex items-center space-x-1.5 border border-gray-250 rounded-xl p-1 bg-gray-50 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setDetailQty(q => Math.max(1, q - 1))}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-550 hover:bg-gray-200 active:scale-90 font-black text-base cursor-pointer select-none"
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center font-mono font-black text-xs text-gray-855 select-none">{detailQty}</span>
+                      <button
+                        type="button"
+                        onClick={() => setDetailQty(q => q + 1)}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-550 hover:bg-gray-200 active:scale-90 font-black text-base cursor-pointer select-none"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <button
+                      id="btn-add-to-cart-confirm"
+                      onClick={() => {
+                        const finalNotes = `${dishSpicy !== 'Bình thường' ? dishSpicy : ''}${dishNotes ? (dishSpicy !== 'Bình thường' ? ', ' : '') + dishNotes : ''}`;
+                        addToCart(selectedDish.Ma_mon, detailQty, finalNotes);
+                      }}
+                      className="flex-1 py-3 bg-[#EE3124] hover:bg-[#800F14] text-white rounded-xl font-black text-xs tracking-wider shadow-md active:scale-95 transition cursor-pointer text-center flex items-center justify-center space-x-1.5 uppercase h-10"
+                    >
+                      <ShoppingCart size={13} />
+                      <span>THÊM VÀO GIỎ HÀNG</span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* SCREEN 13.5: CUSTOMER SHOPPING CART VIEW (Screen 6: Giỏ hàng tạm tính - Responsive Grid) */}
           {activeStep === 'cart' && (
