@@ -588,48 +588,48 @@ export default function CustomerOrderView() {
                 </div>
 
                 {/* Dishes list Grid */}
-                <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="guest-dishes-grid">
+                <div className="flex-1 w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5" id="guest-dishes-grid">
                   {activeCategoryDishes(selectedCatId).map(dish => {
                     const isOutOfStock = dish.Trang_thai === DishStatus.HET_MON || dish.Trang_thai === DishStatus.NGUNG_PHUC_VU;
                     
                     return (
                       <div
                         key={dish.Ma_mon}
-                        className={`bg-white rounded-2xl border border-gray-150 p-4 flex space-x-3.5 shadow-2xs relative overflow-hidden transition-all duration-150 ${
+                        className={`bg-white rounded-2xl border border-gray-150 p-3 flex flex-col justify-between shadow-2xs relative overflow-hidden transition-all duration-150 ${
                           isOutOfStock ? 'opacity-60' : 'hover:shadow-sm'
                         }`}
                       >
-                        {/* Image */}
-                        <div className="w-20 h-20 rounded-xl overflow-hidden border border-gray-100 bg-gray-55 shrink-0 shadow-inner">
+                        {/* Image Container */}
+                        <div className="w-full aspect-square rounded-xl overflow-hidden border border-gray-100 bg-gray-55 relative shrink-0 shadow-inner">
                           <img
                             src={dish.Anh_mon}
                             alt={dish.Ten_mon}
                             className="w-full h-full object-cover"
                             referrerPolicy="no-referrer"
                           />
+                          {isOutOfStock && (
+                            <div className="absolute inset-0 bg-black/45 flex items-center justify-center">
+                              <span className="px-2 py-0.5 bg-yellow-50 text-yellow-750 text-[8px] font-black uppercase rounded border border-yellow-200 animate-pulse">Tạm Hết</span>
+                            </div>
+                          )}
                         </div>
 
                         {/* Info & pricing */}
-                        <div className="flex-1 flex flex-col justify-between min-w-0">
+                        <div className="flex-1 flex flex-col justify-between min-w-0 mt-2">
                           <div className="space-y-0.5">
-                            <h4 className="font-black text-gray-805 text-sm truncate leading-tight">{dish.Ten_mon}</h4>
-                            <p className="text-[10px] text-gray-400 line-clamp-2 leading-relaxed font-light">{dish.Mo_ta || 'Ngọt ngào thanh tịnh nấm rừng.'}</p>
+                            <h4 className="font-black text-gray-805 text-xs line-clamp-2 leading-tight min-h-[32px]">{dish.Ten_mon}</h4>
+                            <p className="text-[9px] text-gray-400 line-clamp-1 leading-relaxed font-light">{dish.Mo_ta || 'Ngọt ngào thanh tịnh nấm rừng.'}</p>
                           </div>
 
-                          <div className="flex justify-between items-center mt-1.5">
-                            <span className="font-mono font-black text-sm text-[#EE3124]">{formatPrice(dish.Don_gia)}</span>
+                          <div className="flex justify-between items-center mt-2.5 pt-1.5 border-t border-gray-50">
+                            <span className="font-mono font-black text-xs text-[#EE3124]">{formatPrice(dish.Don_gia)}</span>
                             
-                            {isOutOfStock ? (
-                              <span className="px-2 py-0.5 bg-yellow-50 text-yellow-750 text-[8px] font-black uppercase rounded border border-yellow-200 animate-pulse">Tạm Hết</span>
-                            ) : (
+                            {!isOutOfStock && (
                               <button
-                                onClick={() => {
-                                  setSelectedDishId(dish.Ma_mon);
-                                  setActiveStep('dish_detail');
-                                }}
-                                className="w-7 h-7 bg-[#EE3124] hover:bg-[#800F14] text-white rounded-full flex items-center justify-center shadow-md cursor-pointer hover:scale-105 active:scale-95 transition-all duration-150"
+                                onClick={() => addToCart(dish.Ma_mon, 1, '')}
+                                className="w-6 h-6 bg-[#EE3124] hover:bg-[#800F14] text-white rounded-full flex items-center justify-center shadow-md cursor-pointer hover:scale-105 active:scale-95 transition-all duration-150"
                               >
-                                <Plus size={14} className="stroke-[3]" />
+                                <Plus size={12} className="stroke-[3]" />
                               </button>
                             )}
                           </div>
