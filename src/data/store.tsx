@@ -150,7 +150,7 @@ interface RestaurantContextType {
   logout: () => void;
   activateTable: (tableId: string) => void;
   deactivateTable: (tableId: string) => void;
-  startTableSession: (tableId: string, phone: string, guestsCount?: number, existingCode?: string) => Promise<string>;
+  startTableSession: (tableId: string, phone: string, guestsCount?: number, existingCode?: string, customerName?: string) => Promise<string>;
   placeCustomerOrder: (tableId: string, cartItems: { dishId: string; quantity: number; notes: string }[]) => Promise<string>;
   updateOrderItemStatus: (detailId: string, newStatus: OrderItemStatus) => Promise<{ success: boolean; error?: string }>;
   cancelOrderItem: (detailId: string) => Promise<{ success: boolean; error?: string }>;
@@ -409,15 +409,16 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
     });
   };
 
-  const startTableSession = async (tableId: string, phone: string, guestsCount = 4, existingCode?: string): Promise<string> => {
+  const startTableSession = async (tableId: string, phone: string, guestsCount = 4, existingCode?: string, customerName?: string): Promise<string> => {
+    const displayName = customerName && customerName.trim() ? customerName.trim() : 'Khách vãng lai';
     const res = await fetch('/api/sessions/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tableId, phone, guestsCount, existingCode, createdBy: currentUser?.Ma_nhan_vien })
+      body: JSON.stringify({ tableId, phone, guestsCount, existingCode, customerName: displayName, createdBy: currentUser?.Ma_nhan_vien })
     });
     const data = await res.json();
     if (data.success) {
-      addToast(`Bàn ${tableId} đã đón ${guestsCount} khách vào ăn.`, 'success');
+      addToast(`Bàn ${tableId} đã đón ${displayName} (${guestsCount} khách) vào ăn.`, 'success');
       refreshData();
       return data.shareCode;
     }

@@ -67,6 +67,7 @@ export interface Session {
   Ma_phien_code: string;
   Trang_thai: 'active' | 'completed';
   customer_phone?: string;
+  customer_name?: string;
   created_by?: string | null;
 }
 

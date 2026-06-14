@@ -185,7 +185,7 @@ app.get('/api/sessions', (req, res) => {
 
 
 app.post(['/api/sessions', '/api/sessions/start'], (req, res) => {
-  const { tableId, phone, guestsCount, existingCode, createdBy } = req.body;
+  const { tableId, phone, guestsCount, existingCode, createdBy, customerName } = req.body;
   if (!tableId || !phone) {
     return res.status(400).json({ error: 'Thiếu thông tin số bàn hoặc số điện thoại.' });
   }
@@ -212,6 +212,7 @@ app.post(['/api/sessions', '/api/sessions/start'], (req, res) => {
 
   const generatedCode = existingCode || Math.random().toString(36).substring(2, 6).toUpperCase();
   const sessionId = `s_${tableId}_${Date.now().toString().slice(-4)}`;
+  const displayCustomerName = customerName && customerName.trim() ? customerName.trim() : 'Khách vãng lai';
 
   const newSession: TableSession = {
     id: sessionId,
@@ -223,6 +224,7 @@ app.post(['/api/sessions', '/api/sessions/start'], (req, res) => {
     share_code: generatedCode,
     status: 'active',
     guests_count: guestsCount ? Number(guestsCount) : 4,
+    customer_name: displayCustomerName,
     created_by: createdBy || null
   };
 
@@ -240,7 +242,7 @@ app.post(['/api/sessions', '/api/sessions/start'], (req, res) => {
     createdBy || 'guest',
     createdBy ? 'Nhân viên lễ tân' : 'Khách hàng',
     'Mở phiên đặt bàn',
-    `Kích hoạt bàn ${tableId} cùng SĐT ${trimmedPhone} - Khách ngồi: ${newSession.guests_count} - Mã: ${generatedCode}`
+    `Kích hoạt bàn ${tableId} cho ${displayCustomerName} cùng SĐT ${trimmedPhone} - Khách ngồi: ${newSession.guests_count} - Mã: ${generatedCode}`
   );
 
   return res.json({ success: true, shareCode: generatedCode, sessionId });

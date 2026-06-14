@@ -28,6 +28,7 @@ export interface TableSession {
   status: 'active' | 'completed';
   guests_count: number;
   customer_phone?: string;
+  customer_name?: string;
   created_by?: string | null;
 }
 
