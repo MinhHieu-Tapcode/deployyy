@@ -31,10 +31,15 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
   const [fromDate, setFromDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - 7);
-    return d.toISOString().split('T')[0];
+    const offset = d.getTimezoneOffset();
+    const localTime = new Date(d.getTime() - (offset * 60 * 1000));
+    return localTime.toISOString().split('T')[0];
   });
   const [toDate, setToDate] = useState(() => {
-    return new Date().toISOString().split('T')[0];
+    const d = new Date();
+    const offset = d.getTimezoneOffset();
+    const localTime = new Date(d.getTime() - (offset * 60 * 1000));
+    return localTime.toISOString().split('T')[0];
   });
   
   const [isExporting, setIsExporting] = useState(false);
@@ -71,7 +76,11 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
   // Stats calculate
   const totalRevenueToday = orders.filter(o => {
     const orderDate = o.Thoi_gian.split('T')[0];
-    const todayStr = new Date().toISOString().split('T')[0];
+    const localToday = new Date();
+    // Convert to Local Date string yyyy-MM-dd format matching o.Thoi_gian
+    const offset = localToday.getTimezoneOffset();
+    const localTime = new Date(localToday.getTime() - (offset * 60 * 1000));
+    const todayStr = localTime.toISOString().split('T')[0];
     return orderDate === todayStr;
   }).reduce((sum, o) => sum + o.Tong_tien, 0);
 
@@ -144,7 +153,11 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
     .map((d, i) => {
       const divisor = chartData.length > 1 ? chartData.length - 1 : 1;
       const x = (i * (width - 60)) / divisor + 30;
-      const y = height - (d.rev * (height - 40)) / maxValY - 20;
+      const y = height - (d.rev * (height - 40)) / (maxValY || 1) - 20;
+      // Filter out any NaN values to prevent malformed SVG attribute error
+      if (isNaN(x) || isNaN(y) || !isFinite(x) || !isFinite(y)) {
+        return `30,${height - 20}`;
+      }
       return `${x},${y}`;
     })
     .join(' ');
