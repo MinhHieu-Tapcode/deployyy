@@ -65,6 +65,7 @@ export interface Session {
   Thoi_gian_ket_thuc: string | null;
   Ma_phien_code: string;
   Trang_thai: 'active' | 'completed';
+  So_khach: number;
 }
 
 export interface Category {

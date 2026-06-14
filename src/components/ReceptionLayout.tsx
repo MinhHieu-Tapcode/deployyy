@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { useRestaurantStore, playNotificationSound } from '../data/store';
 import { TableStatus, TableStatusLabel, OrderItemStatus } from '../types';
+import { TableCard } from './SharedUI';
 import GiaKhanhLogo from './GiaKhanhLogo';
 import { 
   Search, 
@@ -71,6 +72,7 @@ export default function ReceptionLayout() {
   const [showFormSampleId, setShowFormSampleId] = useState<string | null>(null);
 
   const [instantPhone, setInstantPhone] = useState('');
+  const [instantGuests, setInstantGuests] = useState(4);
   const [tablesBeingCleaned, setTablesBeingCleaned] = useState<string[]>([]);
   const [selectedHistorySession, setSelectedHistorySession] = useState<string | null>(null);
 
@@ -198,6 +200,30 @@ export default function ReceptionLayout() {
   };
 
   const simStats = getSimulatedStats();
+
+  const getTableActiveSessionCost = (tableId: string) => {
+    const session = sessions.find(s => s.Ma_ban === tableId && s.Trang_thai === 'active');
+    if (!session) return 0;
+    
+    const sessionOrders = orders.filter(o => o.Ma_phien === session.Ma_phien);
+    let cost = 0;
+    sessionOrders.forEach(ord => {
+      const details = orderDetails.filter(od => od.Ma_hd_dat_mon === ord.Ma_hd_dat_mon);
+      details.forEach(det => {
+        cost += det.Don_gia_tai_thoi_diem * det.So_luong;
+      });
+    });
+    return cost;
+  };
+
+  const getTableSessionData = (tableId: string) => {
+    const session = sessions.find(s => s.Ma_ban === tableId && s.Trang_thai === 'active');
+    if (!session) return undefined;
+    return {
+      ...session,
+      orderTotal: getTableActiveSessionCost(tableId)
+    };
+  };
 
   // Active table context data inside Modal
   const currentModalTable = tables.find(t => t.Ma_ban === selectedTableId);
@@ -390,11 +416,17 @@ export default function ReceptionLayout() {
               const matched = isSearchMatchedTable(table.Ma_ban);
               const simStatus = getTableSimulatedStatus(table.Ma_ban, table.Trang_thai);
               const booking = findTableBookingAtSelectedTime(table.Ma_ban);
-              const session = sessions.find(s => s.Ma_ban === table.Ma_ban && s.Trang_thai === 'active');
+              const session = getTableSessionData(table.Ma_ban);
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard 
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -404,11 +436,17 @@ export default function ReceptionLayout() {
               const matched = isSearchMatchedTable(table.Ma_ban);
               const simStatus = getTableSimulatedStatus(table.Ma_ban, table.Trang_thai);
               const booking = findTableBookingAtSelectedTime(table.Ma_ban);
-              const session = sessions.find(s => s.Ma_ban === table.Ma_ban && s.Trang_thai === 'active');
+              const session = getTableSessionData(table.Ma_ban);
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard 
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -449,11 +487,17 @@ export default function ReceptionLayout() {
               const matched = isSearchMatchedTable(table.Ma_ban);
               const simStatus = getTableSimulatedStatus(table.Ma_ban, table.Trang_thai);
               const booking = findTableBookingAtSelectedTime(table.Ma_ban);
-              const session = sessions.find(s => s.Ma_ban === table.Ma_ban && s.Trang_thai === 'active');
+              const session = getTableSessionData(table.Ma_ban);
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard 
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -463,11 +507,17 @@ export default function ReceptionLayout() {
               const matched = isSearchMatchedTable(table.Ma_ban);
               const simStatus = getTableSimulatedStatus(table.Ma_ban, table.Trang_thai);
               const booking = findTableBookingAtSelectedTime(table.Ma_ban);
-              const session = sessions.find(s => s.Ma_ban === table.Ma_ban && s.Trang_thai === 'active');
+              const session = getTableSessionData(table.Ma_ban);
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard 
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -769,21 +819,36 @@ export default function ReceptionLayout() {
                         alert("Vui lòng nhập số điện thoại để bắt đầu phiên!");
                         return;
                       }
-                      startTableSession(currentModalTable.Ma_ban, instantPhone.trim());
+                      startTableSession(currentModalTable.Ma_ban, instantPhone.trim(), instantGuests);
                       setInstantPhone('');
+                      setInstantGuests(4);
                       setIsModalOpen(false);
                       alert(`Đã BẮT ĐẦU PHIÊN và kích hoạt phục vụ cho bàn ${currentModalTable.Ma_ban}!`);
                     }} className="space-y-2">
-                      <div className="relative">
-                        <Phone className="absolute left-2.5 top-2 text-gray-400" size={12} />
-                        <input
-                          type="tel"
-                          required
-                          placeholder="Số điện thoại của Khách ngồi bàn..."
-                          className="w-full pl-7 pr-2 py-1.5 border border-gray-250 bg-white rounded-lg text-xs font-bold focus:border-[#EE3124] focus:outline-none"
-                          value={instantPhone}
-                          onChange={e => setInstantPhone(e.target.value)}
-                        />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="relative">
+                          <Phone className="absolute left-2.5 top-2 text-gray-400" size={12} />
+                          <input
+                            type="tel"
+                            required
+                            placeholder="SĐT liên lạc..."
+                            className="w-full pl-7 pr-2 py-1.5 border border-gray-250 bg-white rounded-lg text-xs font-bold focus:border-[#EE3124] focus:outline-none"
+                            value={instantPhone}
+                            onChange={e => setInstantPhone(e.target.value)}
+                          />
+                        </div>
+                        <div className="relative flex items-center space-x-1 border border-gray-250 rounded-lg bg-white px-2">
+                          <span className="text-[9px] text-gray-400 font-bold shrink-0">Khách:</span>
+                          <input
+                            type="number"
+                            min={1}
+                            max={12}
+                            required
+                            className="w-full py-1 text-xs font-bold text-gray-800 focus:outline-none"
+                            value={instantGuests}
+                            onChange={e => setInstantGuests(Number(e.target.value))}
+                          />
+                        </div>
                       </div>
                       <button
                         type="submit"
@@ -1104,91 +1169,5 @@ export default function ReceptionLayout() {
     </div>
   );
 
-  // Helper Sub-Component to render table cards inside blueprint map
-  function renderTableCard(
-    table: typeof tables[0], 
-    simStatus: string | TableStatus, 
-    booking: typeof reservations[0] | undefined, 
-    session: typeof sessions[0] | undefined
-  ) {
-    let cardStyle = '';
-    let textStyle = '';
-    let badgeText = '';
-    let indicatorBulb = '';
 
-    if (simStatus === 'BOOKED' && booking) {
-      cardStyle = 'bg-stone-50 border-2 border-indigo-600 hover:bg-indigo-50/55';
-      textStyle = 'text-indigo-950';
-      badgeText = `Lịch: ${booking.Gio_dat}`;
-      indicatorBulb = 'bg-[#7B2CBF] scale-[1.1] animate-pulse';
-    } else if (simStatus === TableStatus.CO_KHACH) {
-      cardStyle = 'bg-[#EE3124] text-white hover:bg-[#d6281e] border-2 border-[#EE3124]';
-      textStyle = 'text-white';
-      // Dynamically calculate timer text
-      const timerText = session ? getActiveTimer(session.Thoi_gian_bat_dau) : '';
-      badgeText = timerText || 'Đang ăn';
-      indicatorBulb = 'bg-white block animate-pulse';
-    } else if (simStatus === TableStatus.DANG_DON) {
-      cardStyle = 'bg-gray-100 text-gray-500 hover:bg-gray-200 border-2 border-gray-300';
-      textStyle = 'text-gray-700';
-      badgeText = 'Lau dọn';
-      indicatorBulb = 'bg-orange-500';
-    } else {
-      // Normal Available state
-      cardStyle = 'bg-[#E8F5E9] hover:bg-[#C8E6C9] border-2 border-emerald-300 text-emerald-900';
-      textStyle = 'text-emerald-950';
-      badgeText = 'Trống';
-      indicatorBulb = 'bg-emerald-500';
-    }
-
-    return (
-      <button
-        onClick={() => handleTableClick(table.Ma_ban)}
-        className={`w-full p-3.5 rounded-lg text-left h-32 flex flex-col justify-between transition-all duration-200 hover:shadow-md cursor-pointer select-none relative ${cardStyle}`}
-        id={`table-trigger-${table.Ma_ban}`}
-      >
-        {/* Table information display */}
-        <div className="flex justify-between items-start w-full">
-          <div>
-            <h4 className="font-sans font-black text-base tracking-tight leading-none block">{table.Ma_ban}</h4>
-            <span className={`text-[8px] font-bold block mt-1 px-1 py-0.5 rounded uppercase font-mono tracking-wider border align-middle max-w-fit ${
-              simStatus === TableStatus.CO_KHACH
-                ? 'bg-white/20 border-white/40 text-white'
-                : 'bg-black/5 border-black/10 text-gray-500'
-            }`}>
-              Bàn {table.Suc_chua} Ghế
-            </span>
-          </div>
-
-          {/* Connected Bulb status element WITHOUT P_STATUS label */}
-          <div className="flex items-center shrink-0">
-            <span className={`w-2.5 h-2.5 rounded-full ring-2 ring-white/10 ${indicatorBulb}`}></span>
-          </div>
-        </div>
-
-        {/* Dynamic description of booking or active phone detail */}
-        <div className="my-1.5 truncate">
-          {booking ? (
-            <div className="truncate text-[10px] leading-relaxed">
-              <p className="font-black truncate">Khách: {booking.Ten_khach_hang}</p>
-              <p className="font-mono text-[9px] opacity-80">{booking.So_dien_thoai}</p>
-            </div>
-          ) : session ? (
-            <div className="text-[10px] leading-relaxed truncate">
-              <p className="font-black block truncate">SĐT quầy:</p>
-              <p className="font-mono text-[9px] opacity-80">{session.Ma_phien_code}</p>
-            </div>
-          ) : (
-            <p className="text-[10px] font-sans italic opacity-75 font-semibold">Bàn lẩu khả dụng</p>
-          )}
-        </div>
-
-        {/* Dynamic status labels at bottom */}
-        <div className="border-t border-black/5 pt-1.5 flex justify-between items-center text-[9px] font-black uppercase font-mono tracking-wider">
-          <span className="opacity-90">{badgeText}</span>
-          <span className="opacity-60 text-[8px]">T.{table.Tang}</span>
-        </div>
-      </button>
-    );
-  }
 }
