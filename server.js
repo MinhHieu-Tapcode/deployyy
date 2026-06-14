@@ -500,7 +500,7 @@ app.get("/api/sessions", (req, res) => {
   return res.json(db.get("table_sessions"));
 });
 app.post(["/api/sessions", "/api/sessions/start"], (req, res) => {
-  const { tableId, phone, guestsCount, existingCode, createdBy } = req.body;
+  const { tableId, phone, guestsCount, existingCode, createdBy, customerName } = req.body;
   if (!tableId || !phone) {
     return res.status(400).json({ error: "Thi\u1EBFu th\xF4ng tin s\u1ED1 b\xE0n ho\u1EB7c s\u1ED1 \u0111i\u1EC7n tho\u1EA1i." });
   }
@@ -522,6 +522,7 @@ app.post(["/api/sessions", "/api/sessions/start"], (req, res) => {
   }
   const generatedCode = existingCode || Math.random().toString(36).substring(2, 6).toUpperCase();
   const sessionId = `s_${tableId}_${Date.now().toString().slice(-4)}`;
+  const displayCustomerName = customerName && customerName.trim() ? customerName.trim() : "Kh\xE1ch v\xE3ng lai";
   const newSession = {
     id: sessionId,
     table_id: tableId,
@@ -532,6 +533,7 @@ app.post(["/api/sessions", "/api/sessions/start"], (req, res) => {
     share_code: generatedCode,
     status: "active",
     guests_count: guestsCount ? Number(guestsCount) : 4,
+    customer_name: displayCustomerName,
     created_by: createdBy || null
   };
   db.save("table_sessions", [newSession, ...sessions]);
@@ -545,7 +547,7 @@ app.post(["/api/sessions", "/api/sessions/start"], (req, res) => {
     createdBy || "guest",
     createdBy ? "Nh\xE2n vi\xEAn l\u1EC5 t\xE2n" : "Kh\xE1ch h\xE0ng",
     "M\u1EDF phi\xEAn \u0111\u1EB7t b\xE0n",
-    `K\xEDch ho\u1EA1t b\xE0n ${tableId} c\xF9ng S\u0110T ${trimmedPhone} - Kh\xE1ch ng\u1ED3i: ${newSession.guests_count} - M\xE3: ${generatedCode}`
+    `K\xEDch ho\u1EA1t b\xE0n ${tableId} cho ${displayCustomerName} c\xF9ng S\u0110T ${trimmedPhone} - Kh\xE1ch ng\u1ED3i: ${newSession.guests_count} - M\xE3: ${generatedCode}`
   );
   return res.json({ success: true, shareCode: generatedCode, sessionId });
 });

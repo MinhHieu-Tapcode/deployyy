@@ -1702,6 +1702,51 @@ export default function ReceptionLayout() {
                 </div>
               )}
 
+              {/* Mismatch exception case: Table is occupied but no active session is found in database */}
+              {simulatedStatusOfCurrentModal === TableStatus.CO_KHACH && !activeSessionOfModalTable && (
+                <div className="space-y-6">
+                  <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="text-amber-600 mt-0.5 shrink-0" size={20} />
+                      <div className="space-y-1">
+                        <p className="text-xs font-black uppercase text-amber-950">Không tìm thấy phiên hoạt động!</p>
+                        <p className="text-xs text-amber-800 leading-relaxed">
+                          Bàn này đang ghi nhận trạng thái <strong className="font-bold">Có khách</strong> nhưng hệ thống không tìm thấy phiên ăn uống nào đang hoạt động.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm space-y-4">
+                    <p className="text-xs font-semibold text-gray-700">
+                      Bạn có thể chọn một trong các hành động dưới đây để đồng bộ lại trạng thái bàn:
+                    </p>
+                    <div className="flex flex-col gap-3">
+                      <button
+                        onClick={() => {
+                          setTableStatusManual(currentModalTable.Ma_ban, TableStatus.TRONG);
+                          setIsModalOpen(false);
+                          alert(`Đã chuyển trạng thái bàn ${currentModalTable.Ma_ban} về Trống thành công.`);
+                        }}
+                        className="w-full py-3 bg-[#EE3124] hover:bg-[#d6281e] text-white rounded-2xl text-xs font-black uppercase shadow-md transition"
+                      >
+                        Giải phóng bàn về Trống
+                      </button>
+                      <button
+                        onClick={() => {
+                          setTableStatusManual(currentModalTable.Ma_ban, TableStatus.CHUAN_BI);
+                          setIsModalOpen(false);
+                          alert(`Đã chuyển trạng thái bàn ${currentModalTable.Ma_ban} về Chuẩn bị đón khách.`);
+                        }}
+                        className="w-full py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-2xl text-xs font-black uppercase transition"
+                      >
+                        Chuyển về Chuẩn bị đón khách
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Case 5: CLEANUP / DANG_DON -> clearance */}
               {simulatedStatusOfCurrentModal === TableStatus.DANG_DON && (
                 <div className="space-y-4 text-center py-4">
