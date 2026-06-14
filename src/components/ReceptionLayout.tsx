@@ -167,7 +167,22 @@ export default function ReceptionLayout() {
 
   // Helper checking if a specific table is pre-booked on the viewed calendar date
   const findTableBookingAtSelectedTime = (tableId: string) => {
-    return bookingsOnDate.find(r => r.Ma_ban === tableId);
+    return bookingsOnDate.find(r => {
+      if (r.Ma_ban !== tableId) return false;
+      
+      // Parse booking time (e.g. "18:00")
+      const [bookHour, bookMin] = r.Gio_dat.split(':').map(Number);
+      if (Number.isNaN(bookHour) || Number.isNaN(bookMin)) return false;
+      const bookTotalMin = bookHour * 60 + bookMin;
+      
+      // Parse currently viewed calendar time (e.g. "18:15")
+      const [selHour, selMin] = selectedCalendarTime.split(':').map(Number);
+      if (Number.isNaN(selHour) || Number.isNaN(selMin)) return false;
+      const selTotalMin = selHour * 60 + selMin;
+      
+      // The booking is active/displayed if the selected calendar time falls within 30 minutes from Gio_dat
+      return selTotalMin >= bookTotalMin && selTotalMin <= bookTotalMin + 30;
+    });
   };
 
   // Search filter for tables or reservations matching name, phone, or table ID
