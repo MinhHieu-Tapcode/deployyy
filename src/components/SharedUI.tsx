@@ -35,7 +35,7 @@ export function ToastContainer({ toasts, onRemove }: { toasts: ToastMessage[]; o
   );
 }
 
-function ToastItem({ toast, onClose }: { toast: ToastMessage; onClose: () => void }) {
+function ToastItem({ toast, onClose }: { toast: ToastMessage; onClose: () => void; key?: any }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
@@ -528,6 +528,7 @@ export function OrderItemRow({
   dishName: string; 
   onStatusChange?: (nextStatus: OrderItemStatus) => void;
   showActions?: boolean;
+  key?: any;
 }) {
   // Calculate elapsed time
   const elapsedMins = Math.floor((Date.now() - new Date(item.Thoi_gian_dat).getTime()) / 60000);

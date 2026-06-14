@@ -76,9 +76,10 @@ async function runTests() {
         order_id: 'o_test_999',
         dish_id: dish.id,
         quantity: quantity,
-        price_at_order: dish.price,
+        price_at_time: dish.price,
         item_status: 'Đang chờ' as any,
-        notes: 'Test automatic deduction'
+        notes: 'Test automatic deduction',
+        ordered_at: new Date().toISOString()
       };
       
       db.save('order_details', [testDetail, ...orderDetails]);
