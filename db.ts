@@ -253,13 +253,13 @@ const defaultDbState: DatabaseSchema = {
     { id: 'kh003', phone: '0971234567' }
   ],
   categories: [
+    { id: 'dm05', name: 'Đồ khai vị', sort_order: 1, status: 'Hiển thị' },
     { id: 'dm01', name: 'Lẩu', sort_order: 2, status: 'Hiển thị' },
     { id: 'dm02', name: 'Đồ nhúng lẩu', sort_order: 3, status: 'Hiển thị' },
-    { id: 'dm03', name: 'Đồ uống', sort_order: 4, status: 'Hiển thị' },
-    { id: 'dm05', name: 'Đồ khai vị', sort_order: 1, status: 'Hiển thị' }
+    { id: 'dm03', name: 'Đồ uống', sort_order: 4, status: 'Hiển thị' }
   ],
   dishes: [
-    { id: 'm01', category_id: 'dm01', name: 'Lẩu Nấm Thập Cẩm', price: 299000, description: 'Lẩu nấm thập cẩm với nhiều loại nấm tươi ngon, nước dùng thanh ngọt.', image_url: 'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=600&auto=format&fit=crop&q=60', status: 'Còn phục vụ' },
+    { id: 'm01', category_id: 'dm01', name: 'Lẩu Nấm Thập Cẩm', price: 299000, description: 'Lẩu nấm thập cẩm với nhiều loại nấm tươi ngon, nước dùng thanh ngọt.', image_url: 'https://images.unsplash.com/photo-1547928500-4722f55cc829?w=600&auto=format&fit=crop&q=60', status: 'Còn phục vụ' },
     { id: 'm02', category_id: 'dm01', name: 'Lẩu Nấm Gà Đen', price: 289000, description: 'Lẩu nấm kết hợp cùng Gà đen giàu dinh dưỡng, thịt gà săn chắc, nước cốt nấm đặc biệt.', image_url: 'https://images.unsplash.com/photo-1598449356475-b9f71db7d847?w=600&auto=format&fit=crop&q=60', status: 'Còn phục vụ' },
     { id: 'm03', category_id: 'dm01', name: 'Lẩu Nấm Hải Sản', price: 329000, description: 'Hương vị biển cả hòa quyện cùng vị ngọt thanh của nấm rừng tự nhiên.', image_url: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=60', status: 'Còn phục vụ' },
     { id: 'm04', category_id: 'dm02', name: 'Ba chỉ bò Mỹ', price: 159000, description: 'Thịt ba chỉ bò Mỹ thái lát mỏng, xen kẽ vân mỡ hoàn hảo để nhúng lẩu.', image_url: 'https://images.unsplash.com/photo-1514516317472-f558c73c295f?w=600&auto=format&fit=crop&q=60', status: 'Còn phục vụ' },

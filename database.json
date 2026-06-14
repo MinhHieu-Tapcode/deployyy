@@ -409,6 +409,12 @@
   ],
   "categories": [
     {
+      "id": "dm05",
+      "name": "Đồ khai vị",
+      "sort_order": 1,
+      "status": "Hiển thị"
+    },
+    {
       "id": "dm01",
       "name": "Lẩu",
       "sort_order": 2,
@@ -424,12 +430,6 @@
       "id": "dm03",
       "name": "Đồ uống",
       "sort_order": 4,
-      "status": "Hiển thị"
-    },
-    {
-      "id": "dm05",
-      "name": "Đồ khai vị",
-      "sort_order": 1,
       "status": "Hiển thị"
     }
   ],
@@ -825,324 +825,1222 @@
   "recipe_items": [
     {
       "dish_id": "m01",
-      "material_id": "nvl07",
+      "material_id": "nvl11",
       "quantity": 1500,
       "unit": "ml"
     },
     {
       "dish_id": "m01",
-      "material_id": "nvl01",
+      "material_id": "nvl12",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m01",
+      "material_id": "nvl13",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m01",
+      "material_id": "nvl14",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m01",
+      "material_id": "nvl15",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m01",
+      "material_id": "nvl16",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m01",
+      "material_id": "nvl17",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m01",
+      "material_id": "nvl18",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m01",
+      "material_id": "nvl19",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m01",
+      "material_id": "nvl20",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m01",
+      "material_id": "nvl21",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m01",
+      "material_id": "nvl22",
+      "quantity": 1,
+      "unit": "cái"
+    },
+    {
+      "dish_id": "m02",
+      "material_id": "nvl11",
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m02",
+      "material_id": "nvl23",
       "quantity": 150,
       "unit": "g"
     },
     {
       "dish_id": "m02",
-      "material_id": "nvl07",
-      "quantity": 1500,
-      "unit": "ml"
+      "material_id": "nvl24",
+      "quantity": 100,
+      "unit": "g"
     },
     {
       "dish_id": "m02",
-      "material_id": "nvl01",
+      "material_id": "nvl25",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m02",
+      "material_id": "nvl26",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m02",
+      "material_id": "nvl27",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m02",
+      "material_id": "nvl28",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m02",
+      "material_id": "nvl29",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m02",
+      "material_id": "nvl19",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m02",
+      "material_id": "nvl21",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m02",
+      "material_id": "nvl22",
+      "quantity": 1,
+      "unit": "cái"
+    },
+    {
+      "dish_id": "m03",
+      "material_id": "nvl11",
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m03",
+      "material_id": "nvl30",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m03",
+      "material_id": "nvl31",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m03",
+      "material_id": "nvl32",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m03",
+      "material_id": "nvl14",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m03",
+      "material_id": "nvl33",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m03",
+      "material_id": "nvl17",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m03",
+      "material_id": "nvl34",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m03",
+      "material_id": "nvl19",
       "quantity": 150,
       "unit": "g"
     },
     {
       "dish_id": "m03",
-      "material_id": "nvl07",
-      "quantity": 1500,
-      "unit": "ml"
+      "material_id": "nvl20",
+      "quantity": 150,
+      "unit": "g"
     },
     {
       "dish_id": "m03",
-      "material_id": "nvl01",
+      "material_id": "nvl21",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m03",
+      "material_id": "nvl22",
+      "quantity": 1,
+      "unit": "cái"
+    },
+    {
+      "dish_id": "m04",
+      "material_id": "nvl11",
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m04",
+      "material_id": "nvl12",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m04",
+      "material_id": "nvl32",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m04",
+      "material_id": "nvl14",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m04",
+      "material_id": "nvl18",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m04",
+      "material_id": "nvl19",
       "quantity": 150,
       "unit": "g"
     },
     {
       "dish_id": "m04",
-      "material_id": "nvl07",
-      "quantity": 1500,
-      "unit": "ml"
+      "material_id": "nvl35",
+      "quantity": 100,
+      "unit": "g"
     },
     {
       "dish_id": "m04",
-      "material_id": "nvl01",
+      "material_id": "nvl21",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m04",
+      "material_id": "nvl22",
+      "quantity": 1,
+      "unit": "cái"
+    },
+    {
+      "dish_id": "m05",
+      "material_id": "nvl11",
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m05",
+      "material_id": "nvl36",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m05",
+      "material_id": "nvl37",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m05",
+      "material_id": "nvl38",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m05",
+      "material_id": "nvl19",
       "quantity": 150,
       "unit": "g"
     },
     {
       "dish_id": "m05",
-      "material_id": "nvl07",
-      "quantity": 1500,
-      "unit": "ml"
+      "material_id": "nvl39",
+      "quantity": 100,
+      "unit": "g"
     },
     {
       "dish_id": "m05",
+      "material_id": "nvl22",
+      "quantity": 1,
+      "unit": "cái"
+    },
+    {
+      "dish_id": "m06",
+      "material_id": "nvl11",
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m06",
+      "material_id": "nvl40",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m06",
+      "material_id": "nvl37",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m06",
+      "material_id": "nvl16",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m06",
+      "material_id": "nvl41",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m06",
+      "material_id": "nvl42",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m06",
       "material_id": "nvl01",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m06",
+      "material_id": "nvl19",
       "quantity": 150,
       "unit": "g"
     },
     {
       "dish_id": "m06",
-      "material_id": "nvl07",
-      "quantity": 1500,
-      "unit": "ml"
+      "material_id": "nvl43",
+      "quantity": 250,
+      "unit": "g"
     },
     {
       "dish_id": "m06",
-      "material_id": "nvl01",
+      "material_id": "nvl44",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m07",
+      "material_id": "nvl11",
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m07",
+      "material_id": "nvl45",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m07",
+      "material_id": "nvl37",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m07",
+      "material_id": "nvl46",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m07",
+      "material_id": "nvl17",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m07",
+      "material_id": "nvl38",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m07",
+      "material_id": "nvl19",
       "quantity": 150,
       "unit": "g"
     },
     {
       "dish_id": "m07",
-      "material_id": "nvl07",
-      "quantity": 1500,
-      "unit": "ml"
+      "material_id": "nvl43",
+      "quantity": 250,
+      "unit": "g"
     },
     {
       "dish_id": "m07",
-      "material_id": "nvl01",
-      "quantity": 150,
-      "unit": "g"
+      "material_id": "nvl22",
+      "quantity": 1,
+      "unit": "cái"
     },
     {
       "dish_id": "m08",
-      "material_id": "nvl07",
+      "material_id": "nvl11",
       "quantity": 1500,
       "unit": "ml"
     },
     {
       "dish_id": "m08",
-      "material_id": "nvl01",
+      "material_id": "nvl47",
       "quantity": 150,
       "unit": "g"
     },
     {
+      "dish_id": "m08",
+      "material_id": "nvl24",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m08",
+      "material_id": "nvl14",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m08",
+      "material_id": "nvl29",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m08",
+      "material_id": "nvl19",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m08",
+      "material_id": "nvl35",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m08",
+      "material_id": "nvl21",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m08",
+      "material_id": "nvl22",
+      "quantity": 1,
+      "unit": "cái"
+    },
+    {
       "dish_id": "m09",
-      "material_id": "nvl07",
+      "material_id": "nvl11",
       "quantity": 1500,
       "unit": "ml"
     },
     {
       "dish_id": "m09",
-      "material_id": "nvl01",
+      "material_id": "nvl13",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m09",
+      "material_id": "nvl14",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m09",
+      "material_id": "nvl30",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m09",
+      "material_id": "nvl34",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m09",
+      "material_id": "nvl19",
       "quantity": 150,
       "unit": "g"
+    },
+    {
+      "dish_id": "m09",
+      "material_id": "nvl35",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m09",
+      "material_id": "nvl21",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m09",
+      "material_id": "nvl22",
+      "quantity": 1,
+      "unit": "cái"
     },
     {
       "dish_id": "m10",
-      "material_id": "nvl01",
-      "quantity": 50,
+      "material_id": "nvl48",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m11",
-      "material_id": "nvl01",
-      "quantity": 50,
+      "material_id": "nvl49",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m12",
-      "material_id": "nvl01",
-      "quantity": 50,
+      "material_id": "nvl20",
+      "quantity": 150,
       "unit": "g"
     },
     {
       "dish_id": "m13",
-      "material_id": "nvl01",
-      "quantity": 50,
+      "material_id": "nvl50",
+      "quantity": 150,
       "unit": "g"
     },
     {
       "dish_id": "m14",
-      "material_id": "nvl01",
-      "quantity": 50,
+      "material_id": "nvl51",
+      "quantity": 150,
       "unit": "g"
     },
     {
       "dish_id": "m15",
-      "material_id": "nvl01",
-      "quantity": 50,
+      "material_id": "nvl52",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m16",
-      "material_id": "nvl01",
-      "quantity": 50,
+      "material_id": "nvl53",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m16",
+      "material_id": "nvl54",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m17",
-      "material_id": "nvl01",
-      "quantity": 50,
+      "material_id": "nvl55",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m17",
+      "material_id": "nvl56",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m17",
+      "material_id": "nvl57",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m18",
-      "material_id": "nvl01",
-      "quantity": 50,
+      "material_id": "nvl04",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m18",
+      "material_id": "nvl58",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m18",
+      "material_id": "nvl59",
+      "quantity": 1,
+      "unit": "cái"
+    },
+    {
+      "dish_id": "m19",
+      "material_id": "nvl03",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m19",
-      "material_id": "nvl01",
-      "quantity": 50,
+      "material_id": "nvl60",
+      "quantity": 250,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m19",
+      "material_id": "nvl61",
+      "quantity": 250,
       "unit": "g"
     },
     {
       "dish_id": "m20",
-      "material_id": "nvl01",
-      "quantity": 50,
+      "material_id": "nvl04",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m20",
+      "material_id": "nvl02",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m20",
+      "material_id": "nvl03",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m21",
-      "material_id": "nvl01",
-      "quantity": 100,
+      "material_id": "nvl20",
+      "quantity": 150,
       "unit": "g"
     },
     {
       "dish_id": "m22",
-      "material_id": "nvl01",
-      "quantity": 100,
+      "material_id": "nvl62",
+      "quantity": 250,
       "unit": "g"
     },
     {
       "dish_id": "m23",
-      "material_id": "nvl01",
-      "quantity": 100,
+      "material_id": "nvl63",
+      "quantity": 250,
       "unit": "g"
     },
     {
       "dish_id": "m24",
-      "material_id": "nvl01",
-      "quantity": 100,
+      "material_id": "nvl64",
+      "quantity": 250,
       "unit": "g"
     },
     {
       "dish_id": "m25",
-      "material_id": "nvl01",
-      "quantity": 100,
+      "material_id": "nvl65",
+      "quantity": 250,
       "unit": "g"
     },
     {
       "dish_id": "m26",
-      "material_id": "nvl01",
-      "quantity": 100,
+      "material_id": "nvl66",
+      "quantity": 250,
       "unit": "g"
     },
     {
       "dish_id": "m27",
-      "material_id": "nvl01",
-      "quantity": 100,
+      "material_id": "nvl67",
+      "quantity": 250,
       "unit": "g"
     },
     {
       "dish_id": "m28",
       "material_id": "nvl09",
-      "quantity": 200,
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m29",
-      "material_id": "nvl09",
-      "quantity": 200,
+      "material_id": "nvl68",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m30",
-      "material_id": "nvl09",
-      "quantity": 200,
+      "material_id": "nvl24",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m31",
-      "material_id": "nvl09",
-      "quantity": 200,
+      "material_id": "nvl13",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m32",
-      "material_id": "nvl09",
-      "quantity": 200,
+      "material_id": "nvl55",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m33",
-      "material_id": "nvl09",
-      "quantity": 200,
+      "material_id": "nvl69",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m34",
-      "material_id": "nvl09",
-      "quantity": 200,
+      "material_id": "nvl70",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m35",
-      "material_id": "nvl04",
-      "quantity": 150,
+      "material_id": "nvl71",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m36",
-      "material_id": "nvl04",
-      "quantity": 150,
+      "material_id": "nvl72",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m37",
-      "material_id": "nvl04",
-      "quantity": 150,
+      "material_id": "nvl41",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m38",
-      "material_id": "nvl04",
-      "quantity": 150,
+      "material_id": "nvl57",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m39",
-      "material_id": "nvl04",
-      "quantity": 150,
+      "material_id": "nvl73",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m40",
-      "material_id": "nvl04",
-      "quantity": 150,
+      "material_id": "nvl53",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m41",
-      "material_id": "nvl04",
-      "quantity": 150,
+      "material_id": "nvl42",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m42",
-      "material_id": "nvl04",
-      "quantity": 150,
+      "material_id": "nvl74",
+      "quantity": 100,
       "unit": "g"
     },
     {
       "dish_id": "m43",
       "material_id": "nvl10",
-      "quantity": 1,
+      "quantity": 1500,
       "unit": "chai"
     }
   ],
   "raw_materials": [
+    {
+      "id": "nvl11",
+      "name": "Canh đặc biệt",
+      "unit": "ml",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl12",
+      "name": "Salad nấm",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl13",
+      "name": "Thịt chim câu",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl14",
+      "name": "Thịt bò ba chỉ",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl15",
+      "name": "Thịt rôm sú",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl16",
+      "name": "Nấm vuốt hổ đen",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl17",
+      "name": "Nấm đông trùng hạ thảo",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl18",
+      "name": "Set 7 nấm thiên nhiên",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl19",
+      "name": "Đậu phụ",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl20",
+      "name": "Khoai môn",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl21",
+      "name": "Rau tổng hợp",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl22",
+      "name": "Mỳ Gia Khánh",
+      "unit": "cái",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl23",
+      "name": "Khoai lang chiên",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl24",
+      "name": "Thịt gà ác",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl25",
+      "name": "Thịt bò",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl26",
+      "name": "Thịt cá chình",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl27",
+      "name": "Nấm đông trùng",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl28",
+      "name": "Nấm gan bò",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl29",
+      "name": "Set 6 nấm thiên nhiên",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl30",
+      "name": "Ngô chiên",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl31",
+      "name": "Thịt gà ta ( nhỏ )",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl32",
+      "name": "Thịt tôm sú",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl33",
+      "name": "Nấm bụng dê",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl34",
+      "name": "Set 5 nấm thiên nhiên",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl35",
+      "name": "Phù trúc",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl36",
+      "name": "Thịt gà ta (nhỏ )",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl37",
+      "name": "Thịt bò ba chỉ ( nhỏ )",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl38",
+      "name": "Set 6 nấm thiên nhiên ( nhỏ )",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl39",
+      "name": "Cải xanh",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl40",
+      "name": "Thịt chim câu ( nhỏ )",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl41",
+      "name": "Nấm tiên",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl42",
+      "name": "Nấm thủy tinh nâu",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
     {
       "id": "nvl01",
       "name": "Nấm kim châm",
       "unit": "g",
       "stock_current": 8200,
       "stock_min": 2000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl43",
+      "name": "Rau theo mùa",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl44",
+      "name": "Mỹ tôm",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl45",
+      "name": "Thịt gà ác ( nhỏ )",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl46",
+      "name": "Thịt tôm ( nhỏ )",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl47",
+      "name": "Khoai chiên",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl48",
+      "name": "Dưa chuột",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl49",
+      "name": "Lạc",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl50",
+      "name": "Khoai lang",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl51",
+      "name": "Khoai tây",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl52",
+      "name": "Ngô ngọt",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl53",
+      "name": "Nấm tuyết nhĩ",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl54",
+      "name": "Thịt băm",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl55",
+      "name": "Tôm sú",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl56",
+      "name": "Mực",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl57",
+      "name": "Nấm hải sản",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl04",
+      "name": "Nấm hương",
+      "unit": "g",
+      "stock_current": 600,
+      "stock_min": 800,
+      "stock_max": 8000
+    },
+    {
+      "id": "nvl58",
+      "name": "Mộc nhĩ",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl59",
+      "name": "Bánh đa nem",
+      "unit": "cái",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl03",
+      "name": "Nấm đùi gà",
+      "unit": "g",
+      "stock_current": 1200,
+      "stock_min": 1000,
+      "stock_max": 10000
+    },
+    {
+      "id": "nvl60",
+      "name": "Rau trộn",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl61",
+      "name": "Xốt Salad",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
       "stock_max": 20000
     },
     {
@@ -1154,52 +2052,52 @@
       "stock_max": 15000
     },
     {
-      "id": "nvl03",
-      "name": "Nấm đùi gà",
+      "id": "nvl62",
+      "name": "Rau muống",
       "unit": "g",
-      "stock_current": 1200,
+      "stock_current": 5000,
       "stock_min": 1000,
-      "stock_max": 10000
+      "stock_max": 20000
     },
     {
-      "id": "nvl04",
-      "name": "Nấm hương",
+      "id": "nvl63",
+      "name": "Rau cải xanh",
       "unit": "g",
-      "stock_current": 600,
-      "stock_min": 800,
-      "stock_max": 8000
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
     },
     {
-      "id": "nvl05",
-      "name": "Nấm tuyết",
+      "id": "nvl64",
+      "name": "Rau cần",
       "unit": "g",
-      "stock_current": 1500,
-      "stock_min": 500,
-      "stock_max": 5000
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
     },
     {
-      "id": "nvl06",
-      "name": "Đậu hũ non",
+      "id": "nvl65",
+      "name": "Rau cải xoong",
       "unit": "g",
-      "stock_current": 16000,
-      "stock_min": 2000,
-      "stock_max": 15000
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
     },
     {
-      "id": "nvl07",
-      "name": "Nước dùng",
-      "unit": "ml",
-      "stock_current": 110000,
-      "stock_min": 20000,
-      "stock_max": 250000
-    },
-    {
-      "id": "nvl08",
-      "name": "Gà đen",
+      "id": "nvl66",
+      "name": "Rau cải cúc",
       "unit": "g",
-      "stock_current": 0,
-      "stock_min": 2000,
-      "stock_max": 15000
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl67",
+      "name": "Rau cải thảo",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
     },
     {
       "id": "nvl09",
@@ -1208,6 +2106,62 @@
       "stock_current": 25000,
       "stock_min": 5000,
       "stock_max": 50000
+    },
+    {
+      "id": "nvl68",
+      "name": "Thịt gà ta",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl69",
+      "name": "Thịt ếch",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl70",
+      "name": "Thịt cá hồi",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl71",
+      "name": "Nấm hương tươi",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl72",
+      "name": "Nấm yến",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl73",
+      "name": "Nấm kim châm trắng",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
+    },
+    {
+      "id": "nvl74",
+      "name": "Nấm thủy tinh trắng",
+      "unit": "g",
+      "stock_current": 5000,
+      "stock_min": 1000,
+      "stock_max": 20000
     },
     {
       "id": "nvl10",
