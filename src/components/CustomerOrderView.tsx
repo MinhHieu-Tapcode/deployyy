@@ -203,7 +203,7 @@ export default function CustomerOrderView() {
   const [dishNotes, setDishNotes] = useState('');
 
   // Submit Phone / Check in as Host
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneNumber || phoneNumber.length < 9) {
       setErrorMessage('Số điện thoại không hợp lệ.');
@@ -228,7 +228,7 @@ export default function CustomerOrderView() {
       setErrorMessage('');
     } else {
       try {
-        const generatedCode = startTableSession(tableId, phoneNumber);
+        const generatedCode = await startTableSession(tableId, phoneNumber);
         setCurrentSessionCode(generatedCode);
         setActiveStep('menu');
         setErrorMessage('');
