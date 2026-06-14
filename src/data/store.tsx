@@ -153,6 +153,7 @@ interface RestaurantContextType {
   startTableSession: (tableId: string, phone: string, guestsCount?: number, existingCode?: string) => Promise<string>;
   placeCustomerOrder: (tableId: string, cartItems: { dishId: string; quantity: number; notes: string }[]) => Promise<string>;
   updateOrderItemStatus: (detailId: string, newStatus: OrderItemStatus) => Promise<{ success: boolean; error?: string }>;
+  cancelOrderItem: (detailId: string) => Promise<{ success: boolean; error?: string }>;
   addEmployee: (emp: Omit<Employee, 'Ma_nhan_vien'>) => void;
   updateEmployee: (emp: Employee) => void;
   deleteEmployee: (id: string) => void;
@@ -452,6 +453,25 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
         return { success: true };
       }
       return { success: false, error: data.error || 'Thao tác cập nhật lỗi.' };
+    } catch (e) {
+      return { success: false, error: 'Kết nối mạng thất bại.' };
+    }
+  };
+  
+  const cancelOrderItem = async (detailId: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await fetch(`/api/order-details/${detailId}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ operatorId: 'guest', operatorName: 'Khách hàng' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        addToast('Đã hủy món đang chờ bếp tiếp nhận.', 'success');
+        refreshData();
+        return { success: true };
+      }
+      return { success: false, error: data.error || 'Không thể hủy món.' };
     } catch (e) {
       return { success: false, error: 'Kết nối mạng thất bại.' };
     }
@@ -827,6 +847,7 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
         startTableSession,
         placeCustomerOrder,
         updateOrderItemStatus,
+        cancelOrderItem,
         addEmployee,
         updateEmployee,
         deleteEmployee,
