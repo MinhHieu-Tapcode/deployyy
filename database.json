@@ -437,68 +437,383 @@
     {
       "id": "m01",
       "category_id": "dm01",
-      "name": "Lẩu Nấm Thập Cẩm",
-      "price": 299000,
-      "description": "Lẩu nấm thập cẩm với nhiều loại nấm tươi ngon, nước dùng thanh ngọt.",
-      "image_url": "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=600&auto=format&fit=crop&q=60",
+      "name": "Combo 6 khách -  Chim câu",
+      "price": 1730000,
+      "description": "Combo 6 khách -  Chim câu chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/240598260_4286049091472471_2686320172808960609_n-300x200.jpg",
       "status": "Còn phục vụ"
     },
     {
       "id": "m02",
       "category_id": "dm01",
-      "name": "Lẩu Nấm Gà Đen",
-      "price": 289000,
-      "description": "Lẩu nấm kết hợp cùng Gà đen giàu dinh dưỡng, thịt gà săn chắc, nước cốt nấm đặc biệt.",
-      "image_url": "https://images.unsplash.com/photo-1598449356475-b9f71db7d847?w=600&auto=format&fit=crop&q=60",
+      "name": "Combo 6 khách -  Gà ác",
+      "price": 1678000,
+      "description": "Combo 6 khách -  Gà ác chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/240598260_4286049091472471_2686320172808960609_n-300x200.jpg",
       "status": "Còn phục vụ"
     },
     {
       "id": "m03",
       "category_id": "dm01",
-      "name": "Lẩu Nấm Hải Sản",
-      "price": 329000,
-      "description": "Hương vị biển cả hòa quyện cùng vị ngọt thanh của nấm rừng tự nhiên.",
-      "image_url": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=60",
+      "name": "Combo 6 khách - Gà ta",
+      "price": 1519000,
+      "description": "Combo 6 khách - Gà ta chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/240598260_4286049091472471_2686320172808960609_n-300x200.jpg",
       "status": "Còn phục vụ"
     },
     {
       "id": "m04",
-      "category_id": "dm02",
-      "name": "Ba chỉ bò Mỹ",
-      "price": 159000,
-      "description": "Thịt ba chỉ bò Mỹ thái lát mỏng, xen kẽ vân mỡ hoàn hảo để nhúng lẩu.",
-      "image_url": "https://images.unsplash.com/photo-1514516317472-f558c73c295f?w=600&auto=format&fit=crop&q=60",
+      "category_id": "dm01",
+      "name": "Combo 4 khách - Tôm sú",
+      "price": 1220000,
+      "description": "Combo 4 khách - Tôm sú chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Rectangle 1.jpg",
       "status": "Còn phục vụ"
     },
     {
       "id": "m05",
-      "category_id": "dm02",
-      "name": "Nấm Kim Châm",
-      "price": 39000,
-      "description": "Nấm kim châm tươi, giòn ngọt, thích hợp nhúng lẩu.",
-      "image_url": "https://images.unsplash.com/photo-1504387828639-127924548c41?w=600&auto=format&fit=crop&q=60",
+      "category_id": "dm01",
+      "name": "Combo Tri kỉ ( 2 khách )",
+      "price": 645000,
+      "description": "Combo Tri kỉ ( 2 khách ) chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/240598260_4286049091472471_2686320172808960609_n-300x200.jpg",
       "status": "Còn phục vụ"
     },
     {
       "id": "m06",
-      "category_id": "dm02",
-      "name": "Nấm bào ngư",
-      "price": 39000,
-      "description": "Nấm bào ngư tươi, vị dai bùi tinh khiết.",
-      "image_url": "https://images.unsplash.com/photo-1535254973040-607b474cb50d?w=600&auto=format&fit=crop&q=60",
+      "category_id": "dm01",
+      "name": "Combo Uyên Ương ( 2 khách )",
+      "price": 725000,
+      "description": "Combo Uyên Ương ( 2 khách ) chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/240598260_4286049091472471_2686320172808960609_n-300x200.jpg",
       "status": "Còn phục vụ"
     },
     {
       "id": "m07",
-      "category_id": "dm02",
-      "name": "Tàu hũ kỵ",
-      "price": 35000,
-      "description": "Tàu hũ kỵ chiên giòn, béo ngậy nhúng lẩu nấm cực hợp.",
-      "image_url": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=60",
-      "status": "Hết món"
+      "category_id": "dm01",
+      "name": "Combo Đặc biệt ( 2 khách )",
+      "price": 825000,
+      "description": "Combo Đặc biệt ( 2 khách ) chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/240598260_4286049091472471_2686320172808960609_n-300x200.jpg",
+      "status": "Còn phục vụ"
     },
     {
       "id": "m08",
+      "category_id": "dm01",
+      "name": "Combo 4 khách  - Gà ác",
+      "price": 1055000,
+      "description": "Combo 4 khách  - Gà ác chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/combo.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m09",
+      "category_id": "dm01",
+      "name": "Combo 4 khách  - chim câu",
+      "price": 1080000,
+      "description": "Combo 4 khách  - chim câu chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/SET 250K chuẩn.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m10",
+      "category_id": "dm05",
+      "name": "DƯA CHUỘT CHẺ",
+      "price": 25000,
+      "description": "DƯA CHUỘT CHẺ chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/DuaChuotChe.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m11",
+      "category_id": "dm05",
+      "name": "LẠC",
+      "price": 15000,
+      "description": "LẠC chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/Lac.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m12",
+      "category_id": "dm05",
+      "name": "KHOAI MÔN CHIÊN",
+      "price": 55000,
+      "description": "KHOAI MÔN CHIÊN chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/KhoaiMonChien.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m13",
+      "category_id": "dm05",
+      "name": "KHOAI LANG CHIÊN",
+      "price": 50000,
+      "description": "KHOAI LANG CHIÊN chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/KhoaiLangChien.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m14",
+      "category_id": "dm05",
+      "name": "KHOAI TÂY CHIÊN",
+      "price": 50000,
+      "description": "KHOAI TÂY CHIÊN chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/KhoaiTayChien.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m15",
+      "category_id": "dm05",
+      "name": "NGÔ CHIÊN",
+      "price": 50000,
+      "description": "NGÔ CHIÊN chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/NgoChien.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m16",
+      "category_id": "dm05",
+      "name": "SÚP NẤM TRẮNG",
+      "price": 30000,
+      "description": "SÚP NẤM TRẮNG chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/SupNamTrang.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m17",
+      "category_id": "dm05",
+      "name": "SÚP NẤM HẢI SẢN",
+      "price": 45000,
+      "description": "SÚP NẤM HẢI SẢN chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/SupNamHaiSan.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m18",
+      "category_id": "dm05",
+      "name": "NEM NẤM (CHIẾC)",
+      "price": 12000,
+      "description": "NEM NẤM (CHIẾC) chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/NemNam.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m19",
+      "category_id": "dm05",
+      "name": "SALAD NẤM",
+      "price": 50000,
+      "description": "SALAD NẤM chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/SalasNam.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m20",
+      "category_id": "dm05",
+      "name": "NẤM XÀO TỔNG HỢP",
+      "price": 110000,
+      "description": "NẤM XÀO TỔNG HỢP chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/NamXaoTongHop.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m21",
+      "category_id": "dm02",
+      "name": "KHOAI MÔN",
+      "price": 50000,
+      "description": "KHOAI MÔN chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/KhoaiMon.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m22",
+      "category_id": "dm02",
+      "name": "RAU MUỐNG",
+      "price": 25000,
+      "description": "RAU MUỐNG chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/RauMuong.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m23",
+      "category_id": "dm02",
+      "name": "RAU CẢI XANH",
+      "price": 25000,
+      "description": "RAU CẢI XANH chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/RauCai.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m24",
+      "category_id": "dm02",
+      "name": "RAU CẦN",
+      "price": 25000,
+      "description": "RAU CẦN chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/RauCan.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m25",
+      "category_id": "dm02",
+      "name": "RAU CẢI XOONG",
+      "price": 25000,
+      "description": "RAU CẢI XOONG chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/RauCaiXoong.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m26",
+      "category_id": "dm02",
+      "name": "RAU CẢI CÚC",
+      "price": 25000,
+      "description": "RAU CẢI CÚC chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/RauCaiCuc.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m27",
+      "category_id": "dm02",
+      "name": "RAU CẢI THẢO",
+      "price": 25000,
+      "description": "RAU CẢI THẢO chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/CaiThao.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m28",
+      "category_id": "dm02",
+      "name": "THỊT BÒ ÚC – ĐĨA TO",
+      "price": 130000,
+      "description": "THỊT BÒ ÚC – ĐĨA TO chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/ThitBoUc.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m29",
+      "category_id": "dm02",
+      "name": "GÀ TA – ĐĨA TO",
+      "price": 320000,
+      "description": "GÀ TA – ĐĨA TO chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/GaTa.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m30",
+      "category_id": "dm02",
+      "name": "GÀ ÁC – ĐĨA TO",
+      "price": 200000,
+      "description": "GÀ ÁC – ĐĨA TO chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/GaAc.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m31",
+      "category_id": "dm02",
+      "name": "CHIM CÂU",
+      "price": 280000,
+      "description": "CHIM CÂU chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/ChimCau.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m32",
+      "category_id": "dm02",
+      "name": "TÔM SÚ",
+      "price": 270000,
+      "description": "TÔM SÚ chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/TomSu.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m33",
+      "category_id": "dm02",
+      "name": "ẾCH – ĐĨA TO",
+      "price": 200000,
+      "description": "ẾCH – ĐĨA TO chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/Ech.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m34",
+      "category_id": "dm02",
+      "name": "CÁ HỒI",
+      "price": 320000,
+      "description": "CÁ HỒI chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/CaHoi.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m35",
+      "category_id": "dm02",
+      "name": "NẤM HƯƠNG TƯƠI",
+      "price": 68000,
+      "description": "NẤM HƯƠNG TƯƠI chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/08_NamHuongTuoi.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m36",
+      "category_id": "dm02",
+      "name": "NẤM YẾN",
+      "price": 62000,
+      "description": "NẤM YẾN chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/NamYen.png",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m37",
+      "category_id": "dm02",
+      "name": "NẤM TIÊN",
+      "price": 62000,
+      "description": "NẤM TIÊN chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/10_NamYen.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m38",
+      "category_id": "dm02",
+      "name": "NẤM HẢI SẢN",
+      "price": 62000,
+      "description": "NẤM HẢI SẢN chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/06_NamThuyTinhTrang.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m39",
+      "category_id": "dm02",
+      "name": "NẤM KIM CHÂM TRẮNG",
+      "price": 58000,
+      "description": "NẤM KIM CHÂM TRẮNG chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/05_NamKimChamTrang.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m40",
+      "category_id": "dm02",
+      "name": "NẤM TUYẾT NHĨ",
+      "price": 65000,
+      "description": "NẤM TUYẾT NHĨ chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/03_NamTuyetNhi.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m41",
+      "category_id": "dm02",
+      "name": "NẤM THỦY TINH NÂU",
+      "price": 78000,
+      "description": "NẤM THỦY TINH NÂU chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/07_NamThuyTinhNau.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m42",
+      "category_id": "dm02",
+      "name": "NẤM THỦY TINH TRẮNG",
+      "price": 78000,
+      "description": "NẤM THỦY TINH TRẮNG chế biến từ nguyên liệu tươi ngon nhất, chuẩn vị Lẩu nấm Gia Khánh.",
+      "image_url": "https://launamgiakhanh.vn/storage/upload_image/images/Menu/01_NamTien.jpg",
+      "status": "Còn phục vụ"
+    },
+    {
+      "id": "m43",
       "category_id": "dm03",
       "name": "Nước suối Lavie",
       "price": 15000,
@@ -510,75 +825,57 @@
   "recipe_items": [
     {
       "dish_id": "m01",
+      "material_id": "nvl07",
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m01",
       "material_id": "nvl01",
       "quantity": 150,
       "unit": "g"
     },
     {
-      "dish_id": "m01",
-      "material_id": "nvl02",
-      "quantity": 100,
-      "unit": "g"
-    },
-    {
-      "dish_id": "m01",
-      "material_id": "nvl03",
-      "quantity": 80,
-      "unit": "g"
-    },
-    {
-      "dish_id": "m01",
-      "material_id": "nvl04",
-      "quantity": 50,
-      "unit": "g"
-    },
-    {
-      "dish_id": "m01",
-      "material_id": "nvl05",
-      "quantity": 30,
-      "unit": "g"
-    },
-    {
-      "dish_id": "m01",
-      "material_id": "nvl06",
-      "quantity": 200,
-      "unit": "g"
-    },
-    {
-      "dish_id": "m01",
-      "material_id": "nvl07",
-      "quantity": 1200,
-      "unit": "ml"
-    },
-    {
       "dish_id": "m02",
-      "material_id": "nvl08",
-      "quantity": 500,
-      "unit": "g"
+      "material_id": "nvl07",
+      "quantity": 1500,
+      "unit": "ml"
     },
     {
       "dish_id": "m02",
       "material_id": "nvl01",
-      "quantity": 100,
+      "quantity": 150,
       "unit": "g"
     },
     {
-      "dish_id": "m02",
-      "material_id": "nvl04",
-      "quantity": 50,
-      "unit": "g"
-    },
-    {
-      "dish_id": "m02",
+      "dish_id": "m03",
       "material_id": "nvl07",
-      "quantity": 1000,
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m03",
+      "material_id": "nvl01",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m04",
+      "material_id": "nvl07",
+      "quantity": 1500,
       "unit": "ml"
     },
     {
       "dish_id": "m04",
-      "material_id": "nvl09",
-      "quantity": 200,
+      "material_id": "nvl01",
+      "quantity": 150,
       "unit": "g"
+    },
+    {
+      "dish_id": "m05",
+      "material_id": "nvl07",
+      "quantity": 1500,
+      "unit": "ml"
     },
     {
       "dish_id": "m05",
@@ -588,12 +885,252 @@
     },
     {
       "dish_id": "m06",
-      "material_id": "nvl02",
+      "material_id": "nvl07",
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m06",
+      "material_id": "nvl01",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m07",
+      "material_id": "nvl07",
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m07",
+      "material_id": "nvl01",
       "quantity": 150,
       "unit": "g"
     },
     {
       "dish_id": "m08",
+      "material_id": "nvl07",
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m08",
+      "material_id": "nvl01",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m09",
+      "material_id": "nvl07",
+      "quantity": 1500,
+      "unit": "ml"
+    },
+    {
+      "dish_id": "m09",
+      "material_id": "nvl01",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m10",
+      "material_id": "nvl01",
+      "quantity": 50,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m11",
+      "material_id": "nvl01",
+      "quantity": 50,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m12",
+      "material_id": "nvl01",
+      "quantity": 50,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m13",
+      "material_id": "nvl01",
+      "quantity": 50,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m14",
+      "material_id": "nvl01",
+      "quantity": 50,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m15",
+      "material_id": "nvl01",
+      "quantity": 50,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m16",
+      "material_id": "nvl01",
+      "quantity": 50,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m17",
+      "material_id": "nvl01",
+      "quantity": 50,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m18",
+      "material_id": "nvl01",
+      "quantity": 50,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m19",
+      "material_id": "nvl01",
+      "quantity": 50,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m20",
+      "material_id": "nvl01",
+      "quantity": 50,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m21",
+      "material_id": "nvl01",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m22",
+      "material_id": "nvl01",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m23",
+      "material_id": "nvl01",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m24",
+      "material_id": "nvl01",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m25",
+      "material_id": "nvl01",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m26",
+      "material_id": "nvl01",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m27",
+      "material_id": "nvl01",
+      "quantity": 100,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m28",
+      "material_id": "nvl09",
+      "quantity": 200,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m29",
+      "material_id": "nvl09",
+      "quantity": 200,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m30",
+      "material_id": "nvl09",
+      "quantity": 200,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m31",
+      "material_id": "nvl09",
+      "quantity": 200,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m32",
+      "material_id": "nvl09",
+      "quantity": 200,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m33",
+      "material_id": "nvl09",
+      "quantity": 200,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m34",
+      "material_id": "nvl09",
+      "quantity": 200,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m35",
+      "material_id": "nvl04",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m36",
+      "material_id": "nvl04",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m37",
+      "material_id": "nvl04",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m38",
+      "material_id": "nvl04",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m39",
+      "material_id": "nvl04",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m40",
+      "material_id": "nvl04",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m41",
+      "material_id": "nvl04",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m42",
+      "material_id": "nvl04",
+      "quantity": 150,
+      "unit": "g"
+    },
+    {
+      "dish_id": "m43",
       "material_id": "nvl10",
       "quantity": 1,
       "unit": "chai"
