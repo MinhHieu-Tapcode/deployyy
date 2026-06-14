@@ -24,7 +24,11 @@ export default function CustomerOrderView() {
 
   // QR Session states
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [tableId, setTableId] = useState('B03'); // Default target table for QR simulation
+  const [tableId, setTableId] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+    return params.get('tableId') || hashParams.get('tableId') || 'B03';
+  });
   const [enteredCode, setEnteredCode] = useState('');
   const [activeStep, setActiveStep] = useState<'phone' | 'join_code' | 'menu' | 'dish_detail' | 'cart' | 'success' | 'tracking'>('phone');
   
@@ -115,6 +119,7 @@ export default function CustomerOrderView() {
     });
     setSelectedDishId(null);
     setDishNotes('');
+    setActiveStep('menu');
   };
 
   const updateCartQty = (dishId: string, delta: number) => {
@@ -160,18 +165,18 @@ export default function CustomerOrderView() {
   });
 
   return (
-    <div className="flex items-center justify-center p-4 bg-gray-50 flex-1 min-h-screen font-sans" id="qr-scrolling-container">
+    <div className="flex items-center justify-center p-0 md:p-4 bg-gray-50 flex-1 min-h-screen font-sans" id="qr-scrolling-container">
       {/* Smartphone container wrapper */}
-      <div className="w-[375px] h-[780px] bg-white rounded-[40px] shadow-2xl border-[10px] border-black overflow-hidden relative flex flex-col select-none" id="phone-shell">
+      <div className="w-full h-full min-h-screen md:min-h-0 md:w-[375px] md:h-[780px] bg-white md:rounded-[40px] md:shadow-2xl md:border-[10px] md:border-black overflow-hidden relative flex flex-col select-none" id="phone-shell">
         
         {/* Smartphone top ear-piece / notch */}
-        <div className="absolute top-0 inset-x-0 h-6 bg-black flex justify-center items-center z-50">
+        <div className="absolute top-0 inset-x-0 h-6 bg-black hidden md:flex justify-center items-center z-50">
           <div className="w-24 h-3 bg-gray-800 rounded-full"></div>
         </div>
 
         {/* Dynamic header / back action */}
         {activeStep !== 'phone' && activeStep !== 'join_code' && (
-          <div className="bg-[#800F14] text-white pt-8 px-4 pb-3 flex items-center justify-between border-b border-red-900 shrink-0 z-40" id="phone-app-header">
+          <div className="bg-[#800F14] text-white pt-4 md:pt-8 px-4 pb-3 flex items-center justify-between border-b border-red-900 shrink-0 z-40" id="phone-app-header">
             <div className="flex items-center space-x-2">
               {activeStep === 'menu' ? (
                 <div className="flex flex-col">
@@ -212,7 +217,7 @@ export default function CustomerOrderView() {
 
           {/* SCREEN 13.1: PHONE / TABLE INITIAL SCAN */}
           {activeStep === 'phone' && (
-            <div className="flex flex-col justify-between h-full p-6 pt-16 bg-white" id="customer-phone-view">
+            <div className="flex flex-col justify-between h-full p-6 pt-10 md:pt-16 bg-white" id="customer-phone-view">
               <div className="text-center my-auto space-y-6">
                 {/* Gold Crest Logo */}
                 <div className="flex justify-center">
@@ -288,7 +293,7 @@ export default function CustomerOrderView() {
 
           {/* SCREEN 13.2: INPUT SHARE CODE */}
           {activeStep === 'join_code' && (
-            <div className="flex flex-col justify-between h-full p-6 pt-16 bg-white" id="customer-join-view">
+            <div className="flex flex-col justify-between h-full p-6 pt-10 md:pt-16 bg-white" id="customer-join-view">
               <div className="my-auto text-center space-y-6">
                 <Users size={40} className="text-brand-red mx-auto animate-bounce" />
                 
@@ -408,7 +413,7 @@ export default function CustomerOrderView() {
               </div>
 
               {/* Floating Cart bottom checkout board */}
-              <div className="absolute bottom-0 inset-x-0 bg-white border-t border-gray-150 p-3 flex items-center justify-between z-40 shadow-xl" id="phone-bottom-cart-bar">
+              <div className="absolute bottom-0 inset-x-0 bg-white border-t border-gray-150 p-3 pb-6 md:pb-3 flex items-center justify-between z-40 shadow-xl" id="phone-bottom-cart-bar">
                 <div className="flex items-center space-x-2">
                   <div className="w-10 h-10 bg-red-50 text-brand-red border border-red-100 rounded-xl flex items-center justify-center relative">
                     <ShoppingCart size={16} />
@@ -641,24 +646,47 @@ export default function CustomerOrderView() {
                 <div className="space-y-2.5 text-xs">
                   {placedOrdersDetails.map((item, index) => {
                     const dish = dishes.find(d => d.Ma_mon === item.Ma_mon)!;
+                    const steps = [OrderItemStatus.DANG_CHO, OrderItemStatus.DANG_CHE_BIEN, OrderItemStatus.DA_HOAN_THANH, OrderItemStatus.DA_PHUC_VU];
+                    const stepIndex = steps.indexOf(item.Trang_thai_mon);
                     
                     return (
-                      <div key={index} className="p-3 bg-gray-50 border border-gray-100 rounded-xl flex justify-between items-center">
-                        <div className="min-w-0 pr-3">
-                          <p className="font-bold text-gray-800 truncate">{dish.Ten_mon}</p>
-                          <p className="text-[10px] text-gray-400 mt-0.5">Số lượng: x{item.So_luong}</p>
-                          {item.Ghi_chu && <p className="text-[9px] text-brand-red italic mt-0.5">Yêu cầu: {item.Ghi_chu}</p>}
+                      <div key={index} className="p-3 bg-gray-50 border border-gray-150 rounded-xl space-y-3.5 shadow-2xs">
+                        <div className="flex justify-between items-start">
+                          <div className="min-w-0 pr-3">
+                            <p className="font-bold text-gray-800 truncate">{dish.Ten_mon}</p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Số lượng: x{item.So_luong}</p>
+                            {item.Ghi_chu && <p className="text-[9px] text-brand-red italic mt-0.5">Yêu cầu: {item.Ghi_chu}</p>}
+                          </div>
+                          <span className="font-mono text-[9px] font-black uppercase text-gray-500 bg-white border px-1.5 py-0.5 rounded">
+                            {item.Trang_thai_mon}
+                          </span>
                         </div>
 
-                        {/* Order status badges */}
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shrink-0 ${
-                          item.Trang_thai_mon === OrderItemStatus.DANG_CHO ? 'bg-orange-50 text-orange-700' :
-                          item.Trang_thai_mon === OrderItemStatus.DANG_CHE_BIEN ? 'bg-blue-50 text-blue-700 animate-pulse' :
-                          item.Trang_thai_mon === OrderItemStatus.DA_HOAN_THANH ? 'bg-cyan-50 text-cyan-700' :
-                          'bg-green-50 text-green-700'
-                        }`}>
-                          {item.Trang_thai_mon}
-                        </span>
+                        {/* Order status step timeline */}
+                        <div className="flex items-center justify-between text-[8px] text-gray-400 font-bold pt-1">
+                          {steps.map((step, sIdx) => {
+                            const isActive = sIdx <= stepIndex;
+                            const isCurrent = sIdx === stepIndex;
+                            const stepNames = ['Đang chờ', 'Đang nấu', 'Hoàn thành', 'Bưng lên'];
+                            return (
+                              <div key={step} className="flex-1 flex flex-col items-center relative">
+                                {sIdx < steps.length - 1 && (
+                                  <div className={`absolute top-1.5 left-1/2 w-full h-0.5 z-0 ${sIdx < stepIndex ? 'bg-green-500' : 'bg-gray-250'}`}></div>
+                                )}
+                                <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center border z-10 font-mono text-[8px] font-black ${
+                                  isCurrent ? 'bg-[#EE3124] text-white border-[#EE3124] animate-pulse scale-[1.15]' :
+                                  isActive ? 'bg-green-500 text-white border-green-500' :
+                                  'bg-white text-gray-400 border-gray-200'
+                                }`}>
+                                  {isActive && sIdx !== stepIndex ? '✓' : sIdx + 1}
+                                </div>
+                                <span className={`mt-1 font-sans ${isActive ? 'text-gray-700 font-extrabold' : 'text-gray-400 font-light'}`}>
+                                  {stepNames[sIdx]}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     );
                   })}

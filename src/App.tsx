@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { useRestaurantStore } from './data/store';
 import { UserRole } from './types';
 import LoginView from './components/LoginView';
+import { ToastContainer } from './components/SharedUI';
 import GiaKhanhLogo from './components/GiaKhanhLogo';
 import DashboardView from './components/DashboardView';
 import AccountView from './components/AccountView';
@@ -37,8 +38,24 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const { currentUser, logout, logSystemAction } = useRestaurantStore();
+  const { currentUser, logout, logSystemAction, toasts, removeToast } = useRestaurantStore();
   
+  // Check if we are in customer view mode
+  const isCustomerMode = 
+    window.location.pathname === '/customer' || 
+    window.location.search.includes('view=customer') || 
+    window.location.hash === '#/customer' ||
+    window.location.hash.startsWith('#/customer?');
+
+  if (isCustomerMode) {
+    return (
+      <div className="min-h-screen bg-[#FDFBF7] flex flex-col font-sans" id="app-cabinet">
+        <CustomerOrderView />
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
+      </div>
+    );
+  }
+
   // View navigation state
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   
@@ -59,9 +76,7 @@ export default function App() {
 
   // Set default tabs based on role permissions
   let finalDefaultTab = activeTab;
-  if (activeTab === 'customer_qr') {
-    finalDefaultTab = 'customer_qr';
-  } else if (isReception && activeTab !== 'reception') {
+  if (isReception && activeTab !== 'reception') {
     finalDefaultTab = 'reception';
   } else if (isKitchen && activeTab !== 'kitchen') {
     finalDefaultTab = 'kitchen';
@@ -69,7 +84,7 @@ export default function App() {
     finalDefaultTab = 'warehouse_mgmt';
   } else if (isWaiter && activeTab !== 'reception') {
     finalDefaultTab = 'reception';
-  } else if (isAllAccess && !['dashboard', 'reception', 'kitchen', 'warehouse_mgmt', 'menu', 'categories', 'calc', 'accounts', 'customer_qr'].includes(activeTab)) {
+  } else if (isAllAccess && !['dashboard', 'reception', 'kitchen', 'warehouse_mgmt', 'menu', 'categories', 'calc', 'accounts'].includes(activeTab)) {
     finalDefaultTab = 'dashboard';
   }
 
@@ -78,7 +93,6 @@ export default function App() {
     { id: 'dashboard', name: 'Dashboard Tổng Quan', icon: LayoutDashboard, visible: isAllAccess },
     { id: 'reception', name: isWaiter ? 'Màn hình Phục vụ' : 'Sơ đồ Bàn / Lễ Tân', icon: MapPin, visible: isAllAccess || isReception || isWaiter },
     { id: 'kitchen', name: 'Bếp / Kanban Queue', icon: Flame, visible: isAllAccess || isKitchen },
-    { id: 'customer_qr', name: '📱 Giả Lập Khách đặt món (QR)', icon: QrCode, visible: true },
     { id: 'warehouse_mgmt', name: 'Kho & Nguyên Vật Liệu', icon: Boxes, visible: isAllAccess || isWarehouse },
     { id: 'menu', name: 'Thực Đơn & Món Ăn', icon: Utensils, visible: isAllAccess },
     { id: 'categories', name: 'Danh Mục Thực Đơn', icon: BookOpen, visible: isAllAccess },
@@ -180,7 +194,6 @@ export default function App() {
               {finalDefaultTab === 'warehouse_mgmt' && <WarehouseView />}
               {finalDefaultTab === 'reception' && (isWaiter ? <WaiterDashboard /> : <ReceptionLayout />)}
               {finalDefaultTab === 'kitchen' && <KitchenKanban />}
-              {finalDefaultTab === 'customer_qr' && <CustomerOrderView />}
             </>
           )}
         </main>
@@ -189,7 +202,7 @@ export default function App() {
       {/* FOOTER METRICS SYSTEM */}
       <footer className="bg-[#FAF9F6] border-t border-gray-200 px-6 py-2.5 text-[10px] text-gray-400 font-mono tracking-wide flex flex-col sm:flex-row justify-between items-center space-y-1 sm:space-y-0 shrink-0" id="dev-credits-footer">
         <div>
-          <span>Hệ thống cơ sở dữ liệu: <strong>Local Sandbox (localStorage)</strong></span>
+          <span>Hệ thống cơ sở dữ liệu: <strong>REST API & database.json (Bảo mật)</strong></span>
           <span className="mx-2 text-gray-300">|</span>
           <span>Pháp lý: <strong>Nhà hàng Lẩu Nấm Gia Khánh</strong></span>
         </div>
@@ -198,6 +211,7 @@ export default function App() {
           <span>Giao diện quản lý thông minh và tinh tế • Lẩu Nấm Gia Khánh</span>
         </div>
       </footer>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

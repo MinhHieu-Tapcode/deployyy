@@ -28,10 +28,11 @@ export default function WarehouseView() {
     importReceipts, 
     addImportReceipt, 
     updateMaterial, 
-    adjustInventory 
+    adjustInventory,
+    inventoryTransactions
   } = useRestaurantStore();
 
-  const [activeSubTab, setActiveSubTab] = useState<'import' | 'min_stock' | 'adjust'>('import');
+  const [activeSubTab, setActiveSubTab] = useState<'import' | 'min_stock' | 'adjust' | 'history'>('import');
   
   // States of Sub-Tab 1: Nhập Kho
   const [shipper, setShipper] = useState('');
@@ -219,6 +220,42 @@ export default function WarehouseView() {
     }
   };
 
+  // Group transaction details or make a bar chart of top materials transacted
+  const matTxCounts: { [key: string]: { nhap: number; xuat: number; name: string } } = {};
+  
+  (inventoryTransactions || []).forEach(tx => {
+    const mat = materials.find(m => m.Ma_nvl === tx.materialId);
+    const matName = mat ? mat.Ten_nvl : tx.materialId;
+    if (!matTxCounts[tx.materialId]) {
+      matTxCounts[tx.materialId] = { nhap: 0, xuat: 0, name: matName };
+    }
+    if (tx.transactionType === 'NHAP') {
+      matTxCounts[tx.materialId].nhap += tx.quantity;
+    } else {
+      matTxCounts[tx.materialId].xuat += tx.quantity;
+    }
+  });
+
+  const chartData = Object.values(matTxCounts)
+    .map(d => ({
+      name: d.name,
+      nhap: d.nhap,
+      xuat: d.xuat,
+      total: d.nhap + d.xuat
+    }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 5); // top 5 materials
+
+  // SVG Chart Dimensions
+  const chartWidth = 500;
+  const chartHeight = 220;
+  const padding = 40;
+  const graphWidth = chartWidth - padding * 2;
+  const graphHeight = chartHeight - padding * 2;
+
+  // Find max value for scale
+  const maxVal = Math.max(...chartData.map(d => Math.max(d.nhap, d.xuat)), 10);
+
   return (
     <div className="space-y-6 text-sm" id="warehouse-view-dashboard">
       
@@ -252,6 +289,14 @@ export default function WarehouseView() {
             }`}
           >
             Cân đối thủ công
+          </button>
+          <button
+            onClick={() => setActiveSubTab('history')}
+            className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
+              activeSubTab === 'history' ? 'bg-[#EE3124] text-white' : 'text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            Lịch sử biến động
           </button>
         </div>
       </div>
@@ -763,6 +808,174 @@ export default function WarehouseView() {
                   </span>
                 </li>
               </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 4: LỊCH SỬ BIÊN ĐỘNG KHO */}
+      {activeSubTab === 'history' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="warehouse-history-workspace">
+          {/* Chart Panel */}
+          <div className="lg:col-span-5 bg-white p-5 rounded-2xl border border-gray-150 shadow-sm flex flex-col space-y-4" id="history-chart-card">
+            <div>
+              <h3 className="font-bold text-gray-800 text-xs uppercase tracking-wider">Thống kê lượng Nhập/Xuất kho</h3>
+              <p className="text-[10px] text-gray-400 mt-0.5">Top 5 nguyên vật liệu biến động nhiều nhất (đơn vị tính tương ứng)</p>
+            </div>
+            
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-center min-h-[240px]">
+              {chartData.length > 0 ? (
+                <div className="w-full space-y-3">
+                  <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-auto bg-white rounded-xl">
+                    {/* Grid lines */}
+                    {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
+                      const y = padding + graphHeight * (1 - ratio);
+                      const val = Math.round(maxVal * ratio);
+                      return (
+                        <g key={i}>
+                          <line x1={padding} y1={y} x2={chartWidth - padding} y2={y} stroke="#f3f4f6" strokeWidth={1} />
+                          <text x={padding - 8} y={y + 4} textAnchor="end" className="text-[9px] font-mono fill-gray-400 font-bold">
+                            {val}
+                          </text>
+                        </g>
+                      );
+                    })}
+
+                    {/* Bars */}
+                    {chartData.map((d, idx) => {
+                      const x = padding + (graphWidth / chartData.length) * idx + 10;
+                      const colWidth = (graphWidth / chartData.length) - 20;
+                      const barWidth = colWidth / 2 - 2;
+                      
+                      const nhapHeight = (d.nhap / maxVal) * graphHeight;
+                      const xuatHeight = (d.xuat / maxVal) * graphHeight;
+                      
+                      const nhapY = padding + graphHeight - nhapHeight;
+                      const xuatY = padding + graphHeight - xuatHeight;
+
+                      return (
+                        <g key={idx}>
+                          {/* Nhập Bar (Green) */}
+                          <rect
+                            x={x}
+                            y={nhapY}
+                            width={barWidth}
+                            height={nhapHeight}
+                            fill="#16a34a"
+                            rx={2}
+                            className="transition-all duration-350 hover:opacity-85"
+                          />
+                          {/* Xuất Bar (Red) */}
+                          <rect
+                            x={x + barWidth + 4}
+                            y={xuatY}
+                            width={barWidth}
+                            height={xuatHeight}
+                            fill="#EE3124"
+                            rx={2}
+                            className="transition-all duration-350 hover:opacity-85"
+                          />
+                          
+                          {/* Label */}
+                          <text
+                            x={x + colWidth / 2}
+                            y={chartHeight - padding + 15}
+                            textAnchor="middle"
+                            className="text-[9px] font-semibold fill-gray-500"
+                          >
+                            {d.name.length > 10 ? d.name.substring(0, 8) + '..' : d.name}
+                          </text>
+                        </g>
+                      );
+                    })}
+
+                    {/* Y & X Axes */}
+                    <line x1={padding} y1={padding} x2={padding} y2={chartHeight - padding} stroke="#e5e7eb" strokeWidth={1.5} />
+                    <line x1={padding} y1={chartHeight - padding} x2={chartWidth - padding} y2={chartHeight - padding} stroke="#e5e7eb" strokeWidth={1.5} />
+                  </svg>
+
+                  {/* Chart Legend */}
+                  <div className="flex justify-center items-center space-x-6 text-[10px] font-bold">
+                    <div className="flex items-center space-x-1.5">
+                      <span className="w-3 h-3 bg-[#16a34a] rounded-sm"></span>
+                      <span className="text-gray-600">Tổng nhập kho</span>
+                    </div>
+                    <div className="flex items-center space-x-1.5">
+                      <span className="w-3 h-3 bg-[#EE3124] rounded-sm"></span>
+                      <span className="text-gray-600">Tổng khấu hao/xuất</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-400 italic text-xs">Chưa có giao dịch biến động nào.</div>
+              )}
+            </div>
+          </div>
+
+          {/* Transactions List */}
+          <div className="lg:col-span-7 bg-white p-5 rounded-2xl border border-gray-150 shadow-sm space-y-4" id="history-list-card">
+            <div>
+              <h3 className="font-bold text-gray-800 text-xs uppercase tracking-wider flex items-center space-x-2">
+                <ArrowRightLeft size={14} className="text-[#EE3124]" />
+                <span>Nhật ký biến động chi tiết</span>
+              </h3>
+              <p className="text-[11px] text-gray-400 mt-0.5">Danh sách các lần xuất kho tự động và điều chỉnh thủ công ca làm việc</p>
+            </div>
+
+            <div className="overflow-x-auto rounded-xl border border-gray-150">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-200">
+                    <th className="py-2.5 px-3">Thời gian</th>
+                    <th className="py-2.5 px-3">Nguyên liệu</th>
+                    <th className="py-2.5 px-3 text-center">Phân loại</th>
+                    <th className="py-2.5 px-3 text-center">Số lượng</th>
+                    <th className="py-2.5 px-3">Thuyết minh / Mã liên chiếu</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 font-medium font-mono">
+                  {inventoryTransactions && inventoryTransactions.length > 0 ? (
+                    inventoryTransactions.slice().reverse().map((tx) => {
+                      const mat = materials.find(m => m.Ma_nvl === tx.materialId);
+                      const formattedTime = new Date(tx.createdAt).toLocaleString('vi-VN');
+                      
+                      return (
+                        <tr key={tx.id} className="hover:bg-gray-50/50">
+                          <td className="py-2.5 px-3 text-[10px] text-gray-500">
+                            {formattedTime}
+                          </td>
+                          <td className="py-2.5 px-3 font-semibold font-sans text-gray-800">
+                            {mat?.Ten_nvl || tx.materialId}
+                          </td>
+                          <td className="py-2.5 px-3 text-center">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                              tx.transactionType === 'NHAP' 
+                                ? 'bg-green-50 text-green-700 border border-green-150' 
+                                : 'bg-red-50 text-red-700 border border-red-150'
+                            }`}>
+                              {tx.transactionType === 'NHAP' ? 'Nhập kho' : 'Khấu hao'}
+                            </span>
+                          </td>
+                          <td className={`py-2.5 px-3 text-center font-bold ${
+                            tx.transactionType === 'NHAP' ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {tx.transactionType === 'NHAP' ? '+' : '-'}{tx.quantity.toLocaleString()} {mat?.Don_vi_tinh}
+                          </td>
+                          <td className="py-2.5 px-3 text-gray-500 font-sans font-light text-[11px] max-w-xs truncate" title={tx.notes}>
+                            {tx.notes || tx.referenceId}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="py-16 text-center text-gray-400 italic">
+                        Chưa ghi nhận bất kỳ biến động kho nào.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
