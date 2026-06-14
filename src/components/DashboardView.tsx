@@ -284,64 +284,56 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
             <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full max-h-[320px]">
               {/* Grid Lines */}
               <line x1="30" y1="20" x2={width - 30} y2="20" stroke="#f3f4f6" strokeWidth="1" />
-              <line x1="30" y1="60" x2={width - 30} y2="60" stroke="#f3f4f6" strokeWidth="1" />
-              <line x1="30" y1="100" x2={width - 30} y2="100" stroke="#f3f4f6" strokeWidth="1" />
-              <line x1="30" y1="140" x2={width - 30} y2="140" stroke="#f3f4f6" strokeWidth="1" />
+              <line x1="30" y1="70" x2={width - 30} y2="70" stroke="#f3f4f6" strokeWidth="1" />
+              <line x1="30" y1="120" x2={width - 30} y2="120" stroke="#f3f4f6" strokeWidth="1" />
+              <line x1="30" y1="170" x2={width - 30} y2="170" stroke="#f3f4f6" strokeWidth="1" />
+              <line x1="30" y1="220" x2={width - 30} y2="220" stroke="#f3f4f6" strokeWidth="1" />
 
-              {/* Area Gradient under plot */}
-              <defs>
-                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#EE3124" stopOpacity="0.2"/>
-                  <stop offset="100%" stopColor="#EE3124" stopOpacity="0"/>
-                </linearGradient>
-              </defs>
-              <path
-                d={`M30,${height - 40} L${points} L${width - 30},${height - 40} Z`}
-                fill="url(#chartGrad)"
-              />
-
-              {/* Connected Line */}
-              <polyline
-                fill="none"
-                stroke="#EE3124"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                points={points}
-              />
-
-              {/* Points circles and labels */}
+              {/* Bar Elements */}
               {chartData.map((d, i) => {
                 const divisor = chartData.length > 1 ? chartData.length - 1 : 1;
-                const x = (i * (width - 60)) / divisor + 30;
-                const y = height - (d.rev * (height - 40)) / maxValY - 20;
+                // Bar width
+                const barWidth = Math.min(45, (width - 100) / chartData.length);
+                const x = (i * (width - 100)) / divisor + 50 - barWidth / 2;
+                
+                const plotHeight = height - 60;
+                const barHeight = (d.rev * plotHeight) / (maxValY || 1);
+                const y = height - barHeight - 30;
+
                 return (
-                  <g key={i}>
-                    <circle
-                      cx={x}
-                      cy={y}
-                      r="4.5"
-                      fill="#FFFFFF"
-                      stroke="#EE3124"
-                      strokeWidth="2.5"
+                  <g key={i} className="group cursor-pointer">
+                    {/* Shadow/Gradient Bar */}
+                    <rect
+                      x={x}
+                      y={y}
+                      width={barWidth}
+                      height={Math.max(barHeight, 3)}
+                      rx="6"
+                      ry="6"
+                      fill={d.rev > 0 ? "url(#barGrad)" : "#e5e7eb"}
+                      className="transition-all duration-300 hover:opacity-90"
                     />
+                    
+                    {/* Revenue Text on top */}
                     <text
-                      x={x}
-                      y={y - 12}
-                      textAnchor="middle"
-                      fontSize="14"
-                      fontWeight="bold"
-                      fontFamily="monospace"
-                      fill="#9B111E"
-                    >
-                      {d.rev.toFixed(1)} Tr
-                    </text>
-                    <text
-                      x={x}
-                      y={height - 2}
+                      x={x + barWidth / 2}
+                      y={y - 8}
                       textAnchor="middle"
                       fontSize="12"
-                      fill="#9ca3af"
+                      fontWeight="black"
+                      fontFamily="monospace"
+                      fill={d.rev > 0 ? "#EE3124" : "#9ca3af"}
+                    >
+                      {d.rev > 0 ? `${d.rev.toFixed(2)} Tr` : '0đ'}
+                    </text>
+
+                    {/* Date label at bottom */}
+                    <text
+                      x={x + barWidth / 2}
+                      y={height - 8}
+                      textAnchor="middle"
+                      fontSize="11"
+                      fill="#6b7280"
                       fontWeight="bold"
                     >
                       {d.day}
@@ -349,6 +341,13 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                   </g>
                 );
               })}
+
+              <defs>
+                <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#EE3124" />
+                  <stop offset="100%" stopColor="#ef4444" stopOpacity="0.7" />
+                </linearGradient>
+              </defs>
             </svg>
           </div>
         </div>
