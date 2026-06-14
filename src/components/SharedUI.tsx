@@ -381,10 +381,7 @@ export function TableCard({
     indicatorBulb = 'bg-[#7B2CBF] scale-[1.1] animate-pulse';
   } else if (simStatus === TableStatus.CO_KHACH) {
     cardStyle = 'bg-[#EE3124] text-white hover:bg-[#C0271E] border-[#EE3124]';
-    // Dynamically calculate timer text
-    const elapsedMins = session ? Math.floor((Date.now() - new Date(session.Thoi_gian_bat_dau).getTime()) / 60000) : 0;
-    const elapsedText = elapsedMins >= 60 ? `${Math.floor(elapsedMins / 60)}h${elapsedMins % 60}ph` : `${elapsedMins}ph`;
-    badgeText = `Đang ăn: ${elapsedText}`;
+    badgeText = 'Đang sử dụng';
     indicatorBulb = 'bg-white block animate-pulse';
   } else if (simStatus === TableStatus.DANG_DON) {
     cardStyle = 'bg-orange-50/70 text-orange-950 hover:bg-orange-50 border-orange-300';
@@ -434,12 +431,15 @@ export function TableCard({
             <p className="font-mono text-[9px] opacity-75">{booking.So_dien_thoai}</p>
           </div>
         ) : session ? (
-          <div>
+          <div className="space-y-1">
             <div className="flex justify-between font-bold">
-              <span>Khách ngồi: {session.So_khach || 4}</span>
-              {orderTotal > 0 && <span className="font-mono text-[9px] font-black">{orderTotal.toLocaleString()}đ</span>}
+              <span>Khách: {session.So_khach || 4} người</span>
+              <span>Vào: {new Date(session.Thoi_gian_bat_dau).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}</span>
             </div>
-            <p className="font-mono text-[9px] opacity-75 truncate">Phiên: {session.Ma_phien_code}</p>
+            <div className="flex justify-between items-center text-[10px] mt-0.5">
+              <span className="opacity-90 truncate">Mã: {session.Ma_phien_code}</span>
+              <span className="font-mono font-black">Tạm tính: {orderTotal.toLocaleString()}đ</span>
+            </div>
           </div>
         ) : (
           <p className="font-sans italic opacity-75 font-semibold">Bàn lẩu khả dụng</p>

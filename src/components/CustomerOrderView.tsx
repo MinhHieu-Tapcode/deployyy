@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRestaurantStore } from '../data/store';
 import { DishStatus, OrderItemStatus } from '../types';
-import { Phone, Users, Plus, Minus, ShoppingCart, Check, Clock, ChevronRight, ArrowLeft, Send, Heart, BookOpen, Trash2, Home, MessageCircle, Search, X } from 'lucide-react';
+import { Phone, Users, Plus, Minus, ShoppingCart, Check, Clock, ChevronRight, ArrowLeft, Send, Heart, BookOpen, Trash2 } from 'lucide-react';
 
 // Circular Official Brand Logo matching the uploaded image perfectly
 const BrandLogo = ({ size = 120 }: { size?: number }) => {
@@ -144,7 +144,7 @@ export default function CustomerOrderView() {
   const [tableId, setTableId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-    return params.get('tableId') || hashParams.get('tableId') || 'B04';
+    return params.get('table') || params.get('tableId') || hashParams.get('table') || hashParams.get('tableId') || 'B04';
   });
   const [enteredCode, setEnteredCode] = useState('');
   const [activeStep, setActiveStep] = useState<'phone' | 'join_code' | 'menu' | 'dish_detail' | 'cart' | 'success' | 'tracking'>('phone');
@@ -173,37 +173,35 @@ export default function CustomerOrderView() {
   // Submit Phone / Check in as Host
   const handlePhoneSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phoneNumber || phoneNumber.length < 9) {
-      setErrorMessage('Số điện thoại không hợp lệ.');
+    
+    // Check if table has an active session
+    const activeSess = sessions.find(s => s.Ma_ban === tableId && s.Trang_thai === 'active');
+    if (!activeSess) {
+      setErrorMessage('Bàn chưa được kích hoạt. Vui lòng liên hệ nhân viên.');
       return;
     }
 
-    const matchedCustomer = customers?.find(c => c.So_dien_thoai.trim() === phoneNumber.trim());
-    let activeSess = null;
-
-    if (matchedCustomer) {
-      activeSess = sessions.find(s => s.Ma_khach_hang === matchedCustomer.Ma_khach_hang && s.Trang_thai === 'active');
+    const trimmedEntered = phoneNumber.trim();
+    if (trimmedEntered.length !== 10) {
+      setErrorMessage('Số điện thoại phải gồm 10 chữ số.');
+      return;
     }
 
-    if (!activeSess) {
-      activeSess = sessions.find(s => s.Ma_ban === tableId && s.Trang_thai === 'active');
-    }
-
-    if (activeSess) {
+    const savedPhone = (activeSess.customer_phone || '').trim();
+    if (trimmedEntered === savedPhone) {
       setTableId(activeSess.Ma_ban);
       setCurrentSessionCode(activeSess.Ma_phien_code);
       setActiveStep('menu');
       setErrorMessage('');
     } else {
-      startTableSession(tableId, phoneNumber)
-        .then(generatedCode => {
-          setCurrentSessionCode(generatedCode);
-          setActiveStep('menu');
-          setErrorMessage('');
-        })
-        .catch((err: any) => {
-          setErrorMessage(err.message || 'Mở bàn không thành công.');
-        });
+      try {
+        const generatedCode = startTableSession(tableId, phoneNumber);
+        setCurrentSessionCode(generatedCode);
+        setActiveStep('menu');
+        setErrorMessage('');
+      } catch (err: any) {
+        setErrorMessage(err.message || 'Mở bàn không thành công.');
+      }
     }
   };
 
@@ -437,58 +435,88 @@ export default function CustomerOrderView() {
               </div>
             </div>
 
-            {/* Right Column: Phone Form Box */}
-            <div className="w-full md:max-w-md bg-white border border-gray-150 rounded-3xl p-6 md:p-8 shadow-md space-y-6">
-              <div className="space-y-1">
-                <h2 className="text-lg font-black text-[#800F14] uppercase tracking-wider">Bắt đầu gọi món</h2>
-                <p className="text-xs text-gray-400">Thông tin dùng để kết nối giỏ hàng cùng bàn ăn của bạn</p>
-              </div>
+                {/* Right Form Entry Card */}
+                <div className="w-full lg:max-w-md space-y-4">
+                  {errorMessage && (
+                    <p className="p-3 bg-red-50 text-[#EE3124] text-xs rounded-xl border border-red-200 font-bold text-center">{errorMessage}</p>
+                  )}
 
-              {errorMessage && (
-                <div className="p-3.5 bg-red-50 text-[#EE3124] text-xs rounded-xl border border-red-200 font-bold text-center">
-                  {errorMessage}
-                </div>
-              )}
+                  <form onSubmit={handlePhoneSubmit} className="space-y-4">
+                    {/* Số điện thoại input */}
+                    <div className="space-y-2.5 bg-white rounded-3xl border border-gray-150 p-6 shadow-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black text-gray-800 uppercase tracking-wider">Số điện thoại</span>
+                        <span className="bg-red-50 text-[#EE3124] px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">Bắt buộc</span>
+                      </div>
+                      <p className="text-xs text-gray-400 -mt-1 leading-normal">Nhập số điện thoại để nhận thông báo về đơn hàng</p>
+                      
+                      <div className="flex items-center border border-gray-200 rounded-xl px-3.5 py-3 bg-gray-50 focus-within:border-[#EE3124] focus-within:bg-white transition mt-2">
+                        <Phone size={16} className="text-gray-400 shrink-0" />
+                        <input
+                          id="cust-phone-inp"
+                          type="tel"
+                          required
+                          className="w-full bg-transparent border-none outline-none pl-3 font-mono font-bold text-gray-808 text-sm focus:ring-0"
+                          placeholder="09XX XXX XXX"
+                          value={phoneNumber}
+                          onChange={e => setPhoneNumber(e.target.value)}
+                        />
+                      </div>
 
-              <form onSubmit={handlePhoneSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="block text-[10px] font-black text-gray-700 uppercase tracking-widest">Số điện thoại khách hàng</label>
-                  <div className="flex items-center border border-gray-200 rounded-xl px-3.5 py-3.5 bg-gray-50 focus-within:border-[#EE3124] focus-within:bg-white transition">
-                    <Phone size={16} className="text-gray-400 shrink-0" />
-                    <input
-                      id="cust-phone-inp"
-                      type="tel"
-                      required
-                      className="w-full bg-transparent border-none outline-none pl-3 font-mono font-bold text-gray-808 text-sm focus:ring-0"
-                      placeholder="09xx xxx xxx"
-                      value={phoneNumber}
-                      onChange={e => setPhoneNumber(e.target.value)}
-                    />
+                      <div className="text-[9px] text-gray-450 flex items-center justify-center space-x-1 pt-2">
+                        <span className="text-green-600 font-bold">✓</span>
+                        <span>Thông tin của bạn được bảo mật tuyệt đối</span>
+                      </div>
+                    </div>
+
+                    <button
+                      id="btn-guest-submit"
+                      type="submit"
+                      className="w-full py-4 bg-[#EE3124] hover:bg-[#800F14] text-white rounded-xl text-xs font-black tracking-widest shadow-md hover:shadow-lg active:scale-95 transition-all duration-150 cursor-pointer uppercase flex items-center justify-center space-x-2"
+                    >
+                      <span>BẮT ĐẦU GỌI MÓN</span>
+                      <span className="text-xs">→</span>
+                    </button>
+                  </form>
+
+                  {/* Share code invitation link */}
+                  <button
+                    onClick={() => {
+                      setErrorMessage('');
+                      setActiveStep('join_code');
+                    }}
+                    className="w-full text-xs text-[#EE3124] font-black tracking-wider text-center block pt-1 cursor-pointer uppercase hover:underline"
+                  >
+                    NHẬP MÃ THAM GIA CHUNG VỚI NGƯỜI CÙNG BÀN
+                  </button>
+
+                  {/* Feature Badges */}
+                  <div className="rounded-2xl p-4 flex justify-between items-center bg-gray-50 border border-gray-100 shadow-3xs shrink-0 mt-6">
+                    <div className="flex-1 flex items-center space-x-1.5 justify-center">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#EE3124" strokeWidth="2.5" className="shrink-0">
+                        <path d="M2 20h20" />
+                        <path d="M20 16v-2a8 8 0 0 0-16 0v2" />
+                        <path d="M12 4V2" />
+                      </svg>
+                      <span className="text-[9px] font-black text-gray-700 leading-tight">Món ngon chuẩn vị</span>
+                    </div>
+                    <div className="w-px h-6 bg-gray-250"></div>
+                    <div className="flex-1 flex items-center space-x-1.5 justify-center">
+                      <Clock size={14} className="text-[#EE3124] stroke-[2.5] shrink-0" />
+                      <span className="text-[9px] font-black text-gray-700 leading-tight">Chế biến nhanh tại bàn</span>
+                    </div>
+                    <div className="w-px h-6 bg-gray-250"></div>
+                    <div className="flex-1 flex items-center space-x-1.5 justify-center">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#EE3124" strokeWidth="2.5" className="shrink-0">
+                        <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" />
+                        <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                        <line x1="9" y1="9" x2="9.01" y2="9" />
+                        <line x1="15" y1="9" x2="15.01" y2="9" />
+                      </svg>
+                      <span className="text-[9px] font-black text-gray-700 leading-tight">Phục vụ tận tâm chu đáo</span>
+                    </div>
                   </div>
                 </div>
-
-                <button
-                  id="btn-guest-submit"
-                  type="submit"
-                  className="w-full py-4 bg-[#EE3124] hover:bg-[#800F14] text-white rounded-xl text-xs font-black tracking-widest shadow-md hover:scale-[1.01] active:scale-95 transition-all cursor-pointer uppercase flex items-center justify-center space-x-2"
-                >
-                  <span>MỞ THỰC ĐƠN ĐẶT MÓN</span>
-                  <span>→</span>
-                </button>
-              </form>
-
-              <div className="h-px bg-gray-100 my-4"></div>
-
-              <button
-                onClick={() => {
-                  setErrorMessage('');
-                  setActiveStep('join_code');
-                }}
-                className="w-full text-xs text-[#EE3124] hover:text-[#800F14] font-black tracking-wider text-center block cursor-pointer uppercase hover:underline"
-              >
-                NHẬP MÃ ĐỂ ĂN CHUNG VỚI NGƯỜI CÙNG BÀN
-              </button>
-            </div>
 
           </div>
         )}

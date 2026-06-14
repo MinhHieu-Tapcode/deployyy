@@ -72,7 +72,7 @@
       "id": "B03",
       "floor": 1,
       "capacity": 4,
-      "status": "trong"
+      "status": "co_khach"
     },
     {
       "id": "B04",
@@ -405,6 +405,10 @@
     {
       "id": "kh003",
       "phone": "0971234567"
+    },
+    {
+      "id": "cust_1781449854968",
+      "phone": "0986154978"
     }
   ],
   "categories": [
@@ -2174,6 +2178,18 @@
   ],
   "table_sessions": [
     {
+      "id": "s_B03_4971",
+      "table_id": "B03",
+      "customer_id": "cust_1781449854968",
+      "customer_phone": "0986154978",
+      "start_time": "2026-06-14T15:10:54.971Z",
+      "end_time": null,
+      "share_code": "44W8",
+      "status": "active",
+      "guests_count": 6,
+      "created_by": "mv002"
+    },
+    {
       "id": "s_B04",
       "table_id": "B04",
       "customer_id": "kh001",
@@ -2356,6 +2372,14 @@
     }
   ],
   "system_logs": [
+    {
+      "id": "log_1781449854975_ezmu",
+      "employee_id": "mv002",
+      "employee_name": "Nhân viên lễ tân",
+      "action": "Mở phiên đặt bàn",
+      "created_at": "2026-06-14T15:10:54.975Z",
+      "changed_data": "Kích hoạt bàn B03 cùng SĐT 0986154978 - Khách ngồi: 6 - Mã: 44W8"
+    },
     {
       "id": "log_1781383861268_flf8",
       "employee_id": "mv001",

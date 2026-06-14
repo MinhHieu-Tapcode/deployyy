@@ -332,7 +332,7 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
     const res = await fetch('/api/sessions/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tableId, phone, guestsCount, existingCode })
+      body: JSON.stringify({ tableId, phone, guestsCount, existingCode, createdBy: currentUser?.Ma_nhan_vien })
     });
     const data = await res.json();
     if (data.success) {

@@ -7,19 +7,19 @@ import React, { useState } from 'react';
 import { useRestaurantStore, playNotificationSound } from '../data/store';
 import { TableStatus, TableStatusLabel, OrderItemStatus } from '../types';
 import GiaKhanhLogo from './GiaKhanhLogo';
-import { 
-  Search, 
-  Calendar, 
-  Clock, 
-  User, 
-  Phone, 
-  CheckCircle, 
-  AlertCircle, 
-  Plus, 
-  Compass, 
-  Play, 
-  BookmarkCheck, 
-  Printer, 
+import {
+  Search,
+  Calendar,
+  Clock,
+  User,
+  Phone,
+  CheckCircle,
+  AlertCircle,
+  Plus,
+  Compass,
+  Play,
+  BookmarkCheck,
+  Printer,
   Layers,
   ArrowUpRight,
   ArrowDownLeft,
@@ -54,7 +54,7 @@ export default function ReceptionLayout() {
 
   const [activeFloor, setActiveFloor] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Date and hour selector for temporal layout modeling
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>(() => {
     return new Date().toISOString().split('T')[0];
@@ -67,6 +67,7 @@ export default function ReceptionLayout() {
   const [bookName, setBookName] = useState('');
   const [bookPhone, setBookPhone] = useState('');
   const [manualPhoneInp, setManualPhoneInp] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [showManualBookingSuccess, setShowManualBookingSuccess] = useState(false);
   const [showFormSampleId, setShowFormSampleId] = useState<string | null>(null);
 
@@ -90,7 +91,7 @@ export default function ReceptionLayout() {
   // Search filter for tables or reservations matching name, phone, or table ID
   const isSearchMatchedTable = (tableId: string) => {
     if (!searchQuery.trim()) return true;
-    
+
     // Check table name
     if (tableId.toLowerCase().includes(searchQuery.toLowerCase())) return true;
 
@@ -157,18 +158,36 @@ export default function ReceptionLayout() {
   };
 
   // Begin session for reservation with pre-filled guest information
-  const handleStartBookingSession = (bookingId: string, tableId: string, phone: string) => {
-    startTableSession(tableId, phone);
-    updateReservationStatus(bookingId, 'Đã nhận phiên');
-    playNotificationSound('ready_dish');
-    setIsModalOpen(false);
-    alert(`Đã nhận khách đặt trước! Phiên bàn lẩu ${tableId} đã hoạt động.`);
+  const handleStartBookingSession = async (bookingId: string, tableId: string, phone: string) => {
+    // Validate phone number: must be exactly 10 digits
+    const trimmed = phone.trim();
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(trimmed)) {
+      alert('Số điện thoại phải gồm 10 chữ số.');
+      return;
+    }
+    try {
+      await startTableSession(tableId, trimmed);
+      updateReservationStatus(bookingId, 'Đã nhận phiên');
+      playNotificationSound('ready_dish');
+      setIsModalOpen(false);
+      alert(`Đã nhận khách đặt trước! Phiên bàn lẩu ${tableId} đã hoạt động.`);
+    } catch (err: any) {
+      alert(err.message || 'Hành động thất bại.');
+    }
   };
 
   const handleStartManualSession = (e: React.FormEvent, tableId: string) => {
     e.preventDefault();
-    if (!manualPhoneInp) return;
-    startTableSession(tableId, manualPhoneInp);
+    // Validate phone number: must be 10 digits
+    const trimmed = manualPhoneInp.trim();
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(trimmed)) {
+      setPhoneError('Số điện thoại phải gồm 10 chữ số.');
+      return;
+    }
+    setPhoneError('');
+    startTableSession(tableId, trimmed);
     setManualPhoneInp('');
     playNotificationSound('ready_dish');
     setIsModalOpen(false);
@@ -198,6 +217,30 @@ export default function ReceptionLayout() {
   };
 
   const simStats = getSimulatedStats();
+
+  const getTableActiveSessionCost = (tableId: string) => {
+    const session = sessions.find(s => s.Ma_ban === tableId && s.Trang_thai === 'active');
+    if (!session) return 0;
+
+    const sessionOrders = orders.filter(o => o.Ma_phien === session.Ma_phien);
+    let cost = 0;
+    sessionOrders.forEach(ord => {
+      const details = orderDetails.filter(od => od.Ma_hd_dat_mon === ord.Ma_hd_dat_mon);
+      details.forEach(det => {
+        cost += det.Don_gia_tai_thoi_diem * det.So_luong;
+      });
+    });
+    return cost;
+  };
+
+  const getTableSessionData = (tableId: string) => {
+    const session = sessions.find(s => s.Ma_ban === tableId && s.Trang_thai === 'active');
+    if (!session) return undefined;
+    return {
+      ...session,
+      orderTotal: getTableActiveSessionCost(tableId)
+    };
+  };
 
   // Active table context data inside Modal
   const currentModalTable = tables.find(t => t.Ma_ban === selectedTableId);
@@ -240,7 +283,7 @@ export default function ReceptionLayout() {
 
   return (
     <div className="space-y-6 text-sm" id="receptionist-canvas">
-      
+
       {/* 1. Header with custom visual identity logo & legends block */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-stretch overflow-hidden" id="reception-header-wrap">
         {/* Yellow-on-Red Traditional Brand Accent Box */}
@@ -255,7 +298,7 @@ export default function ReceptionLayout() {
               <Compass size={22} className="text-[#EE3124] animate-spin-slow" />
               <span>Sơ Đồ Bàn - Chi Nhánh Gia Khánh</span>
             </h2>
-            
+
             {/* Color Legends Legend Row */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-500 font-medium">
               <span className="flex items-center space-x-1.5">
@@ -352,11 +395,10 @@ export default function ReceptionLayout() {
                 setActiveFloor(floor);
                 setSelectedTableId(null);
               }}
-              className={`py-2 px-6 rounded-xl hover:shadow-xs transition duration-150 text-xs font-black uppercase cursor-pointer ${
-                activeFloor === floor 
-                  ? 'bg-gradient-to-r from-red-600 to-[#EE3124] text-white shadow-sm' 
+              className={`py-2 px-6 rounded-xl hover:shadow-xs transition duration-150 text-xs font-black uppercase cursor-pointer ${activeFloor === floor
+                  ? 'bg-gradient-to-r from-red-600 to-[#EE3124] text-white shadow-sm'
                   : 'bg-gray-50 text-gray-600 border border-gray-150 hover:bg-gray-100'
-              }`}
+                }`}
             >
               TẦNG {floor}
             </button>
@@ -366,10 +408,10 @@ export default function ReceptionLayout() {
 
       {/* 3. Blue-Architectural Map Grid (Full Width, No sidebar interference) */}
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden" id="architectural-blueprint-desk">
-        
+
         {/* Subtle background industrial grid pattern */}
         <div className="absolute inset-0 pointer-events-none opacity-5 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-        
+
         <div className="relative z-10 space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 p-3 rounded-xl border border-gray-200 gap-2">
             <span className="font-sans font-extrabold text-gray-800 text-xs flex items-center space-x-1.5">
@@ -384,7 +426,7 @@ export default function ReceptionLayout() {
 
           {/* MAIN GRID WORKSPACE MAPPED PHYSICAL LAYOUT */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-6 pt-2">
-            
+
             {/* ROW 1: 6 Columns */}
             {currentFloorTables.slice(0, 6).map((table, idx) => {
               const matched = isSearchMatchedTable(table.Ma_ban);
@@ -394,7 +436,13 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -408,7 +456,13 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -423,7 +477,7 @@ export default function ReceptionLayout() {
                 </span>
                 <span className="font-mono text-[8px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">GIAO THÔNG ĐỨNG</span>
               </div>
-              
+
               {/* Steps graphics */}
               <div className="space-y-1.5 py-2">
                 <div className="h-1 bg-gray-150 rounded"></div>
@@ -453,7 +507,13 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -467,7 +527,13 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  {renderTableCard(table, simStatus, booking, session)}
+                  <TableCard
+                    table={table}
+                    simStatus={simStatus}
+                    booking={booking}
+                    session={session}
+                    onClick={() => handleTableClick(table.Ma_ban)}
+                  />
                 </div>
               );
             })}
@@ -520,7 +586,7 @@ export default function ReceptionLayout() {
       {/* 4. RECEPTIONIST SESSIONS & DISH ORDER LOGS HISTORIC PANEL */}
       <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm relative overflow-hidden mt-6" id="receptionist-history-panel">
         <div className="absolute inset-0 pointer-events-none opacity-5 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-        
+
         <div className="relative z-10 space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 p-4 border border-gray-200 gap-2 rounded-lg">
             <div>
@@ -530,7 +596,7 @@ export default function ReceptionLayout() {
               </span>
               <p className="text-[10px] text-gray-500 mt-0.5">Sổ theo dõi trực tiếp các đơn gọi món lẩu nấm, giờ giấc và đối chiếu bill thanh toán tại quầy.</p>
             </div>
-            
+
             <div className="text-[9px] text-[#EE3124] bg-red-50 border border-red-150 font-mono tracking-wider px-2 py-1 rounded font-black max-w-fit shrink-0">
               {sessions.length} PHIÊN GHI NHẬN HÔM NAY
             </div>
@@ -563,30 +629,28 @@ export default function ReceptionLayout() {
 
                   // Format dates nicely
                   const enterTime = new Date(sess.Thoi_gian_bat_dau).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-                  const leaveTime = sess.Thoi_gian_ket_thuc 
-                    ? new Date(sess.Thoi_gian_ket_thuc).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) 
+                  const leaveTime = sess.Thoi_gian_ket_thuc
+                    ? new Date(sess.Thoi_gian_ket_thuc).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
                     : '--:--';
 
                   return (
-                    <div 
-                      key={sess.Ma_phien} 
+                    <div
+                      key={sess.Ma_phien}
                       onClick={() => setSelectedHistorySession(sess.Ma_phien)}
-                      className={`p-3.5 rounded-lg border-2 text-left cursor-pointer transition flex items-center justify-between ${
-                        isSelected 
-                          ? 'bg-[#EE3124]/5 border-[#EE3124] shadow-sm' 
+                      className={`p-3.5 rounded-lg border-2 text-left cursor-pointer transition flex items-center justify-between ${isSelected
+                          ? 'bg-[#EE3124]/5 border-[#EE3124] shadow-sm'
                           : 'bg-white border-gray-200 hover:border-gray-300'
-                      }`}
+                        }`}
                     >
                       <div className="space-y-1 sm:space-y-1.5 flex-1 min-w-0 pr-3">
                         <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                          <span className={`text-[10px] font-black uppercase font-mono px-2 py-0.5 rounded ${
-                            isSessActive 
-                              ? 'bg-rose-100 text-rose-700 border border-rose-200 animate-pulse' 
+                          <span className={`text-[10px] font-black uppercase font-mono px-2 py-0.5 rounded ${isSessActive
+                              ? 'bg-rose-100 text-rose-700 border border-rose-200 animate-pulse'
                               : 'bg-gray-100 text-gray-600 border border-gray-200'
-                          }`}>
+                            }`}>
                             BÀN {sess.Ma_ban}
                           </span>
-                          
+
                           <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded text-gray-500 bg-gray-50 border`}>
                             {isSessActive ? '🔴 ONLINE' : '⚪ HỒ SƠ LƯU'}
                           </span>
@@ -709,7 +773,7 @@ export default function ReceptionLayout() {
       {isModalOpen && currentModalTable && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-[#FAF9F6] border-2 border-gray-400 rounded-xl w-full max-w-lg overflow-hidden shadow-2xl relative animate-in fade-in zoom-in">
-            
+
             {/* Modal Custom header bar */}
             <div className="bg-[#EE3124] text-white px-6 py-4 flex justify-between items-center">
               <div className="flex items-center space-x-2">
@@ -719,8 +783,8 @@ export default function ReceptionLayout() {
                   <p className="text-[10px] text-white/80 font-mono">TẦNG {currentModalTable.Tang} • SỨC CHỨA CHUẨN {currentModalTable.Suc_chua} NGƯỜI</p>
                 </div>
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => {
                   setIsModalOpen(false);
                   setSelectedTableId(null);
@@ -760,36 +824,77 @@ export default function ReceptionLayout() {
                   <div className="bg-amber-50/40 border border-amber-200 p-4 rounded-lg space-y-3">
                     <div className="flex items-center space-x-1">
                       <Play size={13} className="text-amber-600 fill-current" />
-                      <span className="font-black text-xs text-amber-900 uppercase">MỞ PHIÊN PHỤC VỤ NGAY (QUẦN KHÁCH VÀO NGỒI)</span>
+                      <span className="font-black text-xs text-amber-900 uppercase">TẠO PHIÊN SỬ DỤNG BÀN</span>
                     </div>
-                    
-                    <form onSubmit={e => {
+
+                    <form onSubmit={async (e) => {
                       e.preventDefault();
-                      if (!instantPhone.trim()) {
-                        alert("Vui lòng nhập số điện thoại để bắt đầu phiên!");
+                      if (instantPhone.trim().length !== 10) {
+                        alert("Số điện thoại phải gồm 10 chữ số.");
                         return;
                       }
-                      startTableSession(currentModalTable.Ma_ban, instantPhone.trim());
-                      setInstantPhone('');
-                      setIsModalOpen(false);
-                      alert(`Đã BẮT ĐẦU PHIÊN và kích hoạt phục vụ cho bàn ${currentModalTable.Ma_ban}!`);
-                    }} className="space-y-2">
-                      <div className="relative">
-                        <Phone className="absolute left-2.5 top-2 text-gray-400" size={12} />
-                        <input
-                          type="tel"
-                          required
-                          placeholder="Số điện thoại của Khách ngồi bàn..."
-                          className="w-full pl-7 pr-2 py-1.5 border border-gray-250 bg-white rounded-lg text-xs font-bold focus:border-[#EE3124] focus:outline-none"
-                          value={instantPhone}
-                          onChange={e => setInstantPhone(e.target.value)}
-                        />
+                      try {
+                        await startTableSession(currentModalTable.Ma_ban, instantPhone.trim(), instantGuests);
+                        setInstantPhone('');
+                        setInstantGuests(4);
+                        setIsModalOpen(false);
+                        alert(`Đã BẮT ĐẦU PHIÊN và kích hoạt phục vụ cho bàn ${currentModalTable.Ma_ban}!`);
+                      } catch (err: any) {
+                        alert(err.message || 'Mở bàn không thành công.');
+                      }
+                    }} className="space-y-3">
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                            Số điện thoại khách đại diện <span className="text-red-500 font-bold">*</span>
+                          </label>
+                          <div className="relative">
+                            <Phone className="absolute left-2.5 top-2.5 text-gray-400" size={12} />
+                            <input
+                              type="tel"
+                              required
+                              placeholder="Nhập SĐT khách gồm 10 chữ số"
+                              className="w-full pl-7 pr-2 py-2 border border-gray-250 bg-white rounded-lg text-xs font-bold focus:border-[#EE3124] focus:outline-none"
+                              value={instantPhone}
+                              onChange={e => {
+                                const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                setInstantPhone(val);
+                              }}
+                            />
+                          </div>
+                          {instantPhone.length > 0 && instantPhone.length < 10 && (
+                            <p className="text-[10px] text-[#EE3124] font-bold mt-0.5">Số điện thoại phải gồm 10 chữ số.</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                            Số lượng khách ngồi bàn
+                          </label>
+                          <div className="relative flex items-center border border-gray-250 rounded-lg bg-white px-2.5 py-1.5">
+                            <User size={12} className="text-gray-400 shrink-0 mr-1.5" />
+                            <input
+                              type="number"
+                              min={1}
+                              max={12}
+                              required
+                              className="w-full py-0.5 text-xs font-bold text-gray-800 focus:outline-none"
+                              value={instantGuests}
+                              onChange={e => setInstantGuests(Number(e.target.value))}
+                            />
+                          </div>
+                        </div>
                       </div>
+
                       <button
                         type="submit"
-                        className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-lg uppercase transition cursor-pointer"
+                        disabled={instantPhone.length !== 10}
+                        className={`w-full py-2.5 font-extrabold text-xs rounded-lg uppercase transition cursor-pointer text-center ${instantPhone.length === 10
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md'
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300 shadow-none'
+                          }`}
                       >
-                        🚀 BẮT ĐẦU PHIÊN PHỤC VỤ TUYỆT ĐỐI
+                        Tạo phiên sử dụng
                       </button>
                     </form>
                   </div>
@@ -828,8 +933,16 @@ export default function ReceptionLayout() {
                               placeholder="091xxxxxxxx..."
                               className="w-full pl-7 pr-2 py-1.5 border border-gray-250 bg-white rounded-lg text-xs font-bold font-mono focus:border-[#EE3124] focus:outline-none"
                               value={bookPhone}
-                              onChange={e => setBookPhone(e.target.value)}
+                              onChange={e => {
+                                setBookPhone(e.target.value);
+                                if (e.target.value && !/^\d{10}$/.test(e.target.value)) {
+                                  setPhoneError("Số điện thoại phải gồm 10 chữ số");
+                                } else {
+                                  setPhoneError("");
+                                }
+                              }}
                             />
+                            {phoneError && <p className="text-xs text-red-600 mt-1">{phoneError}</p>}
                           </div>
                         </div>
                       </div>
@@ -875,8 +988,8 @@ export default function ReceptionLayout() {
                     <div className="pt-2">
                       <button
                         onClick={() => handleStartBookingSession(
-                          bookedOfModalTable.Ma_dat_ban, 
-                          currentModalTable.Ma_ban, 
+                          bookedOfModalTable.Ma_dat_ban,
+                          currentModalTable.Ma_ban,
                           bookedOfModalTable.So_dien_thoai
                         )}
                         className="w-full py-3 bg-[#EE3124] hover:bg-brand-red-dark text-white font-extrabold text-xs rounded-lg flex items-center justify-center space-x-1.5 cursor-pointer shadow-md transition uppercase"
@@ -912,7 +1025,7 @@ export default function ReceptionLayout() {
                     <div>
                       <span className="text-[9px] text-gray-400 block font-bold">GIỜ VÀO BÀN</span>
                       <span className="font-semibold text-gray-750">
-                        {new Date(activeSessionOfModalTable.Thoi_gian_bat_dau).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}
+                        {new Date(activeSessionOfModalTable.Thoi_gian_bat_dau).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                     <div className="text-right">
@@ -963,7 +1076,7 @@ export default function ReceptionLayout() {
                       <p className="text-center font-black text-xs text-red-900 leading-relaxed uppercase tracking-wider">
                         ⚠️ Xác nhận KẾT THÚC PHIÊN PHỤC VỤ & chuyển bàn {currentModalTable.Ma_ban} sang màu xanh (Trống)?
                       </p>
-                      
+
                       <div className="flex gap-2.5">
                         <button
                           onClick={() => {
@@ -973,7 +1086,7 @@ export default function ReceptionLayout() {
                         >
                           Hủy bỏ
                         </button>
-                        
+
                         <button
                           onClick={() => {
                             closeSessionAndPay(activeSessionOfModalTable.Ma_phien);
@@ -1015,7 +1128,7 @@ export default function ReceptionLayout() {
                         <span className="w-2 h-2 rounded-full bg-orange-600 block animate-ping"></span>
                         <span className="font-bold">ĐANG TIẾN HÀNH DỌN DẸP LAU RỬA...</span>
                       </div>
-                      
+
                       <button
                         onClick={() => {
                           setTableStatusManual(currentModalTable.Ma_ban, TableStatus.TRONG);

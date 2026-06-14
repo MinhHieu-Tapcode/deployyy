@@ -27,6 +27,8 @@ export interface TableSession {
   share_code: string;
   status: 'active' | 'completed';
   guests_count: number;
+  customer_phone?: string;
+  created_by?: string | null;
 }
 
 export interface Category {
@@ -382,6 +384,22 @@ export class Database {
       // Test connection
       await this.pool.query('SELECT 1');
       console.log('MySQL connection pool established successfully.');
+
+      // Ensure dynamic columns exist in table_sessions
+      try {
+        await this.pool.query("ALTER TABLE `table_sessions` ADD COLUMN IF NOT EXISTS `customer_phone` VARCHAR(20) DEFAULT NULL");
+      } catch (e) {
+        try {
+          await this.pool.query("ALTER TABLE `table_sessions` ADD COLUMN `customer_phone` VARCHAR(20) DEFAULT NULL");
+        } catch (_) {}
+      }
+      try {
+        await this.pool.query("ALTER TABLE `table_sessions` ADD COLUMN IF NOT EXISTS `created_by` VARCHAR(50) DEFAULT NULL");
+      } catch (e) {
+        try {
+          await this.pool.query("ALTER TABLE `table_sessions` ADD COLUMN `created_by` VARCHAR(50) DEFAULT NULL");
+        } catch (_) {}
+      }
 
       // Load all 15 tables from MySQL
       const tables = [

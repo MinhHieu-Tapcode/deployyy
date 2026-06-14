@@ -33,7 +33,7 @@ app.post('/api/auth/login', (req, res) => {
 
   const employees = db.get('employees');
   const hashed = hashPassword(password);
-  
+
   const emp = employees.find(
     e => e.username.toLowerCase() === username.toLowerCase() && e.password_hash === hashed
   );
@@ -179,10 +179,17 @@ app.get('/api/sessions', (req, res) => {
   return res.json(db.get('table_sessions'));
 });
 
-app.post('/api/sessions/start', (req, res) => {
-  const { tableId, phone, guestsCount, existingCode } = req.body;
+
+app.post(['/api/sessions', '/api/sessions/start'], (req, res) => {
+  const { tableId, phone, guestsCount, existingCode, createdBy } = req.body;
   if (!tableId || !phone) {
     return res.status(400).json({ error: 'Thiếu thông tin số bàn hoặc số điện thoại.' });
+  }
+  // Validate phone number: must be exactly 10 digits
+  const trimmedPhone = phone.trim();
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phoneRegex.test(trimmedPhone)) {
+    return res.status(400).json({ error: 'Số điện thoại phải gồm 10 chữ số.' });
   }
 
   const sessions = db.get('table_sessions');
@@ -193,9 +200,9 @@ app.post('/api/sessions/start', (req, res) => {
 
   // Find or register customer
   const customers = db.get('customers');
-  let cust = customers.find(c => c.phone.trim() === phone.trim());
+  let cust = customers.find(c => c.phone.trim() === trimmedPhone);
   if (!cust) {
-    cust = { id: `cust_${Date.now()}`, phone: phone.trim() };
+    cust = { id: `cust_${Date.now()}`, phone: trimmedPhone };
     db.save('customers', [...customers, cust]);
   }
 
@@ -206,11 +213,13 @@ app.post('/api/sessions/start', (req, res) => {
     id: sessionId,
     table_id: tableId,
     customer_id: cust.id,
+    customer_phone: trimmedPhone,
     start_time: new Date().toISOString(),
     end_time: null,
     share_code: generatedCode,
     status: 'active',
-    guests_count: guestsCount ? Number(guestsCount) : 4
+    guests_count: guestsCount ? Number(guestsCount) : 4,
+    created_by: createdBy || null
   };
 
   db.save('table_sessions', [newSession, ...sessions]);
@@ -223,9 +232,24 @@ app.post('/api/sessions/start', (req, res) => {
     db.save('dining_tables', tables);
   }
 
-  logAction('guest', 'Khách hàng', 'Mở phiên đặt bàn', `Kích hoạt bàn ${tableId} cùng SĐT ${phone} - Khách ngồi: ${newSession.guests_count} - Mã: ${generatedCode}`);
-  
+  logAction(
+    createdBy || 'guest',
+    createdBy ? 'Nhân viên lễ tân' : 'Khách hàng',
+    'Mở phiên đặt bàn',
+    `Kích hoạt bàn ${tableId} cùng SĐT ${trimmedPhone} - Khách ngồi: ${newSession.guests_count} - Mã: ${generatedCode}`
+  );
+
   return res.json({ success: true, shareCode: generatedCode, sessionId });
+});
+
+
+// ================= QR ORDER =================
+app.get('/qr-order', (req, res) => {
+  const tableId = req.query.table as string;
+  if (!tableId) {
+    return res.redirect('/customer');
+  }
+  return res.redirect(`/customer?table=${tableId}`);
 });
 
 app.post('/api/sessions/:id/pay', (req, res) => {
@@ -458,7 +482,7 @@ app.post('/api/orders', (req, res) => {
   db.save('order_details', [...newDetails, ...orderDetails]);
 
   logAction('guest', 'Khách hàng', 'Đặt món ăn', `Khách bàn ${tableId} gửi đơn ${orderId} gồm ${cartItems.length} món. Tạm tính ${totalComputed.toLocaleString()}đ`);
-  
+
   return res.json({ success: true, orderId });
 });
 
@@ -511,7 +535,7 @@ app.put('/api/order-details/:id/status', (req, res) => {
       }
 
       logAction(operatorId || 'system', operatorName || 'Bếp', 'Thiếu hụt nguyên liệu', `Bếp từ chối nấu món "${dishes[dIdx]?.name}" do thiếu: ${insufficient.join(', ')}`);
-      
+
       return res.status(400).json({
         error: `Không đủ tồn kho nguyên vật liệu để chế biến! Thiếu: ${insufficient.join(', ')}. Hệ thống đã tự động đánh dấu HẾT MÓN trên thực đơn.`
       });
@@ -832,7 +856,7 @@ app.get('/api/reports/materials', (req, res) => {
     const matTxs = filteredTxs.filter(tx => tx.material_id === mat.id);
     const imported = matTxs.filter(tx => tx.transaction_type === 'NHAP').reduce((sum, tx) => sum + tx.quantity, 0);
     const consumed = matTxs.filter(tx => tx.transaction_type === 'XUAT').reduce((sum, tx) => sum + tx.quantity, 0);
-    
+
     // Simulating starting stock level before filtering
     const startingStock = mat.stock_current - imported + consumed;
 
@@ -900,7 +924,7 @@ app.get('/api/reports/export', (req, res) => {
 
       const sessionOrders = orders.filter(o => o.session_id === sess.id);
       const totalCost = sessionOrders.reduce((sum, o) => sum + o.total_amount, 0);
-      
+
       csvContent += `${sess.id},${sess.table_id},${sess.start_time},${sess.end_time || 'Chưa đóng'},${sess.status},${totalCost}\n`;
     });
   } else if (type === 'materials') {

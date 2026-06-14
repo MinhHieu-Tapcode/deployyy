@@ -25,7 +25,9 @@ export function mapSessionToFrontend(s: any): types.Session {
     Thoi_gian_ket_thuc: s.end_time,
     Ma_phien_code: s.share_code,
     Trang_thai: s.status,
-    So_khach: s.guests_count || 4
+    So_khach: s.guests_count || 4,
+    customer_phone: s.customer_phone,
+    created_by: s.created_by
   } as any; // Using type casting to support extended property safely
 }
 

@@ -82,6 +82,8 @@ CREATE TABLE IF NOT EXISTS `table_sessions` (
   `share_code` VARCHAR(20) NOT NULL,
   `status` VARCHAR(20) NOT NULL,
   `guests_count` INT NOT NULL DEFAULT 4,
+  `customer_phone` VARCHAR(20) DEFAULT NULL,
+  `created_by` VARCHAR(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
