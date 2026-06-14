@@ -411,31 +411,25 @@
     {
       "id": "dm01",
       "name": "Lẩu",
-      "sort_order": 1,
+      "sort_order": 2,
       "status": "Hiển thị"
     },
     {
       "id": "dm02",
-      "name": "Topping",
-      "sort_order": 2,
+      "name": "Đồ nhúng lẩu",
+      "sort_order": 3,
       "status": "Hiển thị"
     },
     {
       "id": "dm03",
       "name": "Đồ uống",
-      "sort_order": 3,
-      "status": "Hiển thị"
-    },
-    {
-      "id": "dm04",
-      "name": "Tráng miệng",
       "sort_order": 4,
       "status": "Hiển thị"
     },
     {
       "id": "dm05",
-      "name": "Khác",
-      "sort_order": 5,
+      "name": "Đồ khai vị",
+      "sort_order": 1,
       "status": "Hiển thị"
     }
   ],
@@ -446,7 +440,7 @@
       "name": "Lẩu Nấm Thập Cẩm",
       "price": 299000,
       "description": "Lẩu nấm thập cẩm với nhiều loại nấm tươi ngon, nước dùng thanh ngọt.",
-      "image_url": "https://images.unsplash.com/photo-1547928500-4722f55cc829?w=600&auto=format&fit=crop&q=60",
+      "image_url": "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=600&auto=format&fit=crop&q=60",
       "status": "Còn phục vụ"
     },
     {

@@ -164,6 +164,11 @@ const ElegantMushroomFooter = () => (
   </div>
 );
 
+const formatPrice = (price: any): string => {
+  const num = typeof price === 'number' ? price : parseFloat(price || '0');
+  return new Intl.NumberFormat('vi-VN').format(Math.round(num)) + 'đ';
+};
+
 export default function CustomerOrderView() {
   const {
     tables,
@@ -300,11 +305,21 @@ export default function CustomerOrderView() {
   };
 
   const selectedDish = dishes.find(d => d.Ma_mon === selectedDishId);
-  const activeCategoryDishes = (catId: string) => dishes.filter(d => d.Ma_danh_muc === catId);
+  const activeCategoryDishes = (catId: string) => {
+    if (catId === 'all') {
+      return dishes;
+    }
+    return dishes.filter(d => d.Ma_danh_muc === catId);
+  };
 
-  // Filter categories to show
-  const activeTabsCategories = categories.filter(c => c.Trang_thai === 'Hiển thị');
-  const [selectedCatId, setSelectedCatId] = useState(activeTabsCategories[0]?.Ma_danh_muc || 'dm01');
+  // Sort and filter categories to show, adding "Tất cả" at the beginning
+  const sortedCategories = [...categories]
+    .filter(c => c.Trang_thai === 'Hiển thị')
+    .sort((a, b) => (a.Thu_tu_hien_thi || 0) - (b.Thu_tu_hien_thi || 0));
+
+  const allTab = { Ma_danh_muc: 'all', Ten_danh_muc: 'Tất cả', Thu_tu_hien_thi: 0, Trang_thai: 'Hiển thị' };
+  const activeTabsCategories = [allTab, ...sortedCategories];
+  const [selectedCatId, setSelectedCatId] = useState('all');
 
   // Load placed orders for tracking
   const placedSession = sessions.find(s => s.Ma_ban === tableId && s.Trang_thai === 'active');
@@ -602,7 +617,7 @@ export default function CustomerOrderView() {
                           </div>
 
                           <div className="flex justify-between items-center mt-1.5">
-                            <span className="font-mono font-black text-sm text-[#EE3124]">{dish.Don_gia.toLocaleString()}đ</span>
+                            <span className="font-mono font-black text-sm text-[#EE3124]">{formatPrice(dish.Don_gia)}</span>
                             
                             {isOutOfStock ? (
                               <span className="px-2 py-0.5 bg-yellow-50 text-yellow-750 text-[8px] font-black uppercase rounded border border-yellow-200 animate-pulse">Tạm Hết</span>
@@ -638,7 +653,7 @@ export default function CustomerOrderView() {
                   </div>
                   <div>
                     <span className="text-[7px] text-gray-400 font-black block uppercase tracking-wider">Giỏ hàng tạm</span>
-                    <span className="text-xs font-mono font-black text-gray-800">{getCartTotal().toLocaleString()}đ</span>
+                    <span className="text-xs font-mono font-black text-gray-800">{formatPrice(getCartTotal())}</span>
                   </div>
                 </div>
 
@@ -691,7 +706,7 @@ export default function CustomerOrderView() {
                 <div className="p-6 flex-1 space-y-4 overflow-y-auto">
                   <div>
                     <h3 className="font-display font-black text-gray-855 text-lg leading-tight">{selectedDish.Ten_mon}</h3>
-                    <span className="text-base text-[#EE3124] font-mono font-black block mt-1">{selectedDish.Don_gia.toLocaleString()}đ</span>
+                    <span className="text-base text-[#EE3124] font-mono font-black block mt-1">{formatPrice(selectedDish.Don_gia)}</span>
                     <p className="text-xs text-gray-450 font-light mt-2 leading-relaxed">{selectedDish.Mo_ta || 'Lẩu nấm kết hợp tinh tế cùng nấm rừng thanh mát.'}</p>
                   </div>
 
@@ -820,7 +835,7 @@ export default function CustomerOrderView() {
                                     +
                                   </button>
                                 </div>
-                                <span className="font-mono font-black text-xs text-[#EE3124]">{dish.Don_gia.toLocaleString()}đ</span>
+                                <span className="font-mono font-black text-xs text-[#EE3124]">{formatPrice(dish.Don_gia)}</span>
                               </div>
                             </div>
                           </div>
@@ -849,7 +864,7 @@ export default function CustomerOrderView() {
                     {/* Sub totals */}
                     <div className="border-t border-gray-100 pt-3 flex justify-between items-center text-xs" id="billing-summary-block">
                       <span className="text-gray-450 font-bold uppercase tracking-wider text-[9px]">Tạm tính ({cart.reduce((sum, item) => sum + item.quantity, 0)} món)</span>
-                      <span className="font-mono font-black text-sm text-[#EE3124]">{getCartTotal().toLocaleString()}đ</span>
+                      <span className="font-mono font-black text-sm text-[#EE3124]">{formatPrice(getCartTotal())}</span>
                     </div>
 
                     {/* Submit checkout button */}
