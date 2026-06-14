@@ -25,10 +25,10 @@ export interface ToastMessage {
   duration?: number;
 }
 
-export function ToastContainer({ toasts, onRemove }: { toasts: ToastMessage[]; onRemove: (id: string) => void }) {
+export function ToastContainer({ toasts = [], onRemove }: { toasts?: ToastMessage[]; onRemove: (id: string) => void }) {
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3.5 max-w-sm w-full" id="toast-cabinet">
-      {toasts.map(toast => (
+      {(toasts || []).map(toast => (
         <ToastItem key={toast.id} toast={toast} onClose={() => onRemove(toast.id)} />
       ))}
     </div>

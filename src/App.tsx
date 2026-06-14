@@ -50,7 +50,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-[#FDFBF7] flex flex-col font-sans" id="app-cabinet">
         <CustomerOrderView />
-        <ToastContainer toasts={toasts} onRemove={removeToast} />
+        {toasts && removeToast && <ToastContainer toasts={toasts} onRemove={removeToast} />}
       </div>
     );
   }
@@ -210,7 +210,7 @@ export default function App() {
           <span>Giao diện quản lý thông minh và tinh tế • Lẩu Nấm Gia Khánh</span>
         </div>
       </footer>
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      {toasts && removeToast && <ToastContainer toasts={toasts} onRemove={removeToast} />}
     </div>
   );
 }
