@@ -138,10 +138,10 @@ export default function LoginView() {
                   key={emp.Ma_nhan_vien}
                   onClick={() => {
                     setUsername(emp.Ten_dang_nhap);
-                    setPassword(emp.Mat_khau_hash);
+                    setPassword('123456');
                   }}
                   className={`px-2.5 py-1.5 border border-dashed rounded-lg text-left transition hover:bg-red-50/50 hover:border-red-300 text-[10px] ${
-                    username === emp.Ten_dang_nhap && password === emp.Mat_khau_hash
+                    username === emp.Ten_dang_nhap && password === '123456'
                       ? 'bg-red-50 border-red-500 text-red-800'
                       : 'border-gray-200 text-gray-600'
                   }`}

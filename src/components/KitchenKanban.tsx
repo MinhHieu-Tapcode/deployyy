@@ -6,7 +6,8 @@
 import React, { useState } from 'react';
 import { useRestaurantStore } from '../data/store';
 import { OrderItemStatus, DishStatus } from '../types';
-import { ChefHat, FileText, Check, Play, CheckCircle, ShieldAlert, AlertTriangle, Search, BookOpen, Layers, Info, List, Tag } from 'lucide-react';
+import { ChefHat, FileText, Check, Play, CheckCircle, ShieldAlert, AlertTriangle, Search, BookOpen, Layers, Info, List, Tag, Filter } from 'lucide-react';
+import { OrderItemRow } from './SharedUI';
 
 export default function KitchenKanban() {
   const {
@@ -16,6 +17,7 @@ export default function KitchenKanban() {
     categories,
     recipes,
     materials,
+    tables,
     updateOrderItemStatus,
     updateDish,
   } = useRestaurantStore();
@@ -26,17 +28,36 @@ export default function KitchenKanban() {
   const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
   const [kitchenError, setKitchenError] = useState<string | null>(null);
 
+  // Kanban view filters
+  const [selectedTableFilter, setSelectedTableFilter] = useState<string>('all');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
+
+  const uniqueTables = Array.from(new Set(tables.map(t => t.Ma_ban))).sort();
+
+  // Filter items based on dropdowns
+  const filteredOrderDetails = orderDetails.filter(item => {
+    const dish = dishes.find(d => d.Ma_mon === item.Ma_mon);
+    const tableCode = item.Ma_hd_dat_mon.split('_')[1] || '';
+    
+    const matchesTable = selectedTableFilter === 'all' || tableCode === selectedTableFilter;
+    const matchesCategory = selectedCategoryFilter === 'all' || dish?.Ma_danh_muc === selectedCategoryFilter;
+    
+    return matchesTable && matchesCategory;
+  });
+
   // Group Details by Status for Kanban Column Columns (Screen 14)
-  const pendingItems = orderDetails.filter(od => od.Trang_thai_mon === OrderItemStatus.DANG_CHO);
-  const cookingItems = orderDetails.filter(od => od.Trang_thai_mon === OrderItemStatus.DANG_CHE_BIEN);
-  const completedItems = orderDetails.filter(od => od.Trang_thai_mon === OrderItemStatus.DA_HOAN_THANH);
+  const pendingItems = filteredOrderDetails.filter(od => od.Trang_thai_mon === OrderItemStatus.DANG_CHO);
+  const cookingItems = filteredOrderDetails.filter(od => od.Trang_thai_mon === OrderItemStatus.DANG_CHE_BIEN);
+  const completedItems = filteredOrderDetails.filter(od => od.Trang_thai_mon === OrderItemStatus.DA_HOAN_THANH);
+  const servedItems = filteredOrderDetails.filter(od => od.Trang_thai_mon === OrderItemStatus.DA_PHUC_VU);
 
   const handleUpdateStatus = (detailId: string, nextStatus: OrderItemStatus) => {
     setKitchenError(null);
-    const res = updateOrderItemStatus(detailId, nextStatus);
-    if (!res.success) {
-      setKitchenError(res.error || 'Cập nhật trạng thái chế biến lỗi.');
-    }
+    updateOrderItemStatus(detailId, nextStatus).then(res => {
+      if (!res.success) {
+        setKitchenError(res.error || 'Cập nhật trạng thái chế biến lỗi.');
+      }
+    });
   };
 
   const handleToggleDishStatus = (dishId: string, current: DishStatus) => {
@@ -54,14 +75,14 @@ export default function KitchenKanban() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 rounded-xl border border-gray-100 gap-3 shadow-sm" id="kitchen-header">
         <div>
           <h2 className="text-xl font-display font-bold text-gray-800 tracking-wide flex items-center space-x-2">
-            <ChefHat className="text-brand-red" />
+            <ChefHat className="text-[#EE3124]" />
             <span>Khu Vực Bếp Chế Biến</span>
           </h2>
           <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-mono">Kitchen Order Queue & Stock Locks (UC13, UC15)</p>
         </div>
 
         {/* Kanban vs Menu Lookup Toggles */}
-        <div className="flex border border-gray-200 rounded-lg p-0.5 text-xs bg-gray-50">
+        <div className="flex border border-gray-250 rounded-lg p-0.5 text-xs bg-gray-50">
           <button
             onClick={() => { setKitchenError(null); setActiveTab('kanban'); }}
             className={`px-3 py-1.5 rounded-md font-bold transition flex items-center space-x-1 cursor-pointer ${
@@ -95,146 +116,175 @@ export default function KitchenKanban() {
 
       {/* KANBAN BOARD SCREEN STATE */}
       {activeSubTab === 'kanban' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5" id="kitchen-kanban-board">
-          
-          {/* Column 1: Chờ chế biến */}
-          <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-200 flex flex-col h-[520px]" id="col-pending">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-display font-extrabold text-orange-700 uppercase tracking-widest text-[11px] flex items-center space-x-1.5">
-                <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                <span>Chờ chế biến</span>
-              </h3>
-              <span className="px-2 py-0.5 rounded-md bg-orange-100 text-orange-800 font-mono font-bold text-[10px]">{pendingItems.length}</span>
+        <div className="space-y-4">
+          {/* Filters Bar */}
+          <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-xl border border-gray-150 shadow-xs" id="kitchen-kanban-filters">
+            <div className="flex items-center space-x-2 text-xs font-bold text-gray-500 uppercase tracking-wide">
+              <Filter size={14} className="text-[#EE3124]" />
+              <span>Bộ lọc đơn bếp:</span>
             </div>
+            
+            <div className="flex flex-1 flex-col sm:flex-row gap-3">
+              {/* Table Filter */}
+              <div className="flex-1 flex items-center space-x-2">
+                <span className="text-[11px] font-semibold text-gray-400 shrink-0">Bàn ăn:</span>
+                <select
+                  value={selectedTableFilter}
+                  onChange={(e) => setSelectedTableFilter(e.target.value)}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold focus:outline-none focus:border-[#EE3124] focus:ring-1 focus:ring-[#EE3124] bg-white cursor-pointer"
+                >
+                  <option value="all">Tất cả bàn ăn</option>
+                  {uniqueTables.map(tCode => (
+                    <option key={tCode} value={tCode}>Bàn {tCode}</option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Content items pending */}
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1" id="pending-items-overflow">
-              {pendingItems.map((item, index) => {
-                const dish = dishes.find(d => d.Ma_mon === item.Ma_mon);
-                const tableCode = sessions.find(s => {
-                  const ordHex = item.Ma_hd_dat_mon;
-                  const activeOrd = ordHex.split('_')[1]; // Simulating table reference
-                  return s.Ma_ban === activeOrd || s.Ma_phien === item.Ma_hd_dat_mon.replace('o_', 's_').slice(0, -2);
-                })?.Ma_ban || 'Bàn Khách';
-
-                return (
-                  <div key={item.Ma_detail_id} className="bg-white p-3.5 rounded-xl border border-gray-150 shadow-xs hover:border-orange-300 transition duration-150">
-                    <div className="flex justify-between items-start">
-                      <span className="text-xs font-black uppercase text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">BÀN {item.Ma_hd_dat_mon.split('_')[1]}</span>
-                      <span className="text-[9px] font-mono text-gray-400 font-bold">Vừa đặt</span>
-                    </div>
-
-                    <div className="mt-3.5 space-y-1">
-                      <h4 className="font-bold text-xs text-gray-800">{dish?.Ten_mon}</h4>
-                      <p className="text-xs text-brand-red font-mono font-bold">Số lượng: x{item.So_luong}</p>
-                      {item.Ghi_chu && <p className="p-1 px-2 border-l-2 border-red-500 text-[10px] text-gray-400 bg-red-50/50 mt-1 italic truncate">Lưu ý: {item.Ghi_chu}</p>}
-                    </div>
-
-                    {/* Progress action button */}
-                    <button
-                      onClick={() => handleUpdateStatus(item.Ma_detail_id, OrderItemStatus.DANG_CHE_BIEN)}
-                      className="w-full mt-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-[10px] rounded-lg tracking-wider flex items-center justify-center space-x-1 cursor-pointer"
-                    >
-                      <Play size={10} />
-                      <span>DUYỆT NẤU / TRỪ KHO</span>
-                    </button>
-                  </div>
-                );
-              })}
-
-              {pendingItems.length === 0 && (
-                <div className="h-full flex items-center justify-center text-center text-gray-400 text-xs italic py-16">
-                  Đang trống hàng nấu.
-                </div>
-              )}
+              {/* Category Filter */}
+              <div className="flex-1 flex items-center space-x-2">
+                <span className="text-[11px] font-semibold text-gray-400 shrink-0">Danh mục:</span>
+                <select
+                  value={selectedCategoryFilter}
+                  onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold focus:outline-none focus:border-[#EE3124] focus:ring-1 focus:ring-[#EE3124] bg-white cursor-pointer"
+                >
+                  <option value="all">Tất cả danh mục</option>
+                  {categories.map(cat => (
+                    <option key={cat.Ma_danh_muc} value={cat.Ma_danh_muc}>{cat.Ten_danh_muc}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
-          {/* Column 2: Đang chế biến */}
-          <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-200 flex flex-col h-[520px]" id="col-cooking">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-display font-extrabold text-blue-700 uppercase tracking-widest text-[11px] flex items-center space-x-1.5">
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
-                <span>Đang hầm & Nấu</span>
-              </h3>
-              <span className="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-mono font-bold text-[10px]">{cookingItems.length}</span>
-            </div>
+          {/* Columns grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" id="kitchen-kanban-board">
+            
+            {/* Column 1: Chờ chế biến */}
+            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-200 flex flex-col h-[525px]" id="col-pending">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-display font-extrabold text-orange-700 uppercase tracking-widest text-[11px] flex items-center space-x-1.5">
+                  <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                  <span>Chờ chế biến</span>
+                </h3>
+                <span className="px-2 py-0.5 rounded-md bg-orange-100 text-orange-800 font-mono font-bold text-[10px]">{pendingItems.length}</span>
+              </div>
 
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1" id="cooking-items-overflow">
-              {cookingItems.map((item, index) => {
-                const dish = dishes.find(d => d.Ma_mon === item.Ma_mon);
+              {/* Content items pending */}
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1" id="pending-items-overflow">
+                {pendingItems.map((item) => {
+                  const dish = dishes.find(d => d.Ma_mon === item.Ma_mon);
+                  return (
+                    <OrderItemRow
+                      key={item.Ma_detail_id}
+                      item={item}
+                      dishName={dish?.Ten_mon || 'Không rõ món'}
+                      onStatusChange={(nextStatus) => handleUpdateStatus(item.Ma_detail_id, nextStatus)}
+                    />
+                  );
+                })}
 
-                return (
-                  <div key={item.Ma_detail_id} className="bg-white p-3.5 rounded-xl border border-gray-150 shadow-xs hover:border-blue-300 transition duration-150">
-                    <div className="flex justify-between items-start">
-                      <span className="text-xs font-black uppercase text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">BÀN {item.Ma_hd_dat_mon.split('_')[1]}</span>
-                      <span className="text-[9px] font-mono text-blue-600 font-extrabold animate-pulse">Cooking</span>
-                    </div>
-
-                    <div className="mt-3.5 space-y-1">
-                      <h4 className="font-bold text-xs text-gray-800">{dish?.Ten_mon}</h4>
-                      <p className="text-xs text-brand-red font-mono font-bold">Số lượng: x{item.So_luong}</p>
-                      {item.Ghi_chu && <p className="p-1 px-2 border-l-2 border-red-500 text-[10px] text-gray-400 bg-red-50/50 mt-1 italic truncate">Lưu ý: {item.Ghi_chu}</p>}
-                    </div>
-
-                    <button
-                      onClick={() => handleUpdateStatus(item.Ma_detail_id, OrderItemStatus.DA_HOAN_THANH)}
-                      className="w-full mt-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] rounded-lg tracking-wider flex items-center justify-center space-x-1 cursor-pointer"
-                    >
-                      <Check size={10} />
-                      <span>HOÀN THÀNH MÓN NẤU</span>
-                    </button>
+                {pendingItems.length === 0 && (
+                  <div className="h-full flex items-center justify-center text-center text-gray-400 text-xs italic py-16">
+                    Đang trống hàng nấu.
                   </div>
-                );
-              })}
-
-              {cookingItems.length === 0 && (
-                <div className="h-full flex items-center justify-center text-center text-gray-400 text-xs italic py-16">
-                  Không có món nào đang nấu.
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Column 3: Hoàn thành */}
-          <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-200 flex flex-col h-[520px]" id="col-completed">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-display font-extrabold text-green-700 uppercase tracking-widest text-[11px] flex items-center space-x-1.5">
-                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                <span>Chờ bưng lên (Bếp xong)</span>
-              </h3>
-              <span className="px-2 py-0.5 rounded-md bg-green-100 text-green-800 font-mono font-bold text-[10px]">{completedItems.length}</span>
+                )}
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1" id="completed-items-overflow">
-              {completedItems.map((item, index) => {
-                const dish = dishes.find(d => d.Ma_mon === item.Ma_mon);
+            {/* Column 2: Đang nấu */}
+            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-200 flex flex-col h-[525px]" id="col-cooking">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-display font-extrabold text-blue-700 uppercase tracking-widest text-[11px] flex items-center space-x-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
+                  <span>Đang nấu</span>
+                </h3>
+                <span className="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-mono font-bold text-[10px]">{cookingItems.length}</span>
+              </div>
 
-                return (
-                  <div key={item.Ma_detail_id} className="bg-white p-3.5 rounded-xl border border-gray-150 shadow-xs border-dashed border-green-200">
-                    <div className="flex justify-between items-start">
-                      <span className="text-xs font-black uppercase text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">BÀN {item.Ma_hd_dat_mon.split('_')[1]}</span>
-                      <span className="text-[9px] font-mono text-green-600 font-bold">Sẵn Sàng</span>
-                    </div>
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1" id="cooking-items-overflow">
+                {cookingItems.map((item) => {
+                  const dish = dishes.find(d => d.Ma_mon === item.Ma_mon);
+                  return (
+                    <OrderItemRow
+                      key={item.Ma_detail_id}
+                      item={item}
+                      dishName={dish?.Ten_mon || 'Không rõ món'}
+                      onStatusChange={(nextStatus) => handleUpdateStatus(item.Ma_detail_id, nextStatus)}
+                    />
+                  );
+                })}
 
-                    <div className="mt-3.5 space-y-1">
-                      <h4 className="font-bold text-xs text-gray-800">{dish?.Ten_mon}</h4>
-                      <p className="text-xs text-brand-red font-mono font-bold">Số lượng: x{item.So_luong}</p>
-                    </div>
-
-                    <div className="mt-4 p-2 bg-green-50 text-green-800 text-[10px] rounded-lg text-center font-bold border border-green-100">
-                      Đã báo chuông cho chạy bàn phục vụ
-                    </div>
+                {cookingItems.length === 0 && (
+                  <div className="h-full flex items-center justify-center text-center text-gray-400 text-xs italic py-16">
+                    Không có món nào đang nấu.
                   </div>
-                );
-              })}
-
-              {completedItems.length === 0 && (
-                <div className="h-full flex items-center justify-center text-center text-gray-400 text-xs italic py-16">
-                  Chờ món từ bếp.
-                </div>
-              )}
+                )}
+              </div>
             </div>
+
+            {/* Column 3: Chờ bưng lên */}
+            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-200 flex flex-col h-[525px]" id="col-completed">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-display font-extrabold text-cyan-700 uppercase tracking-widest text-[11px] flex items-center space-x-1.5">
+                  <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+                  <span>Chờ bưng lên</span>
+                </h3>
+                <span className="px-2 py-0.5 rounded-md bg-cyan-100 text-cyan-800 font-mono font-bold text-[10px]">{completedItems.length}</span>
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1" id="completed-items-overflow">
+                {completedItems.map((item) => {
+                  const dish = dishes.find(d => d.Ma_mon === item.Ma_mon);
+                  return (
+                    <OrderItemRow
+                      key={item.Ma_detail_id}
+                      item={item}
+                      dishName={dish?.Ten_mon || 'Không rõ món'}
+                      onStatusChange={(nextStatus) => handleUpdateStatus(item.Ma_detail_id, nextStatus)}
+                    />
+                  );
+                })}
+
+                {completedItems.length === 0 && (
+                  <div className="h-full flex items-center justify-center text-center text-gray-400 text-xs italic py-16">
+                    Chờ món từ bếp.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Column 4: Đã phục vụ */}
+            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-200 flex flex-col h-[525px]" id="col-served">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-display font-extrabold text-green-700 uppercase tracking-widest text-[11px] flex items-center space-x-1.5">
+                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                  <span>Đã phục vụ</span>
+                </h3>
+                <span className="px-2 py-0.5 rounded-md bg-green-100 text-green-800 font-mono font-bold text-[10px]">{servedItems.length}</span>
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1" id="served-items-overflow">
+                {servedItems.map((item) => {
+                  const dish = dishes.find(d => d.Ma_mon === item.Ma_mon);
+                  return (
+                    <OrderItemRow
+                      key={item.Ma_detail_id}
+                      item={item}
+                      dishName={dish?.Ten_mon || 'Không rõ món'}
+                      showActions={false}
+                    />
+                  );
+                })}
+
+                {servedItems.length === 0 && (
+                  <div className="h-full flex items-center justify-center text-center text-gray-400 text-xs italic py-16">
+                    Chưa phục vụ món nào.
+                  </div>
+                )}
+              </div>
+            </div>
+
           </div>
         </div>
       )}
