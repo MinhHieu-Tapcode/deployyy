@@ -1,768 +1,639 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useState, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useRestaurantStore } from '../data/store';
+import { Search, Plus, Trash2, PackageOpen, X, CheckCircle2 } from 'lucide-react';
 import { RawMaterial } from '../types';
-import { 
-  Boxes, 
-  Plus, 
-  Upload, 
-  AlertTriangle, 
-  FileText, 
-  CheckCircle, 
-  Image as ImageIcon, 
-  Trash2, 
-  Percent, 
-  Search, 
-  Save, 
-  ShieldAlert,
-  ArrowRightLeft
-} from 'lucide-react';
+
+type ImportRow = {
+  id: string;
+  materialId: string;
+  isNew?: boolean;
+  newMaterialName?: string;
+  newMaterialUnit?: string;
+  quantity: number | '';
+  newMinStock: number | '';
+  notes: string;
+  searchQuery: string;
+  isDropdownOpen?: boolean;
+  error?: {
+    materialId?: string;
+    newMaterialName?: string;
+    newMaterialUnit?: string;
+    quantity?: string;
+    newMinStock?: string;
+  };
+};
 
 export default function WarehouseView() {
-  const { 
-    materials, 
-    importReceipts, 
-    addImportReceipt, 
-    updateMaterial, 
-    adjustInventory 
-  } = useRestaurantStore();
+  const { materials, adjustInventory, updateMaterial, addNewMaterial } = useRestaurantStore();
 
-  const [activeSubTab, setActiveSubTab] = useState<'import' | 'min_stock' | 'adjust'>('import');
-  
-  // States of Sub-Tab 1: Nhập Kho
-  const [shipper, setShipper] = useState('');
-  const [receiptNote, setReceiptNote] = useState('');
-  const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
-  const [receiptItems, setReceiptItems] = useState<{ materialId: string; quantity: number; price: number }[]>([
-    { materialId: materials[0]?.Ma_nvl || '', quantity: 10, price: 50000 }
-  ]);
-  const [receiptSuccess, setReceiptSuccess] = useState('');
-  const [receiptError, setReceiptError] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Helper to remove accents from Vietnamese string
+  const removeAccents = (str: string) => {
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D');
+  };
 
-  // Drag & drop state
-  const [isDragging, setIsDragging] = useState(false);
+  // Advanced search matcher (matches by Name, Code, or Unit, accent-insensitive)
+  const isMatch = (item: RawMaterial, query: string) => {
+    if (!query) return true;
+    const cleanQuery = removeAccents(query.trim().toLowerCase());
+    
+    const nameMatch = removeAccents(item.Ten_nvl.toLowerCase()).includes(cleanQuery);
+    const codeMatch = removeAccents(item.Ma_nvl.toLowerCase()).includes(cleanQuery);
+    const unitMatch = removeAccents(item.Don_vi_tinh.toLowerCase()).includes(cleanQuery);
+    
+    return nameMatch || codeMatch || unitMatch;
+  };
 
-  // States of Sub-Tab 2: Định mức tồn tối thiểu
+  // Tab 1 States
   const [searchQuery, setSearchQuery] = useState('');
-  const [editingMatId, setEditingMatId] = useState<string | null>(null);
-  const [editMinStock, setEditMinStock] = useState<number>(0);
-  const [editMaxStock, setEditMaxStock] = useState<number>(0);
-  const [stockSuccess, setStockSuccess] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'ok' | 'low' | 'out'>('all');
 
-  // States of Sub-Tab 3: Cân đối thủ công
-  const [adjustMatId, setAdjustMatId] = useState(materials[0]?.Ma_nvl || '');
-  const [adjustAmount, setAdjustAmount] = useState<number>(0);
-  const [adjustReason, setAdjustReason] = useState('');
-  const [adjustNote, setAdjustNote] = useState('');
-  const [adjustSuccessMsg, setAdjustSuccessMsg] = useState('');
-  const [adjustErrorMsg, setAdjustErrorMsg] = useState('');
+  // Tab 2 (Modal) States
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [importRows, setImportRows] = useState<ImportRow[]>([]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Helper to handle base64 image conversion
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUploadedPhoto(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  // Auto-hide toast
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
+
+  // Derived Data for Table
+  const processedMaterials = useMemo(() => {
+    let filtered = materials.filter(m => isMatch(m, searchQuery));
+
+    filtered = filtered.map(m => {
+      let status: 'ok' | 'low' | 'out' = 'ok';
+      if (m.Ton_kho_hien_tai === 0) status = 'out';
+      else if (m.Ton_kho_hien_tai <= m.Ton_kho_toi_thieu) status = 'low';
+      
+      return { ...m, _status: status };
+    });
+
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(m => m._status === statusFilter);
+    }
+
+    // Sort: 'out' -> 'low' -> 'ok'
+    filtered.sort((a, b) => {
+      const order = { 'out': 0, 'low': 1, 'ok': 2 };
+      return order[a._status] - order[b._status];
+    });
+
+    return filtered;
+  }, [materials, searchQuery, statusFilter]);
+
+  // Modal Actions
+  const openModal = () => {
+    setImportRows([{
+      id: Date.now().toString(),
+      materialId: '',
+      isNew: false,
+      newMaterialName: '',
+      newMaterialUnit: '',
+      quantity: '',
+      newMinStock: '',
+      notes: '',
+      searchQuery: '',
+      isDropdownOpen: false
+    }]);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleAddRow = () => {
+    setImportRows(prev => [...prev, {
+      id: Date.now().toString() + Math.random(),
+      materialId: '',
+      isNew: false,
+      newMaterialName: '',
+      newMaterialUnit: '',
+      quantity: '',
+      newMinStock: '',
+      notes: '',
+      searchQuery: '',
+      isDropdownOpen: false
+    }]);
+  };
+
+  const handleRemoveRow = (id: string) => {
+    if (importRows.length > 1) {
+      setImportRows(prev => prev.filter(r => r.id !== id));
     }
   };
 
-  const onDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const onDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const onDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUploadedPhoto(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Receipt submission
-  const handleAddReceiptItem = () => {
-    setReceiptItems(prev => [...prev, { materialId: materials[0]?.Ma_nvl || '', quantity: 10, price: 30000 }]);
-  };
-
-  const handleRemoveReceiptItem = (index: number) => {
-    setReceiptItems(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const handleReceiptItemChange = (index: number, field: 'materialId' | 'quantity' | 'price', value: string) => {
-    setReceiptItems(prev => prev.map((item, i) => {
-      if (i === index) {
-        return {
-          ...item,
-          [field]: field === 'materialId' ? value : Number(value)
-        };
+  const handleRowChange = (id: string, field: keyof ImportRow, value: any) => {
+    setImportRows(prev => prev.map(row => {
+      if (row.id === id) {
+        const updatedRow = { ...row, [field]: value };
+        
+        // Auto-fill newMinStock when material is selected (only for existing materials)
+        if (field === 'materialId' && value && !updatedRow.isNew) {
+          const mat = materials.find(m => m.Ma_nvl === value);
+          if (mat) {
+            updatedRow.newMinStock = mat.Ton_kho_toi_thieu;
+            updatedRow.searchQuery = mat.Ten_nvl;
+          }
+        }
+        
+        // Clear specific errors on change
+        if (updatedRow.error && updatedRow.error[field as keyof typeof updatedRow.error]) {
+          updatedRow.error = { ...updatedRow.error, [field]: undefined };
+        }
+        
+        return updatedRow;
       }
-      return item;
+      return row;
     }));
   };
 
-  const handleSubmitReceipt = (e: React.FormEvent) => {
-    e.preventDefault();
-    setReceiptSuccess('');
-    setReceiptError('');
+  const handleSelectMaterial = (rowId: string, mat: RawMaterial) => {
+    setImportRows(prev => prev.map(row => {
+      if (row.id === rowId) {
+        return {
+          ...row,
+          materialId: mat.Ma_nvl,
+          isNew: false,
+          searchQuery: mat.Ten_nvl,
+          newMinStock: mat.Ton_kho_toi_thieu,
+          isDropdownOpen: false,
+          error: { ...row.error, materialId: undefined }
+        };
+      }
+      return row;
+    }));
+  };
 
-    if (!shipper.trim()) {
-      setReceiptError('Vui lòng nhập tên người giao hàng!');
-      return;
-    }
+  const handleSelectNewMaterial = (rowId: string, name: string) => {
+    setImportRows(prev => prev.map(row => {
+      if (row.id === rowId) {
+        return {
+          ...row,
+          materialId: '',
+          isNew: true,
+          newMaterialName: name,
+          newMaterialUnit: '',
+          newMinStock: '',
+          searchQuery: name,
+          isDropdownOpen: false,
+          error: { ...row.error, materialId: undefined, newMaterialName: undefined }
+        };
+      }
+      return row;
+    }));
+  };
 
-    if (receiptItems.length === 0) {
-      setReceiptError('Vui lòng thêm ít nhất một nguyên vật liệu nhận kho!');
-      return;
-    }
+  const handleInputBlur = (rowId: string) => {
+    setTimeout(() => {
+      setImportRows(prev => prev.map(row => 
+        row.id === rowId ? { ...row, isDropdownOpen: false } : row
+      ));
+    }, 200);
+  };
 
-    if (!uploadedPhoto) {
-      setReceiptError('QUY TRÌNH BẮT BUỘC: Bạn phải tải lên ảnh chụp Đơn nhập kho / Biên nhận trước khi thêm!');
-      return;
-    }
+  const getFilteredMaterials = (query: string) => {
+    if (!query) return materials;
+    return materials.filter(m => isMatch(m, query));
+  };
 
-    const response = addImportReceipt({
-      shipper,
-      note: receiptNote,
-      anhDonNhap: uploadedPhoto,
-      items: receiptItems
+  const handleSubmitImport = () => {
+    let isValid = true;
+    const validatedRows = importRows.map(row => {
+      const error: ImportRow['error'] = {};
+      
+      if (!row.isNew && !row.materialId) {
+        error.materialId = 'Vui lòng chọn nguyên liệu';
+        isValid = false;
+      }
+
+      if (row.isNew && (!row.newMaterialName || !row.newMaterialName.trim())) {
+        error.newMaterialName = 'Vui lòng điền tên nguyên liệu';
+        isValid = false;
+      }
+
+      if (row.isNew && (!row.newMaterialUnit || !row.newMaterialUnit.trim())) {
+        error.newMaterialUnit = 'Vui lòng điền ĐVT';
+        isValid = false;
+      }
+      
+      if (row.quantity === '' || row.quantity <= 0) {
+        error.quantity = 'Số lượng phải lớn hơn 0';
+        isValid = false;
+      }
+
+      if (row.newMinStock !== '' && row.newMinStock < 0) {
+        error.newMinStock = 'Giá trị không được âm';
+        isValid = false;
+      }
+
+      return { ...row, error };
     });
 
-    if (response.success) {
-      setReceiptSuccess('Đã lập đơn nhập kho và cộng số lượng tồn kho vật tư thành công!');
-      // Reset form
-      setShipper('');
-      setReceiptNote('');
-      setUploadedPhoto(null);
-      setReceiptItems([{ materialId: materials[0]?.Ma_nvl || '', quantity: 10, price: 50000 }]);
-    } else {
-      setReceiptError(response.error || 'Nhập kho thất bại.');
+    setImportRows(validatedRows);
+
+    if (isValid) {
+      // Process imports
+      validatedRows.forEach(row => {
+        let finalMaterialId = row.materialId;
+
+        // If it's a new material, register it in the store first
+        if (row.isNew && row.newMaterialName && row.newMaterialUnit) {
+          const newId = `nvl_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+          const minStock = row.newMinStock !== '' ? Number(row.newMinStock) : 0;
+          
+          // Max stock must be larger than min stock for BR05
+          const maxStock = minStock > 0 ? minStock * 10 : 1000;
+
+          addNewMaterial({
+            Ma_nvl: newId,
+            Ten_nvl: row.newMaterialName.trim(),
+            Don_vi_tinh: row.newMaterialUnit.trim(),
+            Ton_kho_hien_tai: 0,
+            Ton_kho_toi_thieu: minStock,
+            Ton_kho_toi_da: maxStock
+          });
+
+          finalMaterialId = newId;
+        }
+
+        if (finalMaterialId) {
+          // Adjust inventory (add new stock)
+          adjustInventory(finalMaterialId, Number(row.quantity), row.notes || 'Nhập kho trực tiếp');
+          
+          // Update min stock if changed for existing material
+          if (!row.isNew) {
+            const mat = materials.find(m => m.Ma_nvl === finalMaterialId);
+            if (mat) {
+              const newMin = Number(row.newMinStock);
+              if (newMin >= 0 && newMin !== mat.Ton_kho_toi_thieu) {
+                updateMaterial({ ...mat, Ton_kho_toi_thieu: newMin });
+              }
+            }
+          }
+        }
+      });
+
+      setToastMessage('Nhập kho thành công');
+      closeModal();
     }
   };
 
-  // Stock edit submission
-  const startEditingMaterial = (mat: RawMaterial) => {
-    setEditingMatId(mat.Ma_nvl);
-    setEditMinStock(mat.Ton_kho_toi_thieu);
-    setEditMaxStock(mat.Ton_kho_toi_da);
-  };
-
-  const handleSaveStockLimits = (mat: RawMaterial) => {
-    setStockSuccess('');
-    if (editMinStock >= editMaxStock) {
-      alert('Ngưỡng tồn tối thiểu quy định phải luôn nhỏ hơn ngưỡng tồn tối đa!');
-      return;
-    }
-
-    const updated: RawMaterial = {
-      ...mat,
-      Ton_kho_toi_thieu: editMinStock,
-      Ton_kho_toi_da: editMaxStock
-    };
-
-    const isOk = updateMaterial(updated);
-    if (isOk) {
-      setStockSuccess(`Đã chỉnh định mức tồn kho cho "${mat.Ten_nvl}" thành công!`);
-      setEditingMatId(null);
-    }
-  };
-
-  // Manual adjust submission
-  const selectedAdjustMaterial = materials.find(m => m.Ma_nvl === adjustMatId);
-  const adjustCurrentStock = selectedAdjustMaterial ? selectedAdjustMaterial.Ton_kho_hien_tai : 0;
-  const adjustComputedNew = adjustCurrentStock + adjustAmount;
-
-  const handleManualAdjustSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setAdjustSuccessMsg('');
-    setAdjustErrorMsg('');
-
-    if (!adjustMatId) {
-      setAdjustErrorMsg('Hãy lựa chọn nguyên liệu.');
-      return;
-    }
-
-    if (adjustAmount === 0) {
-      setAdjustErrorMsg('Số lượng tăng giảm cân đối phải khác 0.');
-      return;
-    }
-
-    if (!adjustReason.trim()) {
-      setAdjustErrorMsg('Quy tắc kho bắt buộc: Vui lòng lựa chọn lý do cân đối!');
-      return;
-    }
-
-    const res = adjustInventory(adjustMatId, adjustAmount, `${adjustReason}${adjustNote ? ' - Ghi chú: ' + adjustNote : ''}`);
-    if (res.success) {
-      setAdjustSuccessMsg(`Điều chỉnh thành công vật tư "${selectedAdjustMaterial?.Ten_nvl}". Lượng tồn mới khớp ca: ${adjustComputedNew.toLocaleString()} ${selectedAdjustMaterial?.Don_vi_tinh}`);
-      setAdjustAmount(0);
-      setAdjustReason('');
-      setAdjustNote('');
-    } else {
-      setAdjustErrorMsg(res.error || 'Cân đối kho thất bại.');
-    }
-  };
+  // Get current datetime string
+  const currentDateTime = new Date().toLocaleString('vi-VN', { 
+    hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' 
+  });
 
   return (
-    <div className="space-y-6 text-sm" id="warehouse-view-dashboard">
+    <div className="p-4 md:p-6 h-full flex flex-col bg-[#FDFBF7] text-gray-800">
       
-      {/* Upper Brand Card */}
-      <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-gray-150 shadow-sm" id="warehouse-header">
-        <div>
-          <h2 className="text-xl font-display font-bold text-gray-800 tracking-wide">Quản Lý Kho & Nhập Hàng</h2>
-          <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-mono">Hệ thống Cân đối mật thiết Gia Khánh</p>
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded-xl shadow-lg flex items-center space-x-2 animate-bounce">
+          <CheckCircle2 size={18} />
+          <span className="font-bold text-sm tracking-wide">{toastMessage}</span>
         </div>
-        <div className="flex bg-gray-100 p-1 rounded-xl text-xs font-bold border border-gray-200">
-          <button
-            onClick={() => setActiveSubTab('import')}
-            className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
-              activeSubTab === 'import' ? 'bg-[#EE3124] text-white' : 'text-gray-500 hover:text-gray-800'
-            }`}
+      )}
+
+      {/* HEADER & CONTROLS */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+        <div>
+          <h2 className="text-2xl font-black text-[#EE3124] tracking-wider uppercase">Tồn Kho Nguyên Liệu</h2>
+          <p className="text-sm text-gray-500 font-medium mt-1">Kiểm soát tình trạng vật tư trong kho</p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
+            <input
+              type="text"
+              placeholder="Tìm kiếm nguyên liệu..."
+              className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm bg-white focus:border-[#EE3124] focus:ring-1 focus:ring-[#EE3124] outline-none transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <select
+            className="w-full sm:w-auto px-4 py-2 border border-gray-200 rounded-xl text-sm font-semibold bg-white outline-none cursor-pointer hover:border-gray-300 transition-all"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as any)}
           >
-            Nhập kho & Hoá đơn
-          </button>
+            <option value="all">Tất cả trạng thái</option>
+            <option value="ok">Đủ hàng</option>
+            <option value="low">Sắp hết</option>
+            <option value="out">Hết hàng</option>
+          </select>
+
           <button
-            onClick={() => setActiveSubTab('min_stock')}
-            className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
-              activeSubTab === 'min_stock' ? 'bg-[#EE3124] text-white' : 'text-gray-500 hover:text-gray-800'
-            }`}
+            onClick={openModal}
+            className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-[#EE3124] hover:bg-[#D42A1E] text-white px-5 py-2 rounded-xl font-bold text-sm transition-colors shadow-md whitespace-nowrap"
           >
-            Định mức Tồn tối thiểu
-          </button>
-          <button
-            onClick={() => setActiveSubTab('adjust')}
-            className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
-              activeSubTab === 'adjust' ? 'bg-[#EE3124] text-white' : 'text-gray-500 hover:text-gray-800'
-            }`}
-          >
-            Cân đối thủ công
+            <Plus size={18} />
+            <span>Nhập kho</span>
           </button>
         </div>
       </div>
 
-      {/* SUB-TAB 1: NHẬP VẬT TƯ & LỊCH SỬ BIÊN LAI */}
-      {activeSubTab === 'import' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="warehouse-import-workspace">
-          
-          {/* Lập phiếu biên lai mới */}
-          <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-gray-150 shadow-sm space-y-5" id="receipt-form-card">
-            <h3 className="font-bold text-gray-800 text-xs uppercase tracking-wider flex items-center space-x-2 border-b pb-3 border-gray-100">
-              <FileText size={15} className="text-[#EE3124]" />
-              <span>Lập Biên Bản Nhận Kho Mới</span>
-            </h3>
-
-            {receiptSuccess && (
-              <div className="p-3 bg-green-50 border-l-4 border-green-600 text-green-800 text-xs rounded-r-lg" id="receipt-success-msg">
-                {receiptSuccess}
-              </div>
-            )}
-
-            {receiptError && (
-              <div className="p-3 bg-red-50 border-l-4 border-red-600 text-red-800 text-xs rounded-r-lg" id="receipt-error-msg">
-                {receiptError}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmitReceipt} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Người Giao hàng *</label>
-                  <input
-                    type="text"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#EE3124] font-medium"
-                    placeholder="Vd: Nguyễn Văn Chiến (Hải Sản Sạch)"
-                    value={shipper}
-                    onChange={e => setShipper(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Ghi chú bổ sung</label>
-                  <input
-                    type="text"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#EE3124]"
-                    placeholder="Vd: Nấm đùi gà còn nguyên hộp..."
-                    value={receiptNote}
-                    onChange={e => setReceiptNote(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* DYNAMIC MATERIALS CONTAINER */}
-              <div className="space-y-3">
-                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider">Danh sách nguyên liệu tiếp nhận</label>
-                {receiptItems.map((item, idx) => (
-                  <div key={idx} className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
-                    
-                    <div className="flex-1 min-w-[150px]">
-                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Nguyên liệu</span>
-                      <select
-                        className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold"
-                        value={item.materialId}
-                        onChange={e => handleReceiptItemChange(idx, 'materialId', e.target.value)}
-                      >
-                        {materials.map(m => (
-                          <option key={m.Ma_nvl} value={m.Ma_nvl}>
-                            {m.Ten_nvl} ({m.Don_vi_tinh})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="w-24 shrink-0">
-                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Số thực nhận</span>
-                      <input
-                        type="number"
-                        className="w-full px-2 py-1 bg-white border border-gray-200 rounded-lg font-mono text-center text-xs font-bold"
-                        value={item.quantity}
-                        onChange={e => handleReceiptItemChange(idx, 'quantity', e.target.value)}
-                      />
-                    </div>
-
-                    <div className="w-32 shrink-0">
-                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Đơn giá tham khảo (đ)</span>
-                      <input
-                        type="number"
-                        className="w-full px-2 py-1 bg-white border border-gray-200 rounded-lg font-mono text-center text-xs"
-                        value={item.price}
-                        onChange={e => handleReceiptItemChange(idx, 'price', e.target.value)}
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveReceiptItem(idx)}
-                      disabled={receiptItems.length === 1}
-                      className="mt-4 p-1.5 text-gray-400 hover:text-[#EE3124] border border-gray-250 rounded-lg bg-white disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                ))}
-
-                <button
-                  type="button"
-                  onClick={handleAddReceiptItem}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 border border-dashed border-gray-300 hover:border-[#EE3124] text-gray-500 hover:text-[#EE3124] rounded-lg transition-all text-xs font-bold cursor-pointer"
-                >
-                  <Plus size={13} />
-                  <span>Thêm nguyên liệu vào danh sách</span>
-                </button>
-              </div>
-
-              {/* IMAGE ENFORCED UPLOAD COMPONENT */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider">
-                  Ảnh Chụp Đơn Nhập Kho Thực Tế * <span className="text-[#EE3124] font-semibold">(Bắt buộc để đối soát)</span>
-                </label>
-                
-                {/* Drag zone Area */}
-                <div
-                  onDragOver={onDragOver}
-                  onDragLeave={onDragLeave}
-                  onDrop={onDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer flex flex-col items-center justify-center transition-all ${
-                    uploadedPhoto 
-                      ? 'border-green-500 bg-green-50/10' 
-                      : isDragging 
-                        ? 'border-[#EE3124] bg-red-50/10' 
-                        : 'border-gray-300 hover:border-[#EE3124] hover:bg-gray-50/30'
-                  }`}
-                >
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
-
-                  {uploadedPhoto ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-center space-x-2 text-green-700">
-                        <CheckCircle size={18} />
-                        <span className="font-bold text-xs">Đã ghi nhận ảnh hóa đơn thành công!</span>
-                      </div>
-                      <img 
-                        src={uploadedPhoto} 
-                        alt="Đơn nhập" 
-                        className="max-h-36 rounded-lg border border-gray-250 mx-auto shadow-xs" 
-                        referrerPolicy="no-referrer"
-                      />
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setUploadedPhoto(null);
-                        }}
-                        className="text-[10px] text-red-600 font-bold underline hover:text-red-800"
-                      >
-                        Xóa ảnh và chụp lại ảnh khác
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="p-3 bg-red-50 text-[#EE3124] rounded-full inline-block">
-                        <Upload size={22} />
-                      </div>
-                      <p className="text-xs font-bold text-gray-700">Kéo & thả ảnh chụp biên lai lẩu hoặc Nhấp để chọn file ảnh</p>
-                      <p className="text-[10px] text-gray-400">Chấp nhận JPG, PNG từ máy POS hoặc camera điện thoại</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  className="w-full bg-[#EE3124] hover:bg-brand-red-dark text-white font-bold py-3 px-4 rounded-xl shadow-md tracking-wider text-xs cursor-pointer transition-all uppercase"
-                >
-                  Xác Nhận Hóa Đơn - Lưu Biên Bản
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Lịch sử biên bản hiện tại */}
-          <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-gray-150 shadow-sm space-y-4" id="import-history-card">
-            <h3 className="font-bold text-gray-800 text-xs uppercase tracking-wider flex items-center space-x-2 border-b pb-3 border-gray-100">
-              <Boxes size={15} className="text-[#EE3124]" />
-              <span>Biên Bản Nhận Gần Đây ({importReceipts.length})</span>
-            </h3>
-
-            <div className="space-y-3.5 max-h-[500px] overflow-y-auto pr-1">
-              {importReceipts.map((receipt, idx) => (
-                <div key={idx} className="bg-[#FAF9F6] p-4 rounded-xl border border-gray-200/60 shadow-xs relative">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-[10px] bg-red-100 text-[#EE3124] font-mono px-2 py-0.5 rounded-md font-bold">
-                        {receipt.Ma_bb}
-                      </span>
-                      <h4 className="font-bold text-xs mt-1.5 text-gray-800">
-                        Giao: {receipt.Ten_nguoi_giao}
-                      </h4>
-                    </div>
-                    <span className="font-mono text-xs font-bold text-gray-800">
-                      {receipt.Tong_tien.toLocaleString()}đ
-                    </span>
-                  </div>
-
-                  <p className="text-[11px] text-gray-450 mt-1 leading-relaxed">
-                    Nhân viên nhận: {receipt.Ho_ten_nhan_vien} <br />
-                    Lý do: <span className="italic">{receipt.Ghi_chu}</span>
-                  </p>
-
-                  <div className="mt-3 pt-2.5 border-t border-dashed border-gray-200 flex items-center justify-between">
-                    <span className="text-[9px] text-gray-400 font-semibold uppercase font-mono">
-                      {new Date(receipt.Ngay_nhan).toLocaleString('vi-VN')}
-                    </span>
-
-                    {receipt.Anh_don_nhap ? (
-                      <a
-                        href={receipt.Anh_don_nhap}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[10px] text-blue-600 font-bold hover:underline flex items-center space-x-1"
-                      >
-                        <ImageIcon size={10} />
-                        <span>Xem ảnh hoá đơn</span>
-                      </a>
-                    ) : (
-                      <span className="text-[9px] text-gray-400 italic">Không có ảnh đơn</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* SUB-TAB 2: QUẢN LÝ ĐỊNH MỨC TỒN TỐI THIỂU */}
-      {activeSubTab === 'min_stock' && (
-        <div className="bg-white p-6 rounded-2xl border border-gray-150 shadow-sm space-y-6" id="min-stock-management">
-          
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-gray-100">
-            <div>
-              <h3 className="font-bold text-gray-800 text-xs uppercase tracking-wider flex items-center space-x-2">
-                <AlertTriangle size={15} className="text-[#EE3124]" />
-                <span>Quy định mức tồn tối thiểu & cảnh báo tự động</span>
-              </h3>
-              <p className="text-[11px] text-gray-450 mt-1">Dành cho bộ phận Quản lý/Thủ kho thiết lập ngưỡng khẩn cấp để đảm bảo nguồn nguyên liệu nấu lẩu.</p>
-            </div>
-
-            {/* Simple search filter */}
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-2.5 text-gray-400" size={14} />
-              <input
-                type="text"
-                placeholder="Tìm nguyên liệu..."
-                className="w-full pl-9 pr-4 py-1.5 border border-gray-200 rounded-xl text-xs bg-gray-50 focus:bg-white"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {stockSuccess && (
-            <div className="p-3 bg-green-50 border-1 border-green-200 text-green-800 text-xs rounded-xl flex items-center space-x-2 animate-bounce">
-              <CheckCircle size={14} />
-              <span>{stockSuccess}</span>
-            </div>
-          )}
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-gray-150 text-gray-400 text-[10px] uppercase font-bold tracking-wider">
-                  <th className="pb-3 pt-1">Mã nguyên liệu</th>
-                  <th className="pb-3 pt-1">Tên nguyên liệu</th>
-                  <th className="pb-3 pt-1">Đơn vị đo</th>
-                  <th className="pb-3 pt-1 text-center">Lượng tồn hiện tại</th>
-                  <th className="pb-3 pt-1 text-center">Ngưỡng tối thiểu</th>
-                  <th className="pb-3 pt-1 text-center">Ngưỡng tối đa</th>
-                  <th className="pb-3 pt-1 text-right">Trạng thái định mức</th>
-                  <th className="pb-3 pt-1 text-center">Hành động</th>
+      {/* TABLE SECTION */}
+      <div className="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+        <div className="overflow-x-auto flex-1">
+          {processedMaterials.length > 0 ? (
+            <table className="w-full text-left border-collapse min-w-[700px]">
+              <thead className="bg-gray-50 sticky top-0 z-10">
+                <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase font-extrabold tracking-wider">
+                  <th className="py-4 px-6 w-1/3">Tên nguyên liệu</th>
+                  <th className="py-4 px-6 w-1/6">Đơn vị tính</th>
+                  <th className="py-4 px-6 w-1/6 text-right">Tồn hiện tại</th>
+                  <th className="py-4 px-6 w-1/6 text-right">Mức tối thiểu</th>
+                  <th className="py-4 px-6 w-1/6 text-center">Trạng thái</th>
                 </tr>
               </thead>
-              <tbody>
-                {materials
-                  .filter(m => m.Ten_nvl.toLowerCase().includes(searchQuery.toLowerCase()))
-                  .map((mat, idx) => {
-                    const isEditing = editingMatId === mat.Ma_nvl;
-                    const isUnderMinimum = mat.Ton_kho_hien_tai < mat.Ton_kho_toi_thieu;
-                    
-                    return (
-                      <tr key={idx} className={`border-b border-gray-100 hover:bg-gray-50/50 transition ${isUnderMinimum ? 'bg-red-50/20' : ''}`}>
-                        <td className="py-3 font-mono font-bold text-gray-600 text-xs">{mat.Ma_nvl}</td>
-                        <td className="py-3 font-bold text-gray-800">{mat.Ten_nvl}</td>
-                        <td className="py-3 text-gray-500 font-semibold text-xs">{mat.Don_vi_tinh}</td>
-                        
-                        <td className="py-3 text-center font-mono font-bold">
-                          <span className={isUnderMinimum ? 'text-[#EE3124] px-2 py-0.5 rounded-md bg-red-100 font-extrabold animate-pulse' : 'text-gray-800'}>
-                            {mat.Ton_kho_hien_tai.toLocaleString()}&nbsp;{mat.Don_vi_tinh}
-                          </span>
-                        </td>
+              <tbody className="divide-y divide-gray-100">
+                {processedMaterials.map(mat => {
+                  let badgeClass = '';
+                  let badgeText = '';
 
-                        {/* Minimum Stock Limit */}
-                        <td className="py-3 text-center">
-                          {isEditing ? (
-                            <input
-                              type="number"
-                              className="w-20 px-1.5 py-0.5 bg-white border border-gray-300 rounded font-mono font-bold text-center text-xs"
-                              value={editMinStock}
-                              onChange={e => setEditMinStock(Number(e.target.value))}
-                            />
-                          ) : (
-                            <span className="font-mono text-gray-600 font-bold">{mat.Ton_kho_toi_thieu.toLocaleString()}</span>
-                          )}
-                        </td>
+                  if (mat._status === 'ok') {
+                    badgeClass = 'bg-green-100 text-green-700';
+                    badgeText = 'Đủ';
+                  } else if (mat._status === 'low') {
+                    badgeClass = 'bg-orange-100 text-orange-700';
+                    badgeText = 'Sắp hết';
+                  } else {
+                    badgeClass = 'bg-red-100 text-red-700';
+                    badgeText = 'Hết';
+                  }
 
-                        {/* Maximum Stock Limit */}
-                        <td className="py-3 text-center">
-                          {isEditing ? (
-                            <input
-                              type="number"
-                              className="w-20 px-1.5 py-0.5 bg-white border border-gray-300 rounded font-mono font-bold text-center text-xs"
-                              value={editMaxStock}
-                              onChange={e => setEditMaxStock(Number(e.target.value))}
-                            />
-                          ) : (
-                            <span className="font-mono text-gray-600 font-semibold">{mat.Ton_kho_toi_da.toLocaleString()}</span>
-                          )}
-                        </td>
-
-                        <td className="py-3 text-right">
-                          {isUnderMinimum ? (
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-red-100 text-[#EE3124] border border-red-200 uppercase tracking-widest animate-pulse">
-                              Thiếu hụt trầm trọng
-                            </span>
-                          ) : (
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-50 text-green-700 border border-green-200">
-                              Đủ điều kiện phục vụ
-                            </span>
-                          )}
-                        </td>
-
-                        <td className="py-3 text-center">
-                          {isEditing ? (
-                            <button
-                              onClick={() => handleSaveStockLimits(mat)}
-                              className="bg-[#EE3124] hover:bg-brand-red-dark text-white p-1 rounded-md text-xs cursor-pointer flex items-center justify-center mx-auto"
-                              title="Lưu ngưỡng định mức"
-                            >
-                              <Save size={13} />
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => startEditingMaterial(mat)}
-                              className="border border-gray-250 hover:border-[#EE3124] text-xs text-gray-500 hover:text-[#EE3124] px-2.5 py-1 rounded-lg font-bold bg-white cursor-pointer"
-                            >
-                              Cấu hình
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  return (
+                    <tr key={mat.Ma_nvl} className="hover:bg-gray-50 transition-colors">
+                      <td className="py-4 px-6 font-bold text-gray-800 text-sm">
+                        {mat.Ten_nvl}
+                      </td>
+                      <td className="py-4 px-6 text-gray-500 text-sm font-medium">
+                        {mat.Don_vi_tinh}
+                      </td>
+                      <td className="py-4 px-6 text-right font-bold text-gray-800 text-base tabular-nums">
+                        {mat.Ton_kho_hien_tai.toLocaleString()}
+                      </td>
+                      <td className="py-4 px-6 text-right text-gray-500 text-sm tabular-nums font-semibold">
+                        {mat.Ton_kho_toi_thieu.toLocaleString()}
+                      </td>
+                      <td className="py-4 px-6 text-center">
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wide ${badgeClass}`}>
+                          {badgeText}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
-          </div>
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center p-10 text-gray-400">
+              <PackageOpen size={48} className="mb-4 opacity-50" />
+              <p className="text-base font-medium">Không tìm thấy nguyên liệu phù hợp</p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
-      {/* SUB-TAB 3: CÂN ĐỐI TỒN KHO THỦ CÔNG */}
-      {activeSubTab === 'adjust' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="adjust-workspace-fields">
-          <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-gray-150 shadow-sm space-y-6" id="adjust-form-card">
-            <h3 className="font-bold text-gray-800 text-xs uppercase tracking-wider flex items-center space-x-2 border-b pb-3 border-gray-100">
-              <ArrowRightLeft size={15} className="text-[#EE3124]" />
-              <span>Biên ca cân đối kho thủ công</span>
-            </h3>
-
-            <form onSubmit={handleManualAdjustSubmit} className="space-y-4">
-              {adjustErrorMsg && (
-                <div className="p-3 bg-red-50 border-l-4 border-red-600 text-red-800 text-xs">
-                  {adjustErrorMsg}
-                </div>
-              )}
-
-              {adjustSuccessMsg && (
-                <div className="p-3 bg-green-50 border-l-4 border-green-600 text-green-800 text-xs animate-pulse">
-                  {adjustSuccessMsg}
-                </div>
-              )}
-
+      {/* IMPORT MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-[92vw] max-h-[90vh] flex flex-col overflow-hidden">
+            
+            {/* Modal Header */}
+            <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Chọn nguyên vật liệu *</label>
-                <select
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white font-medium"
-                  value={adjustMatId}
-                  onChange={e => {
-                    setAdjustMatId(e.target.value);
-                    setAdjustSuccessMsg('');
-                    setAdjustErrorMsg('');
-                  }}
-                >
-                  {materials.map(m => (
-                    <option key={m.Ma_nvl} value={m.Ma_nvl}>
-                      {m.Ten_nvl} ({m.Don_vi_tinh})
-                    </option>
-                  ))}
-                </select>
+                <h3 className="text-xl font-black text-gray-800 uppercase tracking-wider">Ghi Nhận Nhập Kho Thực Tế</h3>
+                <p className="text-xs text-gray-500 mt-1 font-medium">{currentDateTime}</p>
               </div>
+              <button onClick={closeModal} className="text-gray-400 hover:text-gray-700 p-2 rounded-full hover:bg-gray-200 transition-colors">
+                <X size={24} />
+              </button>
+            </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-dashed border-gray-200" id="adjust-calc-panel">
-                <div>
-                  <span className="text-[10px] text-gray-400 uppercase tracking-widest block font-bold mb-1">Tồn kho trong sổ</span>
-                  <span className="text-lg font-mono font-extrabold text-[#EE3124]">
-                    {adjustCurrentStock.toLocaleString()} {selectedAdjustMaterial?.Don_vi_tinh}
-                  </span>
-                </div>
-                <div className="border-t sm:border-t-0 sm:border-l border-gray-200 pt-3 sm:pt-0 sm:pl-4">
-                  <span className="text-[10px] text-gray-400 uppercase tracking-widest block font-bold mb-1">Dự thảo tồn kho sau sửa</span>
-                  <span className={`text-lg font-mono font-extrabold ${adjustComputedNew < 0 ? 'text-red-500 animate-pulse' : 'text-blue-700'}`}>
-                    {adjustComputedNew.toLocaleString()} {selectedAdjustMaterial?.Don_vi_tinh}
-                  </span>
-                </div>
-              </div>
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto flex-1 bg-[#FDFBF7] min-h-[320px]">
+              <div className="space-y-4 pb-36">
+                {importRows.map((row, index) => {
+                  const selectedMat = materials.find(m => m.Ma_nvl === row.materialId);
+                  const unit = row.isNew ? (row.newMaterialUnit || '') : (selectedMat ? selectedMat.Don_vi_tinh : '-');
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Lượng tăng / giảm *</label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      className="w-full px-3.5 py-2 rounded-xl border border-gray-200 font-mono font-bold text-center"
-                      placeholder="Vd: -500 hoặc 500"
-                      value={adjustAmount === 0 ? '' : adjustAmount}
-                      onChange={e => setAdjustAmount(Number(e.target.value))}
-                    />
-                    <div className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-xs text-gray-400 font-bold">
-                      {selectedAdjustMaterial?.Don_vi_tinh}
+                  return (
+                    <div key={row.id} className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-4 relative">
+                      {/* Row index indicator */}
+                      <div className="absolute -left-2 -top-2 bg-gray-800 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow-md">
+                        {index + 1}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                        
+                        <div className="md:col-span-4 relative">
+                          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Nguyên liệu *</label>
+                          {row.isNew ? (
+                            <div className="relative">
+                              <input
+                                type="text"
+                                placeholder="Tên nguyên liệu mới..."
+                                className={`w-full px-3 py-2 bg-amber-50/50 border rounded-xl text-sm font-semibold outline-none ${row.error?.newMaterialName ? 'border-red-500 focus:ring-1 focus:ring-red-500' : 'border-amber-200 focus:border-amber-500'}`}
+                                value={row.newMaterialName || ''}
+                                onChange={(e) => handleRowChange(row.id, 'newMaterialName', e.target.value)}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setImportRows(prev => prev.map(r => 
+                                    r.id === row.id ? { 
+                                      ...r, 
+                                      isNew: false, 
+                                      newMaterialName: '', 
+                                      newMaterialUnit: '',
+                                      searchQuery: '',
+                                      error: { ...r.error, newMaterialName: undefined, newMaterialUnit: undefined }
+                                    } : r
+                                  ));
+                                }}
+                                className="absolute right-3 top-2.5 text-xs text-red-500 hover:text-red-700 font-bold transition-colors"
+                              >
+                                Chọn lại
+                              </button>
+                              {row.error?.newMaterialName && <p className="text-xs text-red-500 mt-1.5 font-medium">{row.error.newMaterialName}</p>}
+                            </div>
+                          ) : (
+                            <div className="relative">
+                              <input
+                                type="text"
+                                placeholder="Tìm kiếm hoặc chọn nguyên liệu..."
+                                className={`w-full px-3 py-2 bg-white border rounded-xl text-sm font-semibold outline-none ${row.error?.materialId ? 'border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-200 focus:border-[#EE3124]'}`}
+                                value={row.searchQuery}
+                                onFocus={() => {
+                                  setImportRows(prev => prev.map(r => 
+                                    r.id === row.id ? { ...r, isDropdownOpen: true } : { ...r, isDropdownOpen: false }
+                                  ));
+                                }}
+                                onBlur={() => handleInputBlur(row.id)}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setImportRows(prev => prev.map(r => {
+                                    if (r.id === row.id) {
+                                      return { 
+                                        ...r, 
+                                        searchQuery: val, 
+                                        materialId: val === '' ? '' : r.materialId,
+                                        error: { ...r.error, materialId: undefined } 
+                                      };
+                                    }
+                                    return r;
+                                  }));
+                                }}
+                              />
+                              {row.error?.materialId && <p className="text-xs text-red-500 mt-1.5 font-medium">{row.error.materialId}</p>}
+
+                              {row.isDropdownOpen && (
+                                <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-52 overflow-y-auto z-30 divide-y divide-gray-50">
+                                  {getFilteredMaterials(row.searchQuery).length > 0 ? (
+                                    getFilteredMaterials(row.searchQuery).map(m => (
+                                      <div
+                                        key={m.Ma_nvl}
+                                        onMouseDown={() => handleSelectMaterial(row.id, m)}
+                                        className="px-4 py-2.5 text-sm hover:bg-[#FDFBF7] cursor-pointer transition-colors flex justify-between items-center"
+                                      >
+                                        <span className="font-bold text-gray-700">{m.Ten_nvl}</span>
+                                        <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full font-semibold">{m.Don_vi_tinh}</span>
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <div className="px-4 py-2.5 text-xs text-gray-400 italic">
+                                      Không tìm thấy nguyên liệu nào
+                                    </div>
+                                  )}
+                                  
+                                  <div
+                                    onMouseDown={() => handleSelectNewMaterial(row.id, row.searchQuery)}
+                                    className="px-4 py-2.5 text-xs font-bold text-[#EE3124] hover:bg-red-50 cursor-pointer flex items-center gap-1.5 transition-colors border-t border-gray-100"
+                                  >
+                                    <Plus size={14} />
+                                    <span>Tạo nguyên liệu mới "{row.searchQuery || '...'}"</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="md:col-span-1">
+                          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">ĐVT</label>
+                          {row.isNew ? (
+                            <div>
+                              <input
+                                type="text"
+                                placeholder="g, kg..."
+                                className={`w-full px-2 py-2 bg-amber-50/50 border rounded-xl text-sm font-bold text-center outline-none ${row.error?.newMaterialUnit ? 'border-red-500 focus:ring-1 focus:ring-red-500' : 'border-amber-200 focus:border-amber-500'}`}
+                                value={row.newMaterialUnit || ''}
+                                onChange={(e) => handleRowChange(row.id, 'newMaterialUnit', e.target.value)}
+                              />
+                              {row.error?.newMaterialUnit && <p className="text-xs text-red-500 mt-1 font-medium">{row.error.newMaterialUnit}</p>}
+                            </div>
+                          ) : (
+                            <div className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-xl text-sm text-center text-gray-500 font-semibold select-none">
+                              {unit}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">SL nhập *</label>
+                          <input
+                            type="number"
+                            min="1"
+                            placeholder="0"
+                            className={`w-full px-3 py-2 bg-white border rounded-xl text-sm font-bold tabular-nums text-center outline-none ${row.error?.quantity ? 'border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-200 focus:border-[#EE3124]'}`}
+                            value={row.quantity}
+                            onChange={(e) => handleRowChange(row.id, 'quantity', e.target.value === '' ? '' : Number(e.target.value))}
+                            onKeyDown={(e) => {
+                              if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
+                            }}
+                          />
+                          {row.error?.quantity && <p className="text-xs text-red-500 mt-1.5 font-medium">{row.error.quantity}</p>}
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5" title="Mức tối thiểu">Mức Tối Thiểu</label>
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            className={`w-full px-3 py-2 bg-white border rounded-xl text-sm font-bold tabular-nums text-center outline-none ${row.error?.newMinStock ? 'border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-200 focus:border-[#EE3124]'}`}
+                            value={row.newMinStock}
+                            onChange={(e) => handleRowChange(row.id, 'newMinStock', e.target.value === '' ? '' : Number(e.target.value))}
+                            onKeyDown={(e) => {
+                              if (['e', 'E', '-', '+'].includes(e.key)) e.preventDefault();
+                            }}
+                          />
+                          {row.error?.newMinStock && <p className="text-xs text-red-500 mt-1.5 font-medium">{row.error.newMinStock}</p>}
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Ghi chú</label>
+                          <input
+                            type="text"
+                            placeholder="..."
+                            className="w-full px-3 py-2 bg-white border border-gray-200 focus:border-[#EE3124] rounded-xl text-sm outline-none"
+                            value={row.notes}
+                            onChange={(e) => handleRowChange(row.id, 'notes', e.target.value)}
+                          />
+                        </div>
+
+                        <div className="md:col-span-1 flex items-end justify-center pb-1 h-full">
+                          <button 
+                            onClick={() => handleRemoveRow(row.id)}
+                            disabled={importRows.length === 1}
+                            className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Xóa dòng"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+
+                      </div>
                     </div>
-                  </div>
-                  <p className="text-[10px] text-gray-400 mt-1 italic">Vd: Để trừ hỏng hao hụt nhập -500.</p>
-                </div>
+                  );
+                })}
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Lý do cân đối kho *</label>
-                  <select
-                    className="w-full px-3 py-2 bg-white rounded-xl border border-gray-200 text-xs font-bold"
-                    value={adjustReason}
-                    onChange={e => setAdjustReason(e.target.value)}
-                  >
-                    <option value="">-- Lựa chọn lý do --</option>
-                    <option value="Hao hụt héo hỏng tự nhiên">Hao hụt héo hỏng tự nhiên</option>
-                    <option value="Thất thoát đổ vỡ bàn phục vụ">Thất thoát đổ vỡ</option>
-                    <option value="Sai lệch khớp số kiểm kê ca tối">Sai lệch khớp số ca tối</option>
-                    <option value="Mẫu dùng thử nghiệm">Mẫu dùng thử nghiệm</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Nội dung thuyết minh chi tiết</label>
-                <textarea
-                  className="w-full px-3.5 py-2 rounded-xl border border-gray-200 text-xs h-16 resize-none"
-                  placeholder="Ghi nhận cụ thể để lưu log bảo lãnh..."
-                  value={adjustNote}
-                  onChange={e => setAdjustNote(e.target.value)}
-                />
-              </div>
-
-              <div className="pt-2 flex items-center space-x-3">
                 <button
-                  type="submit"
-                  disabled={adjustComputedNew < 0 || adjustAmount === 0}
-                  className={`w-full py-3 text-white rounded-xl font-bold text-xs tracking-wider uppercase cursor-pointer ${
-                    adjustComputedNew < 0 || adjustAmount === 0
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                      : 'bg-[#EE3124] hover:bg-brand-red-dark'
-                  }`}
+                  onClick={handleAddRow}
+                  className="flex items-center space-x-2 text-[#EE3124] hover:bg-red-50 px-4 py-2.5 rounded-xl font-bold text-sm transition-colors border border-dashed border-[#EE3124]/30 w-full sm:w-auto"
                 >
-                  Ghi Nhận Chỉnh Kho
+                  <Plus size={16} />
+                  <span>Thêm nguyên liệu</span>
                 </button>
               </div>
-            </form>
-          </div>
+            </div>
 
-          <div className="lg:col-span-5 space-y-4" id="adjust-audit-policy">
-            <div className="bg-[#FAF9F6] p-6 rounded-2xl border border-gray-200 shadow-xs space-y-4">
-              <h3 className="font-display font-black text-red-900 text-xs uppercase tracking-wide flex items-center space-x-1.5 border-b pb-2.5">
-                <ShieldAlert size={14} className="text-[#EE3124]" />
-                <span>Kiểm soát sai lệch kho vật tư</span>
-              </h3>
-              <ul className="space-y-3 text-xs text-gray-600 leading-relaxed">
-                <li className="flex items-start space-x-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#EE3124] mt-1.5 shrink-0"></span>
-                  <span>
-                    Chỉ sử dụng <strong>Cân đối thủ công</strong> khi phát hiện héo, rách hoá đơn hoặc sụt hỏng thức ăn lúc xếp lên bàn lẩu.
-                  </span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#EE3124] mt-1.5 shrink-0"></span>
-                  <span>
-                    Mọi hành động đều tạo log vĩnh viễn trên ERP trực ca, không thể sửa xoá.
-                  </span>
-                </li>
-              </ul>
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-gray-100 bg-white flex justify-end gap-3 rounded-b-3xl">
+              <button
+                onClick={closeModal}
+                className="px-6 py-2.5 border border-gray-300 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-50 transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleSubmitImport}
+                className="px-8 py-2.5 bg-[#EE3124] hover:bg-[#D42A1E] text-white rounded-xl font-bold text-sm shadow-md transition-colors"
+              >
+                Xác nhận
+              </button>
             </div>
           </div>
         </div>
