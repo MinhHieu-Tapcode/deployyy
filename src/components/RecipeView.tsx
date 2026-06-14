@@ -28,6 +28,7 @@ export default function RecipeView({ dishId, onBack }: { dishId: string; onBack:
 
   // Initialize
   useEffect(() => {
+    if (isEditing) return; // Prevent overwriting while user is editing
     const existing = recipes.filter(r => r.Ma_mon === dishId);
     if (existing.length > 0) {
       setLocalRows(
@@ -40,7 +41,7 @@ export default function RecipeView({ dishId, onBack }: { dishId: string; onBack:
     } else {
       setLocalRows([]);
     }
-  }, [dishId, recipes]);
+  }, [dishId, recipes, isEditing]);
 
   if (!dish) {
     return (
@@ -261,7 +262,7 @@ export default function RecipeView({ dishId, onBack }: { dishId: string; onBack:
                 id="btn-add-recipe-row"
               >
                 <Plus size={13} />
-                <span>Thêm vật liệu</span>
+                <span>Thêm nguyên liệu</span>
               </button>
             )}
           </div>

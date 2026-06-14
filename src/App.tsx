@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { useRestaurantStore } from './data/store';
+import React, { useState, useEffect } from 'react';
+import { useRestaurantStore, playWarningSound } from './data/store';
 import { UserRole } from './types';
 import LoginView from './components/LoginView';
 import { ToastContainer } from './components/SharedUI';
@@ -33,11 +33,13 @@ import {
   User,
   LogOut,
   Sparkles,
-  Calculator
+  Calculator,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 
 export default function App() {
-  const { currentUser, logout, logSystemAction, toasts, removeToast } = useRestaurantStore();
+  const { currentUser, logout, logSystemAction, toasts, removeToast, materials } = useRestaurantStore();
   
   // Check if we are in customer view mode
   const isCustomerMode = 
@@ -56,10 +58,29 @@ export default function App() {
   }
 
   // View navigation state
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    return localStorage.getItem('giakhanh_activeTab') || 'dashboard';
+  });
   
   // Recipe sub-view state
   const [selectedRecipeDishId, setSelectedRecipeDishId] = useState<string | null>(null);
+
+  const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
+  const [prevWarningCount, setPrevWarningCount] = useState(0);
+
+  const warningMaterials = (materials || []).filter(
+    m => m.Ton_kho_hien_tai <= m.Ton_kho_toi_thieu
+  );
+  const hasWarnings = warningMaterials.length > 0;
+
+  useEffect(() => {
+    if (!currentUser) return;
+    const isManagerOrWarehouse = currentUser.Vai_tro === UserRole.QUAN_LY || currentUser.Vai_tro === UserRole.KHO;
+    if (isManagerOrWarehouse && warningMaterials.length > prevWarningCount) {
+      playWarningSound();
+    }
+    setPrevWarningCount(warningMaterials.length);
+  }, [warningMaterials.length, currentUser]);
 
   // If there is no user logged in, render the login screen (Screen 01)
   if (!currentUser) {
@@ -121,6 +142,20 @@ export default function App() {
 
         {/* User context action info */}
         <div className="flex items-center space-x-4 mt-3 md:mt-0" id="user-context-action">
+          {(currentUser.Vai_tro === UserRole.QUAN_LY || currentUser.Vai_tro === UserRole.KHO) && hasWarnings && (
+            <button
+              onClick={() => {
+                playWarningSound();
+                setIsWarningModalOpen(true);
+              }}
+              className="relative p-2 bg-red-50 hover:bg-red-100 text-[#EE3124] border border-red-200 rounded-xl transition cursor-pointer flex items-center space-x-1.5 text-xs font-bold animate-pulse"
+              title="Cảnh báo nguyên vật liệu thiếu hụt"
+            >
+              <AlertTriangle size={14} className="text-[#EE3124]" />
+              <span>CẢNH BÁO ({warningMaterials.length})</span>
+            </button>
+          )}
+
           <div className="flex items-center space-x-2 text-right bg-gray-50 px-3.5 py-1.5 rounded-xl border border-gray-200 shadow-inner">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
             <div>
@@ -157,6 +192,7 @@ export default function App() {
                   onClick={() => {
                     setSelectedRecipeDishId(null);
                     setActiveTab(tab.id);
+                    localStorage.setItem('giakhanh_activeTab', tab.id);
                   }}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-left font-black text-[11px] tracking-wider transition cursor-pointer uppercase ${
                     isSelected
@@ -211,6 +247,51 @@ export default function App() {
         </div>
       </footer>
       {toasts && removeToast && <ToastContainer toasts={toasts} onRemove={removeToast} />}
+
+      {isWarningModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center pb-2 border-b border-gray-105">
+              <h3 className="font-display font-black text-red-650 text-xs uppercase tracking-wide flex items-center space-x-1.5">
+                <AlertTriangle className="text-[#EE3124] animate-bounce" size={16} />
+                <span>CẢNH BÁO TỒN KHO THIẾU HỤT</span>
+              </h3>
+              <button 
+                onClick={() => setIsWarningModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition"
+              >
+                <X size={15} />
+              </button>
+            </div>
+            
+            <div className="max-h-60 overflow-y-auto space-y-2.5 pr-1">
+              {warningMaterials.map(m => (
+                <div key={m.Ma_nvl} className="p-3 bg-red-50/50 border border-red-100 rounded-xl flex justify-between items-center">
+                  <div>
+                    <p className="font-bold text-xs text-gray-800">{m.Ten_nvl}</p>
+                    <p className="text-[10px] text-gray-400 font-mono mt-0.5">Mã: {m.Ma_nvl} | ĐVT: {m.Don_vi_tinh}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-black text-[#EE3124]">{m.Ton_kho_hien_tai.toLocaleString()} / {m.Ton_kho_toi_thieu.toLocaleString()}</p>
+                    <span className="text-[8px] font-bold uppercase tracking-wider text-red-500 bg-red-100/50 px-1.5 py-0.5 rounded-md mt-1 inline-block">
+                      {m.Ton_kho_hien_tai === 0 ? 'Hết hàng' : 'Sắp hết'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2 text-right">
+              <button
+                onClick={() => setIsWarningModalOpen(false)}
+                className="px-5 py-2.5 bg-gray-150 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition cursor-pointer"
+              >
+                ĐÓNG CỬA SỔ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

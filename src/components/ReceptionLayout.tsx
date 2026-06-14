@@ -59,7 +59,10 @@ export default function ReceptionLayout() {
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>(() => {
     return new Date().toISOString().split('T')[0];
   });
-  const [selectedCalendarTime, setSelectedCalendarTime] = useState<string>('18:00');
+  const [selectedCalendarTime, setSelectedCalendarTime] = useState<string>(() => {
+    const now = new Date();
+    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  });
 
   // Center Modal states for booking & session setup
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -72,6 +75,7 @@ export default function ReceptionLayout() {
   const [showFormSampleId, setShowFormSampleId] = useState<string | null>(null);
 
   const [instantPhone, setInstantPhone] = useState('');
+  const [instantGuests, setInstantGuests] = useState<number>(4);
   const [tablesBeingCleaned, setTablesBeingCleaned] = useState<string[]>([]);
   const [selectedHistorySession, setSelectedHistorySession] = useState<string | null>(null);
 
@@ -83,9 +87,15 @@ export default function ReceptionLayout() {
     r => r.Ngay_dat === selectedCalendarDate && r.Trang_thai === 'Chờ đến'
   );
 
-  // Helper checking if a specific table is pre-booked on the viewed calendar date
+  // Helper checking if a specific table is pre-booked on the viewed calendar date and selected time (within 30-minute window)
   const findTableBookingAtSelectedTime = (tableId: string) => {
-    return bookingsOnDate.find(r => r.Ma_ban === tableId);
+    return bookingsOnDate.find(r => {
+      if (r.Ma_ban !== tableId) return false;
+      const [selH, selM] = selectedCalendarTime.split(':').map(Number);
+      const [resH, resM] = r.Gio_dat.split(':').map(Number);
+      const diff = Math.abs((selH * 60 + selM) - (resH * 60 + resM));
+      return diff <= 30;
+    });
   };
 
   // Search filter for tables or reservations matching name, phone, or table ID
@@ -123,7 +133,18 @@ export default function ReceptionLayout() {
     }
 
     if (selectedCalendarDate === todayString) {
-      return baseStatus;
+      // Only show current active occupied session if selected calendar time matches the current actual time (within 30 mins)
+      const now = new Date();
+      const currH = now.getHours();
+      const currM = now.getMinutes();
+      const [selH, selM] = selectedCalendarTime.split(':').map(Number);
+      const isCloseToCurrent = Math.abs((currH * 60 + currM) - (selH * 60 + selM)) <= 30;
+      
+      if (isCloseToCurrent) {
+        return baseStatus;
+      } else {
+        return baseStatus === TableStatus.CO_KHACH ? TableStatus.TRONG : baseStatus;
+      }
     }
 
     return TableStatus.TRONG;
@@ -436,13 +457,7 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  <TableCard
-                    table={table}
-                    simStatus={simStatus}
-                    booking={booking}
-                    session={session}
-                    onClick={() => handleTableClick(table.Ma_ban)}
-                  />
+                  {renderTableCard(table, simStatus, booking, session)}
                 </div>
               );
             })}
@@ -456,13 +471,7 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  <TableCard
-                    table={table}
-                    simStatus={simStatus}
-                    booking={booking}
-                    session={session}
-                    onClick={() => handleTableClick(table.Ma_ban)}
-                  />
+                  {renderTableCard(table, simStatus, booking, session)}
                 </div>
               );
             })}
@@ -507,13 +516,7 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  <TableCard
-                    table={table}
-                    simStatus={simStatus}
-                    booking={booking}
-                    session={session}
-                    onClick={() => handleTableClick(table.Ma_ban)}
-                  />
+                  {renderTableCard(table, simStatus, booking, session)}
                 </div>
               );
             })}
@@ -527,13 +530,7 @@ export default function ReceptionLayout() {
 
               return (
                 <div key={table.Ma_ban} className={!matched ? 'opacity-30' : ''}>
-                  <TableCard
-                    table={table}
-                    simStatus={simStatus}
-                    booking={booking}
-                    session={session}
-                    onClick={() => handleTableClick(table.Ma_ban)}
-                  />
+                  {renderTableCard(table, simStatus, booking, session)}
                 </div>
               );
             })}
@@ -1014,9 +1011,20 @@ export default function ReceptionLayout() {
                       <span className="text-[8px] bg-red-100 text-[#EE3124] px-2 py-0.5 rounded font-bold uppercase tracking-wider">
                         PHIÊN PHỤC VỤ TRỰC TIẾP (LIVE)
                       </span>
-                      <h4 className="font-mono font-black text-gray-900 text-sm mt-1.5 flex items-center space-x-1">
-                        <span>Liên kết SĐT:</span>
-                        <span className="text-[#EE3124]">{activeSessionOfModalTable.Ma_phien_code || 'Khách Vãng Lai'}</span>
+                      <h4 className="font-mono font-black text-gray-900 text-xs mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span>Liên kết SĐT: <span className="text-[#EE3124]">{activeSessionOfModalTable.Ma_phien_code || 'Khách Vãng Lai'}</span></span>
+                        {(() => {
+                          const customerPhone = customers.find(c => c.Ma_khach_hang === activeSessionOfModalTable.Ma_khach_hang)?.So_dien_thoai 
+                            || activeSessionOfModalTable.customer_phone 
+                            || (activeSessionOfModalTable.Ma_phien_code && activeSessionOfModalTable.Ma_phien_code.length === 10 ? activeSessionOfModalTable.Ma_phien_code : null);
+                          if (!customerPhone) return null;
+                          return (
+                            <>
+                              <span className="text-gray-300">|</span>
+                              <span>SĐT khách: <span className="text-[#EE3124]">{customerPhone}</span></span>
+                            </>
+                          );
+                        })()}
                       </h4>
                     </div>
                   </div>

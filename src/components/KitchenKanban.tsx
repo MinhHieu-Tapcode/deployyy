@@ -20,6 +20,7 @@ export default function KitchenKanban() {
     tables,
     updateOrderItemStatus,
     updateDish,
+    logSystemAction,
   } = useRestaurantStore();
 
   const [activeSubTab, setActiveTab] = useState<'kanban' | 'lookup'>('kanban');
@@ -105,12 +106,23 @@ export default function KitchenKanban() {
       </div>
 
       {kitchenError && (
-        <div className="p-4 bg-red-50 border-l-4 border-red-600 text-red-800 text-xs flex items-start space-x-2 rounded-xl" id="kitchen-error-msg">
-          <ShieldAlert size={18} className="shrink-0 mt-0.5" />
-          <div>
-            <p className="font-bold">Cập nhật chế biến bị từ chối!</p>
-            <p className="font-light mt-0.5">{kitchenError}</p>
+        <div className="p-4 bg-red-50 border-l-4 border-red-600 text-red-800 text-xs flex justify-between items-center rounded-xl" id="kitchen-error-msg">
+          <div className="flex items-start space-x-2">
+            <ShieldAlert size={18} className="shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold">Cập nhật chế biến bị từ chối!</p>
+              <p className="font-light mt-0.5">{kitchenError}</p>
+            </div>
           </div>
+          <button
+            onClick={() => {
+              logSystemAction('YÊU CẦU CẢNH BÁO KHẨN CẤP', `Thiếu tồn kho nguyên liệu nấu ăn: ${kitchenError}`);
+              alert('Đã gửi thông báo cảnh báo đến bộ phận Kho và Quản lý!');
+            }}
+            className="px-4 py-2 bg-[#EE3124] hover:bg-[#C0271E] text-white font-extrabold text-[10px] rounded-xl tracking-wider cursor-pointer uppercase shrink-0 transition ml-4 shadow-xs"
+          >
+            Gửi cảnh báo
+          </button>
         </div>
       )}
 
@@ -241,7 +253,7 @@ export default function KitchenKanban() {
                       key={item.Ma_detail_id}
                       item={item}
                       dishName={dish?.Ten_mon || 'Không rõ món'}
-                      onStatusChange={(nextStatus) => handleUpdateStatus(item.Ma_detail_id, nextStatus)}
+                      showActions={false}
                     />
                   );
                 })}

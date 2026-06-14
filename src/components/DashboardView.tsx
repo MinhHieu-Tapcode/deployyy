@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 export default function DashboardView({ onNavigate }: { onNavigate?: (tab: string) => void }) {
-  const { orders, orderDetails, tables, materials, importReceipts, logs, currentRole, updateOrderInvoice } = useRestaurantStore();
+  const { orders, orderDetails, tables, materials, importReceipts, logs, currentRole, updateOrderInvoice, dishes } = useRestaurantStore();
 
   const [activeReportTab, setActiveReportTab] = useState<'revenue' | 'orders' | 'inventory' | 'materials' | 'materials_report' | 'staff_report'>('revenue');
   
@@ -40,6 +40,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
   const [isExporting, setIsExporting] = useState(false);
   const [selectedInvoiceImage, setSelectedInvoiceImage] = useState<string | null>(null);
   const [selectedInvoiceNumber, setSelectedInvoiceNumber] = useState<string>('');
+  const [selectedOrderDetailsForModal, setSelectedOrderDetailsForModal] = useState<any>(null);
 
   const [materialReportData, setMaterialReportData] = useState<any[]>([]);
   const [staffReportData, setStaffReportData] = useState<any[]>([]);
@@ -137,8 +138,8 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
   const chartData = dailyRevenues.length > 0 ? dailyRevenues : [{ day: 'N/A', rev: 0 }];
 
   const maxValY = Math.max(...chartData.map(d => d.rev), 5) * 1.2;
-  const height = 180;
-  const width = 450;
+  const height = 280;
+  const width = 800;
   const points = chartData
     .map((d, i) => {
       const x = (i * (width - 60)) / (chartData.length - 1) + 30;
@@ -176,19 +177,6 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
               className="bg-transparent border-none focus:outline-none focus:ring-0 text-xs font-semibold cursor-pointer py-0.5"
             />
           </div>
-
-          <button
-            id="btn-export-excel-dashboard"
-            onClick={handleExport}
-            className="w-full sm:w-auto bg-green-700 hover:bg-green-800 text-[#E5BA73] px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition-all cursor-pointer"
-          >
-            {isExporting ? (
-              <span className="w-4 h-4 border-2 border-white/30 border-t-[#E5BA73] rounded-full animate-spin"></span>
-            ) : (
-              <Download size={14} />
-            )}
-            <span>XUẤT EXCEL BÁO CÁO</span>
-          </button>
         </div>
       </div>
 
@@ -257,7 +245,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                 onClick={() => onNavigate('warehouse')}
                 className="flex items-center text-xs text-[#EE3124] mt-1.5 font-bold hover:underline cursor-pointer"
               >
-                <span>Xem định mức ưu tiên</span>
+                <span>Xem chi tiết các món gần hết</span>
                 <ChevronRight size={14} />
               </button>
             ) : (
@@ -269,7 +257,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
 
       {/* 3. Graphical Analytics Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="dashboard-charts-layout">
-        <div className="lg:col-span-8 bg-white p-6 rounded-2xl border border-gray-150 shadow-sm flex flex-col justify-between h-80" id="dash-line-chart">
+        <div className="lg:col-span-8 bg-white p-6 rounded-2xl border border-gray-150 shadow-sm flex flex-col justify-between h-[400px]" id="dash-line-chart">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xs font-bold text-gray-700 uppercase tracking-widest flex items-center space-x-1.5">
               <BarChart3 size={15} className="text-[#EE3124]" />
@@ -279,7 +267,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
           </div>
           
           <div className="flex-1 relative flex items-end">
-            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full max-h-[190px]">
+            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full max-h-[320px]">
               {/* Grid Lines */}
               <line x1="30" y1="20" x2={width - 30} y2="20" stroke="#f3f4f6" strokeWidth="1" />
               <line x1="30" y1="60" x2={width - 30} y2="60" stroke="#f3f4f6" strokeWidth="1" />
@@ -324,20 +312,20 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                     />
                     <text
                       x={x}
-                      y={y - 10}
+                      y={y - 12}
                       textAnchor="middle"
-                      fontSize="9"
+                      fontSize="14"
                       fontWeight="bold"
                       fontFamily="monospace"
                       fill="#9B111E"
                     >
-                      {d.rev.toFixed(1)}M
+                      {d.rev.toFixed(1)} Tr
                     </text>
                     <text
                       x={x}
                       y={height - 2}
                       textAnchor="middle"
-                      fontSize="9"
+                      fontSize="12"
                       fill="#9ca3af"
                       fontWeight="bold"
                     >
@@ -351,7 +339,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
         </div>
 
         {/* Segment percentages donut */}
-        <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-gray-150 shadow-sm flex flex-col justify-between h-80" id="dash-donut-chart">
+        <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-gray-150 shadow-sm flex flex-col justify-between h-[400px]" id="dash-donut-chart">
           <div className="mb-2">
             <h3 className="text-xs font-bold text-gray-700 uppercase tracking-widest flex items-center space-x-1.5">
               <PieChart size={15} className="text-[#EE3124]" />
@@ -423,14 +411,6 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
               Doanh thu bàn
             </button>
             <button
-              onClick={() => setActiveReportTab('orders')}
-              className={`px-3 py-1.5 font-bold rounded-lg transition-all cursor-pointer ${
-                activeReportTab === 'orders' ? 'bg-[#EE3124] text-white shadow-xs' : 'text-gray-500 hover:text-gray-800'
-              }`}
-            >
-              Hóa đơn biên lai
-            </button>
-            <button
               onClick={() => setActiveReportTab('inventory')}
               className={`px-3 py-1.5 font-bold rounded-lg transition-all cursor-pointer ${
                 activeReportTab === 'inventory' ? 'bg-[#EE3124] text-white shadow-xs' : 'text-gray-500 hover:text-gray-800'
@@ -481,6 +461,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                       <th className="pb-3 pt-1">Bàn Số</th>
                       <th className="pb-3 pt-1">Thời gian bắt đầu</th>
                       <th className="pb-3 pt-1">Trạng thái</th>
+                      <th className="pb-3 pt-1 text-center">Chi tiết</th>
                       <th className="pb-3 pt-1 text-right">Tổng thanh toán</th>
                     </tr>
                   </thead>
@@ -503,6 +484,14 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                               Đã phục vụ xong
                             </span>
                           </td>
+                          <td className="py-3.5 text-center">
+                            <button
+                              onClick={() => setSelectedOrderDetailsForModal(o)}
+                              className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 rounded-lg text-xs font-bold transition-colors border border-blue-200 shadow-sm cursor-pointer"
+                            >
+                              Xem
+                            </button>
+                          </td>
                           <td className="py-3.5 text-right font-mono font-bold text-gray-800">
                             {o.Tong_tien.toLocaleString()}đ
                           </td>
@@ -511,132 +500,11 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                     })}
                     {orders.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="py-8 text-center text-gray-400 font-medium">
+                        <td colSpan={6} className="py-8 text-center text-gray-400 font-medium">
                           Chưa có ghi nhận giao dịch thanh toán trong ngày.
                         </td>
                       </tr>
                     )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: HÓA ĐƠN CHI TIẾT */}
-          {activeReportTab === 'orders' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center text-xs text-gray-400 mb-2 font-semibold">
-                <span>Bao gồm tất cả món đã được chuyển xuống bếp chế biến</span>
-                <span className="text-gray-600 font-bold">Tổng số hóa đơn: {orders.length}</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-gray-150 text-gray-400 text-[10px] uppercase font-bold tracking-wider">
-                      <th className="pb-3 pt-1">Số Hóa Đơn</th>
-                      <th className="pb-3 pt-1">Thời Gian</th>
-                      <th className="pb-3 pt-1">Mã Phiên Hệ Thống</th>
-                      <th className="pb-3 pt-1">Trạng thái bếp</th>
-                      <th className="pb-3 pt-1">Biên lai thực tế</th>
-                      <th className="pb-3 pt-1 text-right">Trị Giá Đơn</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.map((o, idx) => (
-                      <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50/50 transition">
-                        <td className="py-3.5 font-mono font-bold text-[#EE3124]">{o.Ma_hd_dat_mon}</td>
-                        <td className="py-3.5 text-xs text-gray-500">
-                          {new Date(o.Thoi_gian).toLocaleString('vi-VN')}
-                        </td>
-                        <td className="py-3.5 font-mono text-xs text-gray-500">{o.Ma_phien}</td>
-                        <td className="py-3.5">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            o.Trang_thai_phuc_vu === 'Đã phục vụ'
-                              ? 'bg-green-50 text-green-700 border border-green-200'
-                              : 'bg-orange-50 text-orange-700 border border-orange-200'
-                          }`}>
-                            {o.Trang_thai_phuc_vu === 'Đã phục vụ' ? 'Hoàn thành' : 'Đang xử lý'}
-                          </span>
-                        </td>
-                        <td className="py-3.5">
-                          {o.Anh_hoa_don ? (
-                            <div className="flex items-center space-x-2">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedInvoiceImage(o.Anh_hoa_don || null);
-                                  setSelectedInvoiceNumber(o.Ma_hd_dat_mon);
-                                }}
-                                className="text-blue-600 font-bold hover:underline text-xs flex items-center space-x-1 cursor-pointer"
-                              >
-                                <Eye size={12} />
-                                <span>Xem hóa đơn ảnh</span>
-                              </button>
-                              <span className="text-gray-300">|</span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const input = document.getElementById(`invoice-uploader-${o.Ma_hd_dat_mon}`);
-                                  if (input) (input as HTMLInputElement).click();
-                                }}
-                                className="text-gray-500 font-semibold hover:text-[#EE3124] text-[10px] underline cursor-pointer"
-                              >
-                                Thay ảnh
-                              </button>
-                              <input
-                                id={`invoice-uploader-${o.Ma_hd_dat_mon}`}
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => {
-                                  if (e.target.files && e.target.files[0]) {
-                                    const file = e.target.files[0];
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => {
-                                      if (updateOrderInvoice) updateOrderInvoice(o.Ma_hd_dat_mon, reader.result as string);
-                                    };
-                                    reader.readAsDataURL(file);
-                                  }
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="flex items-center">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const input = document.getElementById(`invoice-uploader-${o.Ma_hd_dat_mon}`);
-                                  if (input) (input as HTMLInputElement).click();
-                                }}
-                                className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-[#EE3124] border border-red-150 rounded-lg text-[10px] font-bold flex items-center space-x-1.5 transition-all cursor-pointer"
-                              >
-                                <Upload size={10} className="animate-bounce" />
-                                <span>Tải lên (Ổ cứng)</span>
-                              </button>
-                              <input
-                                id={`invoice-uploader-${o.Ma_hd_dat_mon}`}
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => {
-                                  if (e.target.files && e.target.files[0]) {
-                                    const file = e.target.files[0];
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => {
-                                      if (updateOrderInvoice) updateOrderInvoice(o.Ma_hd_dat_mon, reader.result as string);
-                                    };
-                                    reader.readAsDataURL(file);
-                                  }
-                                }}
-                              />
-                            </div>
-                          )}
-                        </td>
-                        <td className="py-3.5 text-right font-mono font-bold text-gray-700">
-                          {o.Tong_tien.toLocaleString()}đ
-                        </td>
-                      </tr>
-                    ))}
                   </tbody>
                 </table>
               </div>
@@ -713,7 +581,6 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                       <th className="pb-3 pt-1">Thời Gian Nhận</th>
                       <th className="pb-3 pt-1">Người Giao hàng</th>
                       <th className="pb-3 pt-1">Thủ Kho Nhận</th>
-                      <th className="pb-3 pt-1">Ảnh chụp biên lai</th>
                       <th className="pb-3 pt-1 text-right">Tổng Giá Trị</th>
                     </tr>
                   </thead>
@@ -726,21 +593,6 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                         </td>
                         <td className="py-3.5 font-bold text-gray-850 text-xs">{r.Ten_nguoi_giao}</td>
                         <td className="py-3.5 text-gray-600 text-xs">{r.Ho_ten_nhan_vien}</td>
-                        <td className="py-3.5 text-xs">
-                          {r.Anh_don_nhap ? (
-                            <a
-                              href={r.Anh_don_nhap}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-blue-600 font-bold hover:underline flex items-center space-x-1"
-                            >
-                              <Eye size={12} />
-                              <span>Xem hóa đơn ảnh</span>
-                            </a>
-                          ) : (
-                            <span className="text-gray-400 italic">Không tìm thấy ảnh</span>
-                          )}
-                        </td>
                         <td className="py-3.5 text-right font-mono font-bold text-gray-800">
                           {r.Tong_tien.toLocaleString()}đ
                         </td>
@@ -755,9 +607,12 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
           {/* TAB 5: BÁO CÁO NGUYÊN VẬT LIỆU */}
           {activeReportTab === 'materials_report' && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center text-xs text-gray-500 mb-2 font-semibold">
-                <span>Báo cáo tổng hợp xuất nhập tồn nguyên vật liệu theo thời gian lọc</span>
-                <span className="text-[#EE3124] font-bold">Tổng số: {materialReportData.length} loại</span>
+              <div className="flex justify-between items-start text-xs text-gray-500 mb-2 font-semibold">
+                <div>
+                  <span>Báo cáo tổng hợp xuất nhập tồn nguyên vật liệu theo thời gian lọc</span>
+                  <span className="block text-[10px] text-[#EE3124] italic mt-0.5">(*kỳ mặc định là 1 tuần)</span>
+                </div>
+                <span className="text-[#EE3124] font-bold mt-1">Tổng số: {materialReportData.length} loại</span>
               </div>
               
               {isReportLoading ? (
@@ -822,8 +677,6 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                         <th className="pb-3 pt-1">Nhân viên</th>
                         <th className="pb-3 pt-1">Tên đăng nhập</th>
                         <th className="pb-3 pt-1 text-center">Vai trò</th>
-                        <th className="pb-3 pt-1 text-center">Trạng thái</th>
-                        <th className="pb-3 pt-1 text-center">Số lượt tác nghiệp</th>
                         <th className="pb-3 pt-1 text-right">Hoạt động cuối</th>
                       </tr>
                     </thead>
@@ -837,16 +690,6 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                               {item.role}
                             </span>
                           </td>
-                          <td className="py-3 text-center">
-                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                              item.status === 'Đang làm việc' || item.status === 'ACTIVE'
-                                ? 'bg-green-50 text-green-700 border border-green-200'
-                                : 'bg-gray-100 text-gray-400 border border-gray-200'
-                            }`}>
-                              {item.status === 'ACTIVE' || item.status === 'Đang làm việc' ? 'Đang làm' : 'Đã khóa'}
-                            </span>
-                          </td>
-                          <td className="py-3 text-center font-mono font-bold text-blue-600">{item.actionsCount} lần</td>
                           <td className="py-3 text-right font-mono text-[10px] text-gray-500">
                             {item.lastActive === 'Không hoạt động' 
                               ? 'Không hoạt động' 
@@ -856,7 +699,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                       ))}
                       {staffReportData.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="py-16 text-center text-gray-400 italic">
+                          <td colSpan={4} className="py-16 text-center text-gray-400 italic">
                             Không có dữ liệu báo cáo nhân viên trực.
                           </td>
                         </tr>
@@ -909,6 +752,57 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
               >
                 Đóng ảnh xem
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Order Details Modal */}
+      {selectedOrderDetailsForModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="p-4 border-b border-gray-150 bg-gray-50 flex justify-between items-center">
+              <div>
+                <h3 className="font-bold text-gray-900 text-lg">Chi tiết phiên đặt món</h3>
+                <p className="text-xs text-gray-500 font-mono mt-0.5">Mã phiên: {selectedOrderDetailsForModal.Ma_phien}</p>
+              </div>
+              <button 
+                onClick={() => setSelectedOrderDetailsForModal(null)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 transition cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-5 overflow-y-auto flex-1">
+              <div className="space-y-3">
+                {orderDetails.filter(od => od.Ma_hd_dat_mon === selectedOrderDetailsForModal.Ma_hd_dat_mon).length > 0 ? (
+                  orderDetails.filter(od => od.Ma_hd_dat_mon === selectedOrderDetailsForModal.Ma_hd_dat_mon).map((od, idx) => {
+                    const dish = dishes.find(d => d.Ma_mon === od.Ma_mon);
+                    return (
+                      <div key={idx} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+                        <div className="flex-1">
+                          <p className="font-bold text-sm text-gray-800">{dish ? dish.Ten_mon : od.Ma_mon}</p>
+                          {od.Ghi_chu && <p className="text-[10px] text-orange-600 italic mt-0.5">Lưu ý: {od.Ghi_chu}</p>}
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <span className="text-xs font-semibold text-gray-500">SL: {od.So_luong}</span>
+                          <span className="text-sm font-mono font-bold text-[#EE3124]">
+                            {(od.Don_gia_thoi_diem * od.So_luong).toLocaleString()}đ
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-center text-sm text-gray-500 py-4 italic">Không có thông tin chi tiết món ăn cho hóa đơn này.</p>
+                )}
+              </div>
+            </div>
+            <div className="p-4 bg-gray-50 border-t border-gray-150 flex justify-between items-center">
+              <span className="font-bold text-gray-600 uppercase text-xs">Tổng Thanh Toán:</span>
+              <span className="text-xl font-mono font-extrabold text-[#EE3124]">
+                {selectedOrderDetailsForModal.Tong_tien.toLocaleString()}đ
+              </span>
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRestaurantStore } from '../data/store';
 import { DishStatus, OrderItemStatus } from '../types';
-import { Phone, Users, Plus, Minus, ShoppingCart, Check, Clock, ChevronRight, ArrowLeft, Send, Heart, BookOpen, Trash2 } from 'lucide-react';
+import { Phone, Users, Plus, Minus, ShoppingCart, Check, Clock, ChevronRight, ArrowLeft, Send, Heart, BookOpen, Trash2, Search, X, Home, LogOut } from 'lucide-react';
 
 // Circular Official Brand Logo matching the uploaded image perfectly
 const BrandLogo = ({ size = 120 }: { size?: number }) => {
@@ -191,17 +191,12 @@ export default function CustomerOrderView() {
     if (trimmedEntered === savedPhone) {
       setTableId(activeSess.Ma_ban);
       setCurrentSessionCode(activeSess.Ma_phien_code);
+      localStorage.setItem('giakhanh_customer_tableId', activeSess.Ma_ban);
+      localStorage.setItem('giakhanh_customer_sessionCode', activeSess.Ma_phien_code);
       setActiveStep('menu');
       setErrorMessage('');
     } else {
-      try {
-        const generatedCode = startTableSession(tableId, phoneNumber);
-        setCurrentSessionCode(generatedCode);
-        setActiveStep('menu');
-        setErrorMessage('');
-      } catch (err: any) {
-        setErrorMessage(err.message || 'Mở bàn không thành công.');
-      }
+      setErrorMessage('Số điện thoại không khớp với người mở bàn. Vui lòng nhập đúng SĐT mở bàn hoặc chọn "Nhập mã tham gia chung"!');
     }
   };
 
@@ -214,6 +209,8 @@ export default function CustomerOrderView() {
     if (foundSess) {
       setCurrentSessionCode(foundSess.Ma_phien_code);
       setTableId(foundSess.Ma_ban);
+      localStorage.setItem('giakhanh_customer_tableId', foundSess.Ma_ban);
+      localStorage.setItem('giakhanh_customer_sessionCode', foundSess.Ma_phien_code);
       setActiveStep('menu');
       setErrorMessage('');
     } else {
@@ -321,6 +318,26 @@ export default function CustomerOrderView() {
     }
   }, [categories]);
 
+  // Restore customer session from localStorage on start/session update
+  useEffect(() => {
+    const savedTableId = localStorage.getItem('giakhanh_customer_tableId');
+    const savedSessionCode = localStorage.getItem('giakhanh_customer_sessionCode');
+    
+    if (savedTableId && savedSessionCode) {
+      const activeSess = sessions.find(s => s.Ma_ban === savedTableId && s.Ma_phien_code === savedSessionCode && s.Trang_thai === 'active');
+      if (activeSess) {
+        setTableId(savedTableId);
+        setCurrentSessionCode(savedSessionCode);
+        if (activeStep === 'phone' || activeStep === 'join_code') {
+          setActiveStep('menu');
+        }
+      } else {
+        localStorage.removeItem('giakhanh_customer_tableId');
+        localStorage.removeItem('giakhanh_customer_sessionCode');
+      }
+    }
+  }, [sessions]);
+
   // Floating widgets JSX
   const renderFloatingWidgets = () => {
     if (activeStep === 'phone' || activeStep === 'join_code') return null;
@@ -378,11 +395,27 @@ export default function CustomerOrderView() {
           </div>
 
           {/* Table ID Display */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3.5">
             <div className="bg-[#800F14] text-white px-3.5 py-1.5 rounded-full text-xs font-black tracking-wider shadow-sm flex items-center space-x-1">
               <span>BÀN:</span>
               <span className="text-[#FFE600]">{tableId}</span>
             </div>
+
+            <button
+              onClick={() => {
+                if (confirm("Xác nhận rời phiên bàn ăn này?")) {
+                  localStorage.removeItem('giakhanh_customer_tableId');
+                  localStorage.removeItem('giakhanh_customer_sessionCode');
+                  setCart([]);
+                  setPhoneNumber('');
+                  setEnteredCode('');
+                  setActiveStep('phone');
+                }
+              }}
+              className="px-3 py-1.5 bg-gray-50 border border-gray-200 hover:bg-red-50 hover:text-[#EE3124] hover:border-red-200 text-gray-500 font-extrabold text-[10px] rounded-xl tracking-wider transition uppercase cursor-pointer shadow-3xs"
+            >
+              Rời bàn
+            </button>
 
             {/* Desktop Quick Nav Menu */}
             <nav className="hidden md:flex items-center space-x-6 text-xs font-bold text-gray-600">
@@ -1145,7 +1178,6 @@ export default function CustomerOrderView() {
               </span>
             )}
           </button>
-          
           <button
             onClick={() => setActiveStep('tracking')}
             className={`flex-1 flex flex-col items-center justify-center cursor-pointer ${
@@ -1154,6 +1186,23 @@ export default function CustomerOrderView() {
           >
             <Clock size={18} />
             <span className="text-[8px] font-black uppercase mt-1 leading-none">Đơn đã đặt</span>
+          </button>
+
+          <button
+            onClick={() => {
+              if (confirm("Xác nhận rời phiên bàn ăn này?")) {
+                localStorage.removeItem('giakhanh_customer_tableId');
+                localStorage.removeItem('giakhanh_customer_sessionCode');
+                setCart([]);
+                setPhoneNumber('');
+                setEnteredCode('');
+                setActiveStep('phone');
+              }
+            }}
+            className="flex-1 flex flex-col items-center justify-center cursor-pointer text-gray-500 hover:text-red-650"
+          >
+            <LogOut size={18} />
+            <span className="text-[8px] font-black uppercase mt-1 leading-none">Rời bàn</span>
           </button>
         </div>
       )}

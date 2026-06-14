@@ -53,6 +53,11 @@ async function migrate() {
       continue;
     }
     try {
+      // Extract table name from CREATE TABLE IF NOT EXISTS statement to drop it first
+      const match = statement.match(/create table if not exists\s+`([^`]+)`/i);
+      if (match && match[1]) {
+        await connection.query(`DROP TABLE IF EXISTS \`${match[1]}\``);
+      }
       await connection.query(statement);
     } catch (err: any) {
       console.error(`Error executing statement:\n${statement}\nError:`, err.message);

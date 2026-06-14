@@ -39,9 +39,9 @@ function ToastItem({ toast, onClose }: { toast: ToastMessage; onClose: () => voi
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
-    }, toast.duration || 4000);
+    }, 10000); // 10s auto-dismiss
     return () => clearTimeout(timer);
-  }, [toast, onClose]);
+  }, [onClose]);
 
   const styles = {
     success: { bg: 'bg-green-50 border-green-200', text: 'text-green-800', icon: <CheckCircle className="text-green-600 w-5 h-5 shrink-0" /> },
@@ -556,7 +556,7 @@ export function OrderItemRow({
           <span className="font-mono text-gray-500 font-semibold">{item.Don_gia_tai_thoi_diem.toLocaleString()}đ</span>
         </div>
         {item.Ghi_chu && (
-          <p className="p-1.5 border-l-2 border-red-500 text-[10px] text-red-900 bg-red-50/50 mt-2 italic rounded-r-lg truncate">
+          <p className="p-1.5 border-l-2 border-red-500 text-[10px] text-red-900 bg-red-50/50 mt-2 italic rounded-r-lg break-words whitespace-pre-wrap">
             Lưu ý: {item.Ghi_chu}
           </p>
         )}
@@ -591,6 +591,13 @@ export function OrderItemRow({
               <span>Xác nhận đã phục vụ</span>
             </button>
           )}
+        </div>
+      )}
+
+      {!showActions && item.Trang_thai_mon === OrderItemStatus.DA_HOAN_THANH && (
+        <div className="mt-4 pt-3 border-t border-dashed border-gray-100 flex items-center justify-center space-x-1.5 text-cyan-700 font-extrabold text-[10px] uppercase bg-cyan-50/50 p-2 rounded-xl border border-cyan-150">
+          <Clock size={11} className="animate-pulse text-cyan-600" />
+          <span>Chờ nhân viên bưng lên</span>
         </div>
       )}
     </div>

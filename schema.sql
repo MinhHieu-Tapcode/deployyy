@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `dishes` (
   `name` VARCHAR(200) NOT NULL,
   `price` DECIMAL(12,2) NOT NULL,
   `description` TEXT,
-  `image_url` TEXT,
+  `image_url` LONGTEXT,
   `status` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

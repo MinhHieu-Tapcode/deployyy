@@ -19702,11 +19702,10 @@ var defaultDbState = {
     { id: "kh003", phone: "0971234567" }
   ],
   categories: [
-    { id: "dm01", name: "L\u1EA9u", sort_order: 1, status: "Hi\u1EC3n th\u1ECB" },
-    { id: "dm02", name: "Topping", sort_order: 2, status: "Hi\u1EC3n th\u1ECB" },
-    { id: "dm03", name: "\u0110\u1ED3 u\u1ED1ng", sort_order: 3, status: "Hi\u1EC3n th\u1ECB" },
-    { id: "dm04", name: "Tr\xE1ng mi\u1EC7ng", sort_order: 4, status: "Hi\u1EC3n th\u1ECB" },
-    { id: "dm05", name: "Kh\xE1c", sort_order: 5, status: "Hi\u1EC3n th\u1ECB" }
+    { id: "dm05", name: "\u0110\u1ED3 khai v\u1ECB", sort_order: 1, status: "Hi\u1EC3n th\u1ECB" },
+    { id: "dm01", name: "L\u1EA9u", sort_order: 2, status: "Hi\u1EC3n th\u1ECB" },
+    { id: "dm02", name: "\u0110\u1ED3 nh\xFAng l\u1EA9u", sort_order: 3, status: "Hi\u1EC3n th\u1ECB" },
+    { id: "dm03", name: "\u0110\u1ED3 u\u1ED1ng", sort_order: 4, status: "Hi\u1EC3n th\u1ECB" }
   ],
   dishes: [
     { id: "m01", category_id: "dm01", name: "L\u1EA9u N\u1EA5m Th\u1EADp C\u1EA9m", price: 299e3, description: "L\u1EA9u n\u1EA5m th\u1EADp c\u1EA9m v\u1EDBi nhi\u1EC1u lo\u1EA1i n\u1EA5m t\u01B0\u01A1i ngon, n\u01B0\u1EDBc d\xF9ng thanh ng\u1ECDt.", image_url: "https://images.unsplash.com/photo-1547928500-4722f55cc829?w=600&auto=format&fit=crop&q=60", status: "C\xF2n ph\u1EE5c v\u1EE5" },
@@ -20013,8 +20012,12 @@ app.post("/api/employees", (req, res) => {
     return res.status(400).json({ error: "Vui l\xF2ng \u0111i\u1EC1n \u0111\u1EA7y \u0111\u1EE7 th\xF4ng tin nh\xE2n vi\xEAn." });
   }
   const employees = db.get("employees");
+  const maxEmpId = employees.reduce((max, e) => {
+    const num = parseInt(e.id.replace("mv", ""), 10);
+    return isNaN(num) ? max : Math.max(max, num);
+  }, 0);
   const newEmp = {
-    id: `mv00${employees.length + 1}`,
+    id: `mv${(maxEmpId + 1).toString().padStart(3, "0")}`,
     username,
     password_hash: hashPassword(password),
     role,
@@ -20185,10 +20188,14 @@ app.post("/api/categories", (req, res) => {
   const { name, sort_order, status, operatorId, operatorName } = req.body;
   if (!name) return res.status(400).json({ error: "T\xEAn danh m\u1EE5c kh\xF4ng \u0111\u01B0\u1EE3c tr\u1ED1ng." });
   const categories = db.get("categories");
+  const maxIdNum = categories.reduce((max, c) => {
+    const num = parseInt(c.id.replace("dm", ""), 10);
+    return isNaN(num) ? max : Math.max(max, num);
+  }, 0);
   const newCat = {
-    id: `dm${(categories.length + 1).toString().padStart(2, "0")}`,
+    id: `dm${(maxIdNum + 1).toString().padStart(2, "0")}`,
     name,
-    sort_order: sort_order ? Number(sort_order) : categories.length + 1,
+    sort_order: sort_order ? Number(sort_order) : maxIdNum + 1,
     status: status || "Hi\u1EC3n th\u1ECB"
   };
   db.save("categories", [...categories, newCat]);
@@ -20225,8 +20232,12 @@ app.post("/api/dishes", (req, res) => {
     return res.status(400).json({ error: "\u0110\u01A1n gi\xE1 m\xF3n \u0103n kh\xF4ng \u0111\u01B0\u1EE3c l\xE0 s\u1ED1 \xE2m (BR09)." });
   }
   const dishes = db.get("dishes");
+  const maxDishId = dishes.reduce((max, d) => {
+    const num = parseInt(d.id.replace("m", ""), 10);
+    return isNaN(num) ? max : Math.max(max, num);
+  }, 0);
   const newDish = {
-    id: `m${(dishes.length + 1).toString().padStart(2, "0")}`,
+    id: `m${(maxDishId + 1).toString().padStart(2, "0")}`,
     category_id,
     name,
     price: Number(price),
@@ -20448,8 +20459,12 @@ app.post("/api/materials", (req, res) => {
     return res.status(400).json({ error: "T\xEAn v\xE0 \u0111\u01A1n v\u1ECB t\xEDnh nguy\xEAn li\u1EC7u kh\xF4ng \u0111\u01B0\u1EE3c tr\u1ED1ng." });
   }
   const materials = db.get("raw_materials");
+  const maxMatId = materials.reduce((max, m) => {
+    const num = parseInt(m.id.replace("nvl", ""), 10);
+    return isNaN(num) ? max : Math.max(max, num);
+  }, 0);
   const newMat = {
-    id: `nvl${(materials.length + 1).toString().padStart(2, "0")}`,
+    id: `nvl${(maxMatId + 1).toString().padStart(2, "0")}`,
     name,
     unit,
     stock_current: stock_current ? Number(stock_current) : 0,
@@ -20618,6 +20633,11 @@ app.put("/api/reservations/:id/status", (req, res) => {
 });
 app.get("/api/logs", (req, res) => {
   return res.json(db.get("system_logs"));
+});
+app.post("/api/logs", (req, res) => {
+  const { employeeId, employeeName, action, changedData } = req.body;
+  logAction(employeeId || "hethong", employeeName || "Nh\xE0 b\u1EBFp", action, changedData || "");
+  return res.json({ success: true });
 });
 app.get("/api/reports/materials", (req, res) => {
   const from = req.query.from;

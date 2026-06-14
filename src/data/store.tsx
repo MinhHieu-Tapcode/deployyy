@@ -51,6 +51,30 @@ export interface InventoryTransaction {
   notes?: string;
 }
 
+export function playWarningSound() {
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const playTone = (freq: number, start: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.08, start);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.start(start);
+      osc.stop(start + duration);
+    };
+    playTone(220, ctx.currentTime, 0.35); // Low A3 sawtooth
+    playTone(220, ctx.currentTime + 0.15, 0.45);
+  } catch (e) {
+    console.warn("Audio warning sound failed", e);
+  }
+}
+
 export function playNotificationSound(type: 'new_order' | 'ready_dish') {
   try {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
@@ -210,12 +234,57 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
     fetch('/api/recipes').then(res => res.json()).then(data => setRecipes(data.map(mapRecipeToFrontend))).catch(e => {});
     fetch('/api/sessions').then(res => res.json()).then(data => setSessions(data.map(mapSessionToFrontend))).catch(e => {});
     fetch('/api/orders').then(res => res.json()).then(data => setOrders(data.map(mapOrderToFrontend))).catch(e => {});
-    fetch('/api/order-details').then(res => res.json()).then(data => setOrderDetails(data.map(mapOrderDetailToFrontend))).catch(e => {});
+    
+    fetch('/api/order-details').then(res => res.json()).then(data => {
+      const parsed = data.map(mapOrderDetailToFrontend);
+      setOrderDetails(prev => {
+        if (prev.length > 0) {
+          const hasNewPending = parsed.some((item: any) => 
+            item.Trang_thai_mon === OrderItemStatus.DANG_CHO && 
+            !prev.some((p: any) => p.Ma_detail_id === item.Ma_detail_id)
+          );
+          const hasNewReady = parsed.some((item: any) => 
+            item.Trang_thai_mon === OrderItemStatus.DA_HOAN_THANH && 
+            !prev.some((p: any) => p.Ma_detail_id === item.Ma_detail_id && p.Trang_thai_mon === OrderItemStatus.DA_HOAN_THANH)
+          );
+
+          const isKitchenUser = currentUser?.Vai_tro === UserRole.BEP || currentUser?.Vai_tro === UserRole.QUAN_LY;
+          const isWaiterUser = currentUser?.Vai_tro === UserRole.PHUC_VU || currentUser?.Vai_tro === UserRole.QUAN_LY;
+
+          if (hasNewPending && isKitchenUser) {
+            playNotificationSound('new_order');
+          }
+          if (hasNewReady && isWaiterUser) {
+            playNotificationSound('ready_dish');
+          }
+        }
+        return parsed;
+      });
+    }).catch(e => {});
+
     fetch('/api/materials').then(res => res.json()).then(data => setMaterials(data.map(mapMaterialToFrontend))).catch(e => {});
     fetch('/api/import-receipts').then(res => res.json()).then(data => setImportReceipts(data.map(mapImportReceiptToFrontend))).catch(e => {});
     fetch('/api/employees').then(res => res.json()).then(data => setEmployees(data.map(mapEmployeeToFrontend))).catch(e => {});
     fetch('/api/reservations').then(res => res.json()).then(data => setReservations(data.map(mapReservationToFrontend))).catch(e => {});
-    fetch('/api/logs').then(res => res.json()).then(data => setLogs(data.map(mapLogToFrontend))).catch(e => {});
+    fetch('/api/logs').then(res => res.json()).then(data => {
+      const parsed = data.map(mapLogToFrontend);
+      setLogs(prev => {
+        if (prev.length > 0 && parsed.length > 0) {
+          const latestLog = parsed[0];
+          const hasNewWarning = latestLog.Hanh_dong === 'YÊU CẦU CẢNH BÁO KHẨN CẤP' && 
+            !prev.some((p: any) => p.id === latestLog.id);
+          
+          if (hasNewWarning) {
+            const isManagerOrWarehouse = currentUser?.Vai_tro === UserRole.QUAN_LY || currentUser?.Vai_tro === UserRole.KHO;
+            if (isManagerOrWarehouse) {
+              addToast(`[CẢNH BÁO BẾP]: ${latestLog.Du_lieu_thay_doi}`, 'error', 10000);
+              playWarningSound();
+            }
+          }
+        }
+        return parsed;
+      });
+    }).catch(e => {});
     
     fetch('/api/inventory-transactions').then(res => res.json()).then(data => {
       const mapped = data.map((tx: any) => ({
@@ -235,6 +304,10 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     refreshData();
     
+    const interval = setInterval(() => {
+      refreshData();
+    }, 3000);
+    
     // Check localStorage for active staff session
     const storedUser = localStorage.getItem('giakhanh_currentUser');
     if (storedUser) {
@@ -244,13 +317,20 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
         setCurrentRole(user.Vai_tro);
       } catch (e) {}
     }
+
+    return () => clearInterval(interval);
   }, []);
 
-  // System logging helper
   const logSystemAction = (action: string, changeDetails: string) => {
-    // API endpoint logs handles most logs but frontend manual log is good fallback
     fetch('/api/logs', {
-      method: 'GET'
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        employeeId: currentUser?.Ma_nhan_vien || 'bep',
+        employeeName: currentUser?.Ho_ten || 'Nhà bếp',
+        action,
+        changedData: changeDetails
+      })
     }).then(() => refreshData());
   };
 

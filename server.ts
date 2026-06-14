@@ -61,8 +61,12 @@ app.post('/api/employees', (req, res) => {
   }
 
   const employees = db.get('employees');
+  const maxEmpId = employees.reduce((max: number, e: any) => {
+    const num = parseInt(e.id.replace('mv', ''), 10);
+    return isNaN(num) ? max : Math.max(max, num);
+  }, 0);
   const newEmp: Employee = {
-    id: `mv00${employees.length + 1}`,
+    id: `mv${(maxEmpId + 1).toString().padStart(3, '0')}`,
     username,
     password_hash: hashPassword(password),
     role,
@@ -287,10 +291,14 @@ app.post('/api/categories', (req, res) => {
   if (!name) return res.status(400).json({ error: 'Tên danh mục không được trống.' });
 
   const categories = db.get('categories');
+  const maxIdNum = categories.reduce((max: number, c: any) => {
+    const num = parseInt(c.id.replace('dm', ''), 10);
+    return isNaN(num) ? max : Math.max(max, num);
+  }, 0);
   const newCat: Category = {
-    id: `dm${(categories.length + 1).toString().padStart(2, '0')}`,
+    id: `dm${(maxIdNum + 1).toString().padStart(2, '0')}`,
     name,
-    sort_order: sort_order ? Number(sort_order) : categories.length + 1,
+    sort_order: sort_order ? Number(sort_order) : maxIdNum + 1,
     status: status || 'Hiển thị'
   };
 
@@ -337,8 +345,12 @@ app.post('/api/dishes', (req, res) => {
   }
 
   const dishes = db.get('dishes');
+  const maxDishId = dishes.reduce((max: number, d: any) => {
+    const num = parseInt(d.id.replace('m', ''), 10);
+    return isNaN(num) ? max : Math.max(max, num);
+  }, 0);
   const newDish: Dish = {
-    id: `m${(dishes.length + 1).toString().padStart(2, '0')}`,
+    id: `m${(maxDishId + 1).toString().padStart(2, '0')}`,
     category_id,
     name,
     price: Number(price),
@@ -623,8 +635,12 @@ app.post('/api/materials', (req, res) => {
   }
 
   const materials = db.get('raw_materials');
+  const maxMatId = materials.reduce((max: number, m: any) => {
+    const num = parseInt(m.id.replace('nvl', ''), 10);
+    return isNaN(num) ? max : Math.max(max, num);
+  }, 0);
   const newMat: RawMaterial = {
-    id: `nvl${(materials.length + 1).toString().padStart(2, '0')}`,
+    id: `nvl${(maxMatId + 1).toString().padStart(2, '0')}`,
     name,
     unit,
     stock_current: stock_current ? Number(stock_current) : 0,
@@ -835,6 +851,12 @@ app.put('/api/reservations/:id/status', (req, res) => {
 // ================= LOGS =================
 app.get('/api/logs', (req, res) => {
   return res.json(db.get('system_logs'));
+});
+
+app.post('/api/logs', (req, res) => {
+  const { employeeId, employeeName, action, changedData } = req.body;
+  logAction(employeeId || 'hethong', employeeName || 'Nhà bếp', action, changedData || '');
+  return res.json({ success: true });
 });
 
 // ================= SPECIAL ANALYTICAL REPORTS =================
