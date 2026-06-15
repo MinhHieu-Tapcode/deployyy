@@ -381,6 +381,10 @@ export function TableCard({
     cardStyle = 'bg-indigo-50/50 border-indigo-400 text-indigo-950 hover:bg-indigo-50';
     badgeText = `Lịch: ${booking.Gio_dat}`;
     indicatorBulb = 'bg-[#7B2CBF] scale-[1.1] animate-pulse';
+  } else if (simStatus === 'LOCKED_PREP') {
+    cardStyle = 'bg-red-50 border-red-300 text-red-950 hover:bg-red-100/50';
+    badgeText = 'Bàn đã được đặt';
+    indicatorBulb = 'bg-red-500 scale-[1.1] animate-ping';
   } else if (simStatus === TableStatus.CO_KHACH) {
     cardStyle = 'bg-[#EE3124] text-white hover:bg-[#C0271E] border-[#EE3124]';
     badgeText = 'Đang sử dụng';
@@ -427,7 +431,11 @@ export function TableCard({
       </div>
 
       <div className="my-1 truncate text-[10px] leading-relaxed">
-        {booking ? (
+        {simStatus === 'LOCKED_PREP' ? (
+          <div>
+            <p className="font-bold text-red-700">🔒 Bàn đã được đặt</p>
+          </div>
+        ) : booking ? (
           <div>
             <p className="font-bold truncate">Khách: {booking.Ten_khach_hang}</p>
             <p className="font-mono text-[9px] opacity-75">{booking.So_dien_thoai}</p>

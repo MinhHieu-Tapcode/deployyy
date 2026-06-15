@@ -93,7 +93,8 @@ export function mapMaterialToFrontend(m: any): types.RawMaterial {
     Don_vi_tinh: m.unit,
     Ton_kho_hien_tai: Number(m.stock_current),
     Ton_kho_toi_thieu: Number(m.stock_min),
-    Ton_kho_toi_da: Number(m.stock_max)
+    Ton_kho_toi_da: Number(m.stock_max),
+    Trang_thai: m.status || 'Hoạt động'
   };
 }
 

@@ -32,7 +32,9 @@ import {
   PlusCircle,
   HelpCircle,
   BookOpen,
-  FileText
+  FileText,
+  Trash2,
+  Ban
 } from 'lucide-react';
 
 export default function ReceptionLayout() {
@@ -149,6 +151,11 @@ export default function ReceptionLayout() {
   const [autoCancelInfo, setAutoCancelInfo] = useState<string | null>(null);
   const [tablesBeingCleaned, setTablesBeingCleaned] = useState<string[]>([]);
   const [selectedHistorySession, setSelectedHistorySession] = useState<string | null>(null);
+  // Cancel reservation confirmation state
+  const [showCancelBookingConfirm, setShowCancelBookingConfirm] = useState(false);
+  const [cancelTargetBookingId, setCancelTargetBookingId] = useState<string | null>(null);
+  // Booking conflict error message
+  const [bookingConflictError, setBookingConflictError] = useState<string>('');
 
   // Today string for live session fallback (local date)
   const todayString = (() => {
@@ -163,6 +170,28 @@ export default function ReceptionLayout() {
   const bookingsOnDate = reservations.filter(
     r => r.Ngay_dat === selectedCalendarDate && r.Trang_thai === 'Chờ đến'
   );
+
+  // ── NEW: Get ALL bookings for a specific table on a given date (active only) ──
+  const getTableBookingsForDate = (tableId: string, date: string) => {
+    return reservations.filter(
+      r => r.Ma_ban === tableId && r.Ngay_dat === date && r.Trang_thai === 'Chờ đến'
+    );
+  };
+
+  // ── NEW: Return set of locked time slots (in total minutes) for a table ──
+  const BOOKING_LOCK_MINUTES = 150; // 2.5 hours
+  const getLockedMinutesForTable = (tableId: string, date: string): Array<{ start: number; end: number; label: string; name: string }> => {
+    return getTableBookingsForDate(tableId, date).map(b => {
+      const [h, m] = b.Gio_dat.split(':').map(Number);
+      const start = h * 60 + m;
+      return {
+        start,
+        end: start + BOOKING_LOCK_MINUTES,
+        label: b.Gio_dat,
+        name: b.Ten_khach_hang
+      };
+    });
+  };
 
   // Helper checking if a specific table is pre-booked on the viewed calendar date
   const findTableBookingAtSelectedTime = (tableId: string) => {
@@ -179,8 +208,8 @@ export default function ReceptionLayout() {
       if (Number.isNaN(selHour) || Number.isNaN(selMin)) return false;
       const selTotalMin = selHour * 60 + selMin;
       
-      // The booking is active/displayed if the selected calendar time falls within 30 minutes from Gio_dat
-      return selTotalMin >= bookTotalMin && selTotalMin <= bookTotalMin + 30;
+      // The booking is active/displayed if the selected calendar time falls within the booking slot (2.5 hours)
+      return selTotalMin >= bookTotalMin && selTotalMin < bookTotalMin + BOOKING_LOCK_MINUTES;
     });
   };
 
@@ -216,6 +245,31 @@ export default function ReceptionLayout() {
     const booking = findTableBookingAtSelectedTime(tableId);
     if (booking) {
       return 'BOOKED'; // Custom state indicating active pre-booked
+    }
+
+    // Check if table is locked for preparation because of a near future booking (within 90 minutes)
+    try {
+      const [selH, selM] = selectedCalendarTime.split(':').map(Number);
+      const selTotalMin = selH * 60 + selM;
+      const allDayBookings = reservations.filter(
+        r => r.Ma_ban === tableId && r.Ngay_dat === selectedCalendarDate && r.Trang_thai === 'Chờ đến'
+      );
+      const nextBooking = allDayBookings
+        .map(b => {
+          const [bookH, bookM] = b.Gio_dat.split(':').map(Number);
+          return { time: bookH * 60 + bookM };
+        })
+        .filter(x => x.time > selTotalMin)
+        .sort((a, b) => a.time - b.time)[0];
+
+      if (nextBooking) {
+        const minutesUntilNext = nextBooking.time - selTotalMin;
+        if (minutesUntilNext > 0 && minutesUntilNext < TEMP_SESSION_MINUTES + BOOKING_PREP_BUFFER_MINUTES) {
+          return 'LOCKED_PREP';
+        }
+      }
+    } catch (e) {
+      // ignore
     }
 
     if (isViewingCurrent) {
@@ -271,25 +325,70 @@ export default function ReceptionLayout() {
     return selected.getTime() >= Date.now() + BOOKING_LEAD_TIME_MINUTES * 60000;
   };
 
-  const createReservation = (tableId: string) => {
-    addReservation({
-      Ma_ban: tableId,
-      Ten_khach_hang: bookName.trim(),
-      So_dien_thoai: bookPhone.trim(),
-      Ngay_dat: selectedCalendarDate,
-      Gio_dat: selectedCalendarTime,
-      Trang_thai: 'Chờ đến'
-    });
+  const createReservation = async (tableId: string) => {
+    // ── Frontend pre-check: 2.5h conflict ──
+    const lockedSlots = getLockedMinutesForTable(tableId, selectedCalendarDate);
+    const [newH, newM] = selectedCalendarTime.split(':').map(Number);
+    const newTotalMin = newH * 60 + newM;
+    const frontendConflict = lockedSlots.find(s => Math.abs(newTotalMin - s.start) < BOOKING_LOCK_MINUTES);
+    if (frontendConflict) {
+      const unlockMin = frontendConflict.start + BOOKING_LOCK_MINUTES;
+      const unlockStr = `${String(Math.floor(unlockMin / 60)).padStart(2, '0')}:${String(unlockMin % 60).padStart(2, '0')}`;
+      setBookingConflictError(`Bàn đã được đặt lúc ${frontendConflict.label}. Slot tiếp theo chỉ được đặt từ ${unlockStr}.`);
+      return;
+    }
+    setBookingConflictError('');
 
-    setBookName('');
-    setBookPhone('');
-    setShowManualBookingSuccess(true);
-    playNotificationSound('new_order');
+    try {
+      const response = await fetch('/api/reservations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tableId,
+          customerName: bookName.trim(),
+          phone: bookPhone.trim(),
+          date: selectedCalendarDate,
+          time: selectedCalendarTime
+        })
+      });
+      const data = await response.json();
+      if (response.status === 409 || !data.success) {
+        // Server-side conflict: show error inline
+        setBookingConflictError(data.error || 'Khung giờ này đã bị đặt. Vui lòng chọn giờ khác.');
+        return;
+      }
+      // Success
+      setBookName('');
+      setBookPhone('');
+      setBookingConflictError('');
+      setShowManualBookingSuccess(true);
+      playNotificationSound('new_order');
+      // Refresh reservations via store
+      addReservation({
+        Ma_ban: tableId,
+        Ten_khach_hang: bookName.trim(),
+        So_dien_thoai: bookPhone.trim(),
+        Ngay_dat: selectedCalendarDate,
+        Gio_dat: selectedCalendarTime,
+        Trang_thai: 'Chờ đến'
+      });
+      setTimeout(() => {
+        setShowManualBookingSuccess(false);
+        setIsModalOpen(false);
+      }, 2000);
+    } catch (err) {
+      alert('Lỗi kết nối. Vui lòng thử lại.');
+    }
+  };
 
-    setTimeout(() => {
-      setShowManualBookingSuccess(false);
-      setIsModalOpen(false);
-    }, 2000);
+  // Cancel reservation handler
+  const handleCancelReservation = () => {
+    if (!cancelTargetBookingId) return;
+    updateReservationStatus(cancelTargetBookingId, 'Đã hủy');
+    setShowCancelBookingConfirm(false);
+    setCancelTargetBookingId(null);
+    setIsModalOpen(false);
+    setSelectedTableId(null);
   };
 
   // Handle direct booking registration for selected table
@@ -314,6 +413,18 @@ export default function ReceptionLayout() {
       alert(`Thời gian đặt bàn chỉ được chọn trong khung ${String(BOOKING_OPEN_HOUR).padStart(2, '0')}:00 - ${String(LAST_BOOKING_HOUR).padStart(2,'0')}:00.`);
       return;
     }
+
+    // Check if selected time is in the past for today
+    const now = new Date();
+    const isToday = selectedCalendarDate === getLocalDateValue(now);
+    const [selH, selM] = selectedCalendarTime.split(':').map(Number);
+    const selTotalMin = selH * 60 + selM;
+    const currentTotalMin = now.getHours() * 60 + now.getMinutes();
+    if (isToday && selTotalMin <= currentTotalMin) {
+      alert('Giờ đặt bàn không được nhỏ hơn hoặc bằng giờ hiện tại!');
+      return;
+    }
+
     if (!bookingDateTimeHasLeadTime(selectedCalendarDate, selectedCalendarTime)) {
       setBookingTimeError(`Giờ đặt phải cách thời điểm hiện tại ít nhất ${BOOKING_LEAD_TIME_MINUTES} phút.`);
       return;
@@ -1223,124 +1334,264 @@ export default function ReceptionLayout() {
                 </div>
               )}
 
-              {/* Case 1: FREE / TRONG -> Show quick booking or immediate checkout */}
-              {simulatedStatusOfCurrentModal === TableStatus.TRONG && (
+              {/* Case 1: FREE / TRONG or LOCKED_PREP -> Show quick booking or immediate checkout */}
+              {(simulatedStatusOfCurrentModal === TableStatus.TRONG || simulatedStatusOfCurrentModal === 'LOCKED_PREP') && (
                 <div className="space-y-4">
-                  <div className="bg-emerald-55/70 p-4 border border-emerald-200 rounded-lg flex items-center space-x-3">
-                    <CheckCircle size={24} className="text-emerald-600 shrink-0" />
+                  <div className={`p-4 rounded-lg flex items-center space-x-3 ${
+                    simulatedStatusOfCurrentModal === 'LOCKED_PREP'
+                      ? 'bg-red-50 border border-red-200'
+                      : 'bg-emerald-55/70 border border-emerald-200'
+                  }`}>
+                    {simulatedStatusOfCurrentModal === 'LOCKED_PREP' ? (
+                      <AlertCircle size={24} className="text-red-600 shrink-0" />
+                    ) : (
+                      <CheckCircle size={24} className="text-emerald-600 shrink-0" />
+                    )}
                     <div>
-                      <span className="font-bold text-emerald-950 text-xs uppercase block">Bàn đang trống sẵn sàng</span>
-                      <p className="text-[10px] text-gray-500 mt-0.5">Trạng thái: Khả dụng lúc {selectedCalendarTime} ngày {selectedCalendarDate}</p>
+                      <span className={`font-bold text-xs uppercase block ${
+                        simulatedStatusOfCurrentModal === 'LOCKED_PREP' ? 'text-red-950' : 'text-emerald-950'
+                      }`}>
+                        {simulatedStatusOfCurrentModal === 'LOCKED_PREP' ? 'Bàn đã được đặt' : 'Bàn đang trống sẵn sàng'}
+                      </span>
+                      <p className="text-[10px] text-gray-500 mt-0.5">
+                        Trạng thái: {simulatedStatusOfCurrentModal === 'LOCKED_PREP' ? 'Đã khóa chuẩn bị đón khách' : `Khả dụng lúc ${selectedCalendarTime} ngày ${selectedCalendarDate}`}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Immediate activation layout (Bắt đầu phiên) */}
-                  <div className="bg-amber-50/40 border border-amber-200 p-4 rounded-lg space-y-3">
-                    <div className="flex items-center space-x-1">
-                      <Play size={13} className="text-amber-600 fill-current" />
-                      <span className="font-black text-xs text-amber-900 uppercase">TẠO PHIÊN SỬ DỤNG BÀN</span>
-                    </div>
+                  {(() => {
+                    const [selH, selM] = selectedCalendarTime.split(':').map(Number);
+                    const selTotalMin = selH * 60 + selM;
+                    
+                    const futureBookings = getTableBookingsForDate(currentModalTable.Ma_ban, selectedCalendarDate)
+                      .map(b => {
+                        const [bookH, bookM] = b.Gio_dat.split(':').map(Number);
+                        return { booking: b, time: bookH * 60 + bookM };
+                      })
+                      .filter(x => x.time > selTotalMin)
+                      .sort((a, b) => a.time - b.time);
+                      
+                    const nextBooking = futureBookings[0];
+                    const minutesUntilNextBooking = nextBooking ? nextBooking.time - selTotalMin : null;
+                    const cannotCreate = minutesUntilNextBooking !== null && minutesUntilNextBooking < TEMP_SESSION_MINUTES + BOOKING_PREP_BUFFER_MINUTES;
 
-                    <form onSubmit={async (e) => {
-                      e.preventDefault();
-                      if (instantPhone.trim().length !== 10) {
-                        alert("Số điện thoại phải gồm 10 chữ số.");
-                        return;
-                      }
-                      try {
-                        if (instantGuests < 1 || instantGuests > tableCapacity) {
-                          return;
-                        }
-                        await startTableSession(currentModalTable.Ma_ban, instantPhone.trim(), instantGuests, undefined, instantCustomerName);
-                        setInstantPhone('');
-                        setInstantCustomerName('');
-                        setInstantGuests(currentModalTable?.Suc_chua ?? 4);
-                        setIsModalOpen(false);
-                        setSelectedTableId(null);
-                        alert(`Đã BẮT ĐẦU PHIÊN và kích hoạt phục vụ cho bàn ${currentModalTable.Ma_ban}!`);
-                      } catch (err: any) {
-                        alert(err.message || 'Mở bàn không thành công.');
-                      }
-                    }} className="space-y-3">
-                      <div className="space-y-3">
-                        <div className="space-y-1">
-                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                            TÊN KHÁCH ĐẠI DIỆN <span className="font-medium normal-case text-gray-400">Không bắt buộc</span>
-                          </label>
-                          <div className="relative">
-                            <User className="absolute left-2.5 top-2.5 text-gray-400" size={12} />
-                            <input
-                              type="text"
-                              placeholder="Nhập tên khách nếu có"
-                              className="w-full pl-7 pr-2 py-2 border border-gray-250 bg-white rounded-lg text-xs font-bold focus:border-[#EE3124] focus:outline-none"
-                              value={instantCustomerName}
-                              onChange={e => setInstantCustomerName(e.target.value)}
-                            />
+                    if (cannotCreate) {
+                      return (
+                        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 space-y-3">
+                          <div className="flex items-start gap-3">
+                            <AlertCircle className="mt-0.5 text-[#EE3124] shrink-0" size={20} />
+                            <div>
+                              <p className="text-sm leading-relaxed text-red-950 font-bold uppercase">
+                                KHÔNG THỂ TẠO PHIÊN PHỤC VỤ
+                              </p>
+                              <p className="text-xs text-red-900 leading-relaxed font-semibold mt-1">
+                                Bàn này đã có lịch đặt lúc <strong>{nextBooking.booking.Gio_dat}</strong> (chỉ còn {minutesUntilNextBooking} phút).
+                              </p>
+                              <p className="text-[11px] text-gray-500 font-medium mt-1">
+                                Không đủ thời gian phục vụ khách mới (yêu cầu tối thiểu {TEMP_SESSION_MINUTES + BOOKING_PREP_BUFFER_MINUTES} phút bao gồm {TEMP_SESSION_MINUTES} phút ăn và {BOOKING_PREP_BUFFER_MINUTES} phút dọn dẹp bàn).
+                              </p>
+                            </div>
                           </div>
                         </div>
+                      );
+                    }
 
-                        <div className="space-y-1">
-                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                            SĐT KHÁCH ĐẠI DIỆN <span className="text-red-500 font-bold">*</span>
-                          </label>
-                          <div className="relative">
-                            <Phone className="absolute left-2.5 top-2.5 text-gray-400" size={12} />
-                            <input
-                              type="tel"
-                              required
-                              placeholder="Nhập SĐT 10 chữ số"
-                              className="w-full pl-7 pr-2 py-2 border border-gray-250 bg-white rounded-lg text-xs font-bold focus:border-[#EE3124] focus:outline-none"
-                              value={instantPhone}
-                              onChange={e => {
-                                const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                setInstantPhone(val);
-                              }}
-                            />
-                          </div>
-                          {instantPhone.length > 0 && instantPhone.length < 10 && (
-                            <p className="text-[10px] text-[#EE3124] font-bold mt-0.5">Số điện thoại phải gồm 10 chữ số.</p>
-                          )}
+                    return (
+                      <div className="bg-amber-50/40 border border-amber-200 p-4 rounded-lg space-y-3">
+                        <div className="flex items-center space-x-1">
+                          <Play size={13} className="text-amber-600 fill-current" />
+                          <span className="font-black text-xs text-amber-900 uppercase">TẠO PHIÊN SỬ DỤNG BÀN</span>
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                            SỐ LƯỢNG KHÁCH <span className="text-red-500 font-bold">*</span>
-                          </label>
-                          <div className="relative flex items-center border border-gray-250 rounded-lg bg-white px-2.5 py-1.5">
-                            <User size={12} className="text-gray-400 shrink-0 mr-1.5" />
-                            <input
-                              type="number"
-                              min={1}
-                              required
-                              placeholder="Nhập số lượng khách"
-                              className="w-full py-0.5 text-xs font-bold text-gray-800 focus:outline-none"
-                              value={instantGuests}
-                              onChange={e => {
-                                const raw = Number(e.target.value) || 1;
-                                setInstantGuests(Math.max(1, raw));
-                              }}
-                            />
+                        <form onSubmit={async (e) => {
+                          e.preventDefault();
+                          if (instantPhone.trim().length !== 10) {
+                            alert("Số điện thoại phải gồm 10 chữ số.");
+                            return;
+                          }
+                          try {
+                            if (instantGuests < 1 || instantGuests > tableCapacity) {
+                              return;
+                            }
+                            await startTableSession(currentModalTable.Ma_ban, instantPhone.trim(), instantGuests, undefined, instantCustomerName);
+                            setInstantPhone('');
+                            setInstantCustomerName('');
+                            setInstantGuests(currentModalTable?.Suc_chua ?? 4);
+                            setIsModalOpen(false);
+                            setSelectedTableId(null);
+                            alert(`Đã BẮT ĐẦU PHIÊN và kích hoạt phục vụ cho bàn ${currentModalTable.Ma_ban}!`);
+                          } catch (err: any) {
+                            alert(err.message || 'Mở bàn không thành công.');
+                          }
+                        }} className="space-y-3">
+                          <div className="space-y-3">
+                            <div className="space-y-1">
+                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                TÊN KHÁCH ĐẠI DIỆN <span className="font-medium normal-case text-gray-400">Không bắt buộc</span>
+                              </label>
+                              <div className="relative">
+                                <User className="absolute left-2.5 top-2.5 text-gray-400" size={12} />
+                                <input
+                                  type="text"
+                                  placeholder="Nhập tên khách nếu có"
+                                  className="w-full pl-7 pr-2 py-2 border border-gray-250 bg-white rounded-lg text-xs font-bold focus:border-[#EE3124] focus:outline-none"
+                                  value={instantCustomerName}
+                                  onChange={e => setInstantCustomerName(e.target.value)}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                SĐT KHÁCH ĐẠI DIỆN <span className="text-red-500 font-bold">*</span>
+                              </label>
+                              <div className="relative">
+                                <Phone className="absolute left-2.5 top-2.5 text-gray-400" size={12} />
+                                <input
+                                  type="tel"
+                                  required
+                                  placeholder="Nhập SĐT 10 chữ số"
+                                  className="w-full pl-7 pr-2 py-2 border border-gray-250 bg-white rounded-lg text-xs font-bold focus:border-[#EE3124] focus:outline-none"
+                                  value={instantPhone}
+                                  onChange={e => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                    setInstantPhone(val);
+                                  }}
+                                />
+                              </div>
+                              {instantPhone.length > 0 && instantPhone.length < 10 && (
+                                <p className="text-[10px] text-[#EE3124] font-bold mt-0.5">Số điện thoại phải gồm 10 chữ số.</p>
+                              )}
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                SỐ LƯỢNG KHÁCH <span className="text-red-500 font-bold">*</span>
+                              </label>
+                              <div className="relative flex items-center border border-gray-250 rounded-lg bg-white px-2.5 py-1.5">
+                                <User size={12} className="text-gray-400 shrink-0 mr-1.5" />
+                                <input
+                                  type="number"
+                                  min={1}
+                                  required
+                                  placeholder="Nhập số lượng khách"
+                                  className="w-full py-0.5 text-xs font-bold text-gray-800 focus:outline-none"
+                                  value={instantGuests}
+                                  onChange={e => {
+                                    const raw = Number(e.target.value) || 1;
+                                    setInstantGuests(Math.max(1, raw));
+                                  }}
+                                />
+                              </div>
+                              {instantGuests > tableCapacity ? (
+                                <p className="text-[10px] text-[#EE3124] font-bold">Số khách vượt quá sức chứa bàn.</p>
+                              ) : (
+                                <p className="text-[10px] text-gray-500 font-medium">Tối đa {tableCapacity} khách.</p>
+                              )}
+                            </div>
                           </div>
-                          {instantGuests > tableCapacity ? (
-                            <p className="text-[10px] text-[#EE3124] font-bold">Số khách vượt quá sức chứa bàn.</p>
-                          ) : (
-                            <p className="text-[10px] text-gray-500 font-medium">Tối đa {tableCapacity} khách.</p>
-                          )}
+
+                          {minutesUntilNextBooking !== null && minutesUntilNextBooking >= TEMP_SESSION_MINUTES + BOOKING_PREP_BUFFER_MINUTES && minutesUntilNextBooking < 150 && (() => {
+                            const bufferDate = new Date(new Date(`${selectedCalendarDate}T${nextBooking.booking.Gio_dat}:00`).getTime() - BOOKING_PREP_BUFFER_MINUTES * 60000);
+                            const bufferStr = bufferDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                            return (
+                              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800 font-semibold mb-2">
+                                ⚠️ Lưu ý: Bàn có lịch đặt lúc {nextBooking.booking.Gio_dat} (trong {minutesUntilNextBooking} phút nữa). Hãy nhắc khách kết thúc trước {bufferStr} để chuẩn bị bàn.
+                              </div>
+                            );
+                          })()}
+
+                          <button
+                            type="submit"
+                            disabled={instantPhone.length !== 10 || instantGuests < 1 || instantGuests > tableCapacity || viewMode === 'PAST'}
+                            className={`w-full py-2.5 font-extrabold text-xs rounded-lg uppercase transition cursor-pointer text-center ${(instantPhone.length === 10 && instantGuests >= 1 && instantGuests <= tableCapacity)
+                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md'
+                                : 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300 shadow-none'
+                              }`}
+                          >
+                            BẮT ĐẦU PHIÊN PHỤC VỤ
+                          </button>
+                        </form>
+                      </div>
+                    );
+                  })()}
+
+                  {/* ─── TIMELINE LỊCH ĐẶT TRONG NGÀY ─── */}
+                  {(() => {
+                    const allDayBookings = getTableBookingsForDate(currentModalTable.Ma_ban, selectedCalendarDate);
+                    if (allDayBookings.length === 0) return null;
+                    const timelineStart = 10 * 60;
+                    const timelineEnd = 22 * 60;
+                    const timelineRange = timelineEnd - timelineStart;
+                    return (
+                      <div className="bg-white border border-purple-200 rounded-xl p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-1.5">
+                            <Calendar size={13} className="text-purple-600" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-purple-900">
+                              LỊCH ĐẶT BÀN {currentModalTable.Ma_ban} – {selectedCalendarDate.split('-').reverse().join('/')}
+                            </span>
+                          </div>
+                          <span className="text-[9px] bg-red-100 text-red-700 font-black px-2 py-0.5 rounded-full">
+                            {allDayBookings.length} lịch đặt
+                          </span>
+                        </div>
+                        {/* Timeline bar */}
+                        <div className="relative">
+                          <div className="flex justify-between text-[8px] font-bold text-gray-400 font-mono mb-1">
+                            {[10,12,14,16,18,20,22].map(h => (
+                              <span key={h}>{String(h).padStart(2,'0')}h</span>
+                            ))}
+                          </div>
+                          <div className="relative h-8 bg-emerald-50 border border-emerald-200 rounded-lg overflow-hidden">
+                            {allDayBookings.map((b, i) => {
+                              const [bH, bM] = b.Gio_dat.split(':').map(Number);
+                              const startMin = bH * 60 + bM;
+                              const leftPct = ((startMin - timelineStart) / timelineRange) * 100;
+                              const widthPct = (BOOKING_LOCK_MINUTES / timelineRange) * 100;
+                              const unlockMin = startMin + BOOKING_LOCK_MINUTES;
+                              const unlockStr = `${String(Math.floor(unlockMin/60)).padStart(2,'0')}:${String(unlockMin%60).padStart(2,'0')}`;
+                              return (
+                                <div
+                                  key={i}
+                                  className="absolute top-0 h-full bg-purple-500 border-r-2 border-purple-700 flex items-center px-2 overflow-hidden cursor-default"
+                                  style={{ left: `${Math.max(0, leftPct)}%`, width: `${Math.min(widthPct, 100 - leftPct)}%` }}
+                                  title={`${b.Ten_khach_hang} | ${b.Gio_dat} – khóa đến ${unlockStr}`}
+                                >
+                                  <span className="text-white text-[9px] font-black truncate whitespace-nowrap">{b.Gio_dat} {b.Ten_khach_hang}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        {/* Legend */}
+                        <div className="flex items-center gap-4 text-[9px] font-bold">
+                          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-100 border border-emerald-300 inline-block"></span>Trống</span>
+                          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-purple-500 inline-block"></span>Đã đặt (khóa 2,5h)</span>
+                        </div>
+                        {/* Booking list */}
+                        <div className="space-y-1.5">
+                          {allDayBookings.map((b, i) => {
+                            const [bH, bM] = b.Gio_dat.split(':').map(Number);
+                            const unlockMin = bH * 60 + bM + BOOKING_LOCK_MINUTES;
+                            const unlockStr = `${String(Math.floor(unlockMin/60)).padStart(2,'0')}:${String(unlockMin%60).padStart(2,'0')}`;
+                            return (
+                              <div key={i} className="flex items-center justify-between bg-purple-50 border border-purple-100 rounded-lg px-3 py-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0"></span>
+                                  <div>
+                                    <span className="text-[10px] font-black text-purple-900">{b.Ten_khach_hang}</span>
+                                    <span className="text-[9px] text-gray-500 font-mono ml-2">{maskPhoneNumber(b.So_dien_thoai)}</span>
+                                  </div>
+                                </div>
+                                <span className="text-[9px] font-mono font-black text-purple-700">{b.Gio_dat} – {unlockStr}</span>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
-
-                      <button
-                        type="submit"
-                        disabled={instantPhone.length !== 10 || instantGuests < 1 || instantGuests > tableCapacity || viewMode === 'PAST'}
-                        className={`w-full py-2.5 font-extrabold text-xs rounded-lg uppercase transition cursor-pointer text-center ${(instantPhone.length === 10 && instantGuests >= 1 && instantGuests <= tableCapacity)
-                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md'
-                            : 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300 shadow-none'
-                          }`}
-                      >
-                        BẮT ĐẦU PHIÊN PHỤC VỤ
-                      </button>
-                    </form>
-                  </div>
+                    );
+                  })()}
 
                   {/* Custom book reservation */}
                   <div className="bg-indigo-50/50 border border-indigo-150 p-4 rounded-lg space-y-3">
@@ -1349,7 +1600,15 @@ export default function ReceptionLayout() {
                       <span className="font-extrabold text-xs text-purple-900 uppercase">ĐẶT BÀN TRƯỚC (CHỌN LỊCH CHO KHÁCH)</span>
                     </div>
 
-                    {/* Booking form: HỌ TÊN, SỐ ĐT, NGÀY ĐẶT, GIỜ ĐẶT */}
+                    {/* Conflict error banner */}
+                    {bookingConflictError && (
+                      <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                        <Ban size={14} className="text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-xs font-bold text-red-800">{bookingConflictError}</p>
+                      </div>
+                    )}
+
+                    {/* Booking form */}
                     <form onSubmit={e => handleBookTableDirect(e, currentModalTable.Ma_ban)} className="space-y-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
@@ -1361,11 +1620,10 @@ export default function ReceptionLayout() {
                               placeholder="Nhập họ tên khách đặt bàn"
                               className="w-full pl-10 pr-2 py-2 border border-gray-200 bg-white rounded-lg text-sm font-semibold focus:border-purple-500 focus:outline-none"
                               value={bookName}
-                              onChange={e => setBookName(e.target.value)}
+                              onChange={e => { setBookName(e.target.value); setBookingConflictError(''); }}
                             />
                           </div>
                         </div>
-
                         <div>
                           <label className="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">SỐ ĐIỆN THOẠI *</label>
                           <div className="relative">
@@ -1377,11 +1635,8 @@ export default function ReceptionLayout() {
                               value={bookPhone}
                               onChange={e => {
                                 setBookPhone(e.target.value);
-                                if (e.target.value && !/^\d{10}$/.test(e.target.value)) {
-                                  setPhoneError("Số điện thoại phải gồm 10 chữ số");
-                                } else {
-                                  setPhoneError("");
-                                }
+                                setBookingConflictError('');
+                                setPhoneError(e.target.value && !/^\d{10}$/.test(e.target.value) ? 'Số điện thoại phải gồm 10 chữ số' : '');
                               }}
                             />
                             {phoneError && <p className="text-xs text-red-600 mt-1">{phoneError}</p>}
@@ -1402,51 +1657,62 @@ export default function ReceptionLayout() {
                               value={selectedCalendarDate}
                               onChange={e => {
                                 const val = e.target.value;
-                                if (!bookingDateIsTodayOrAfter(val)) {
-                                  setBookingDateError('Ngày đặt không được ở quá khứ');
-                                  return;
-                                }
+                                if (!bookingDateIsTodayOrAfter(val)) { setBookingDateError('Ngày đặt không được ở quá khứ'); return; }
                                 setSelectedCalendarDate(val);
                                 setBookingDateError('');
                                 setBookingTimeError('');
+                                setBookingConflictError('');
                                 setIsViewingCurrent(false);
                               }}
                             />
                           </div>
-                          {bookingDateError && (
-                            <p className="mt-1.5 text-[10px] font-bold text-[#EE3124]">{bookingDateError}</p>
-                          )}
+                          {bookingDateError && <p className="mt-1.5 text-[10px] font-bold text-[#EE3124]">{bookingDateError}</p>}
                         </div>
 
                         <div>
                           <label className="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">GIỜ ĐẶT</label>
                           <div className="relative">
                             <Clock className="absolute left-2.5 top-3 text-gray-400" size={14} />
-                            <select
-                              title="Chọn giờ đặt"
-                              className="w-full pl-10 pr-2 py-2 border border-gray-200 bg-white rounded-lg text-sm font-semibold focus:border-purple-500 focus:outline-none appearance-none"
-                              value={bookingTimeIsInAllowedWindow(selectedCalendarTime) ? selectedCalendarTime : ''}
-                              onChange={e => {
-                                setSelectedCalendarTime(e.target.value);
-                                setBookingTimeError('');
-                                setIsViewingCurrent(false);
-                              }}
-                            >
-                              <option value="" disabled>Chọn giờ đặt</option>
-                              {bookingTimeOptions.map(option => (
-                                <option key={option} value={option}>{option}</option>
-                              ))}
-                            </select>
-                          </div>
-                          {bookingTimeError && (
-                            <p className="mt-1.5 text-[10px] font-bold text-[#EE3124]">{bookingTimeError}</p>
-                          )}
-                        </div>
-                      </div>
+                            {(() => {
+                              const lockedSlots = getLockedMinutesForTable(currentModalTable.Ma_ban, selectedCalendarDate);
+                              return (
+                                <select
+                                  title="Chọn giờ đặt"
+                                  className="w-full pl-10 pr-2 py-2 border border-gray-200 bg-white rounded-lg text-sm font-semibold focus:border-purple-500 focus:outline-none appearance-none"
+                                  value={bookingTimeIsInAllowedWindow(selectedCalendarTime) ? selectedCalendarTime : ''}
+                                  onChange={e => { setSelectedCalendarTime(e.target.value); setBookingTimeError(''); setBookingConflictError(''); setIsViewingCurrent(false); }}
+                                >
+                                  <option value="" disabled>Chọn giờ đặt</option>
+                                  {bookingTimeOptions.map(option => {
+                                    const [oH, oM] = option.split(':').map(Number);
+                                    const oMin = oH * 60 + oM;
+                                    const conflict = lockedSlots.find(s => oMin >= s.start && oMin < s.end);
+                                    
+                                    // Check if the option is in the past for today
+                                    const isToday = selectedCalendarDate === getLocalDateValue();
+                                    const now = new Date();
+                                    const currentTotalMin = now.getHours() * 60 + now.getMinutes();
+                                    const isPastTime = isToday && oMin <= currentTotalMin;
 
-                      {/* Time validation - must be future */}
-                      <div>
-                        {/* No inline warning shown while selecting giờ. Validation is handled on submit only. */}
+                                    return (
+                                      <option
+                                        key={option}
+                                        value={option}
+                                        disabled={!!conflict || isPastTime}
+                                        style={conflict || isPastTime ? { color: '#bbb', background: '#fef2f2' } : {}}
+                                      >
+                                        {option}
+                                        {conflict ? ` — Đã khóa (${conflict.label})` : ''}
+                                        {isPastTime ? ` — Đã qua` : ''}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+                              );
+                            })()}
+                          </div>
+                          {bookingTimeError && <p className="mt-1.5 text-[10px] font-bold text-[#EE3124]">{bookingTimeError}</p>}
+                        </div>
                       </div>
 
                       <button
@@ -1482,9 +1748,22 @@ export default function ReceptionLayout() {
                             <p className="text-xs font-semibold text-gray-500 mt-1">Trạng thái: Đang chờ khách đến</p>
                           </div>
                         </div>
-                        <span className={`inline-flex items-center justify-center rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-wide ${stateClasses}`}>
-                          {bookingState.label}
-                        </span>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                          <span className={`inline-flex items-center justify-center rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-wide ${stateClasses}`}>
+                            {bookingState.label}
+                          </span>
+                          {/* HUỤ ĐẶT BÀN button */}
+                          <button
+                            onClick={() => {
+                              setCancelTargetBookingId(bookedOfModalTable.Ma_dat_ban);
+                              setShowCancelBookingConfirm(true);
+                            }}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-red-300 bg-red-50 px-3 py-2 text-[10px] font-black uppercase text-red-700 hover:bg-red-100 hover:border-red-400 transition"
+                          >
+                            <Trash2 size={12} />
+                            HỤY ĐẶT BÀN
+                          </button>
+                        </div>
                       </div>
 
                       <div className="p-5 space-y-5">
@@ -1633,6 +1912,42 @@ export default function ReceptionLayout() {
                 </div>
               )}
 
+
+              {/* ─── CANCEL RESERVATION CONFIRMATION DIALOG ─── */}
+              {showCancelBookingConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCancelBookingConfirm(false)} />
+                  <div className="relative w-full max-w-sm bg-white rounded-3xl border border-red-200 p-6 z-10 shadow-2xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="h-12 w-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                        <Trash2 size={22} />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black text-gray-900">Xác nhận hủy đặt bàn?</h3>
+                        <p className="text-xs text-gray-500 mt-0.5">Hành động này không thể hoàn tác.</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                      Lịch đặt bàn sẽ bị <strong>hủy bỏ hoàn toàn</strong>. Bàn sẽ được trả về trạng thái <strong>trống</strong> và có thể đặt lại.
+                    </p>
+                    <div className="mt-5 flex gap-3">
+                      <button
+                        onClick={() => { setShowCancelBookingConfirm(false); setCancelTargetBookingId(null); }}
+                        className="flex-1 py-3 border border-gray-300 bg-white rounded-xl text-xs font-black uppercase text-gray-700 hover:bg-gray-50 transition"
+                      >
+                        GIỮ LẠI
+                      </button>
+                      <button
+                        onClick={handleCancelReservation}
+                        className="flex-1 py-3 bg-[#EE3124] hover:bg-[#D42A1E] text-white rounded-xl text-xs font-black uppercase shadow-lg transition flex items-center justify-center gap-1.5"
+                      >
+                        <Trash2 size={13} />
+                        XÁC NHẬN HỦY
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Case 4: ACTIVE / CO_KHACH -> Consumption session monitoring and billing */}
               {simulatedStatusOfCurrentModal === TableStatus.CO_KHACH && activeSessionOfModalTable && (

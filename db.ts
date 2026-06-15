@@ -83,6 +83,7 @@ export interface RawMaterial {
   stock_current: number;
   stock_min: number;
   stock_max: number;
+  status?: 'Hoạt động' | 'Ngừng hoạt động';
 }
 
 export interface ImportReceipt {

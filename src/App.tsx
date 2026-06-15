@@ -69,7 +69,7 @@ export default function App() {
   const [prevWarningCount, setPrevWarningCount] = useState(0);
 
   const warningMaterials = (materials || []).filter(
-    m => m.Ton_kho_hien_tai <= m.Ton_kho_toi_thieu
+    m => m.Trang_thai !== 'Ngừng hoạt động' && m.Ton_kho_hien_tai <= m.Ton_kho_toi_thieu
   );
   const hasWarnings = warningMaterials.length > 0;
 

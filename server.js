@@ -112,32 +112,32 @@ var defaultDbState = {
     { id: "m08", category_id: "dm03", name: "N\u01B0\u1EDBc su\u1ED1i Lavie", price: 15e3, description: "N\u01B0\u1EDBc su\u1ED1i kho\xE1ng chai 500ml m\xE1t l\u1EA1nh.", image_url: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=600&auto=format&fit=crop&q=60", status: "C\xF2n ph\u1EE5c v\u1EE5" }
   ],
   recipe_items: [
-    { dish_id: "m01", material_id: "nvl01", quantity: 150, unit: "g" },
-    { dish_id: "m01", material_id: "nvl02", quantity: 100, unit: "g" },
-    { dish_id: "m01", material_id: "nvl03", quantity: 80, unit: "g" },
-    { dish_id: "m01", material_id: "nvl04", quantity: 50, unit: "g" },
-    { dish_id: "m01", material_id: "nvl05", quantity: 30, unit: "g" },
-    { dish_id: "m01", material_id: "nvl06", quantity: 200, unit: "g" },
-    { dish_id: "m01", material_id: "nvl07", quantity: 1200, unit: "ml" },
-    { dish_id: "m02", material_id: "nvl08", quantity: 500, unit: "g" },
-    { dish_id: "m02", material_id: "nvl01", quantity: 100, unit: "g" },
-    { dish_id: "m02", material_id: "nvl04", quantity: 50, unit: "g" },
-    { dish_id: "m02", material_id: "nvl07", quantity: 1e3, unit: "ml" },
-    { dish_id: "m04", material_id: "nvl09", quantity: 200, unit: "g" },
-    { dish_id: "m05", material_id: "nvl01", quantity: 150, unit: "g" },
-    { dish_id: "m06", material_id: "nvl02", quantity: 150, unit: "g" },
+    { dish_id: "m01", material_id: "nvl01", quantity: 0.15, unit: "kg" },
+    { dish_id: "m01", material_id: "nvl02", quantity: 0.1, unit: "kg" },
+    { dish_id: "m01", material_id: "nvl03", quantity: 0.08, unit: "kg" },
+    { dish_id: "m01", material_id: "nvl04", quantity: 0.05, unit: "kg" },
+    { dish_id: "m01", material_id: "nvl05", quantity: 0.03, unit: "kg" },
+    { dish_id: "m01", material_id: "nvl06", quantity: 0.2, unit: "kg" },
+    { dish_id: "m01", material_id: "nvl07", quantity: 1.2, unit: "l" },
+    { dish_id: "m02", material_id: "nvl08", quantity: 0.5, unit: "kg" },
+    { dish_id: "m02", material_id: "nvl01", quantity: 0.1, unit: "kg" },
+    { dish_id: "m02", material_id: "nvl04", quantity: 0.05, unit: "kg" },
+    { dish_id: "m02", material_id: "nvl07", quantity: 1, unit: "l" },
+    { dish_id: "m04", material_id: "nvl09", quantity: 0.2, unit: "kg" },
+    { dish_id: "m05", material_id: "nvl01", quantity: 0.15, unit: "kg" },
+    { dish_id: "m06", material_id: "nvl02", quantity: 0.15, unit: "kg" },
     { dish_id: "m08", material_id: "nvl10", quantity: 1, unit: "chai" }
   ],
   raw_materials: [
-    { id: "nvl01", name: "N\u1EA5m kim ch\xE2m", unit: "g", stock_current: 8200, stock_min: 2e3, stock_max: 2e4 },
-    { id: "nvl02", name: "N\u1EA5m b\xE0o ng\u01B0", unit: "g", stock_current: 4e3, stock_min: 1500, stock_max: 15e3 },
-    { id: "nvl03", name: "N\u1EA5m \u0111\xF9i g\xE0", unit: "g", stock_current: 1200, stock_min: 1e3, stock_max: 1e4 },
-    { id: "nvl04", name: "N\u1EA5m h\u01B0\u01A1ng", unit: "g", stock_current: 600, stock_min: 800, stock_max: 8e3 },
-    { id: "nvl05", name: "N\u1EA5m tuy\u1EBFt", unit: "g", stock_current: 1500, stock_min: 500, stock_max: 5e3 },
-    { id: "nvl06", name: "\u0110\u1EADu h\u0169 non", unit: "g", stock_current: 16e3, stock_min: 2e3, stock_max: 15e3 },
-    { id: "nvl07", name: "N\u01B0\u1EDBc d\xF9ng", unit: "ml", stock_current: 11e4, stock_min: 2e4, stock_max: 25e4 },
-    { id: "nvl08", name: "G\xE0 \u0111en", unit: "g", stock_current: 0, stock_min: 2e3, stock_max: 15e3 },
-    { id: "nvl09", name: "Th\u1ECBt b\xF2 M\u1EF9", unit: "g", stock_current: 25e3, stock_min: 5e3, stock_max: 5e4 },
+    { id: "nvl01", name: "N\u1EA5m kim ch\xE2m", unit: "kg", stock_current: 8.2, stock_min: 2, stock_max: 20 },
+    { id: "nvl02", name: "N\u1EA5m b\xE0o ng\u01B0", unit: "kg", stock_current: 4, stock_min: 1.5, stock_max: 15 },
+    { id: "nvl03", name: "N\u1EA5m \u0111\xF9i g\xE0", unit: "kg", stock_current: 1.2, stock_min: 1, stock_max: 10 },
+    { id: "nvl04", name: "N\u1EA5m h\u01B0\u01A1ng", unit: "kg", stock_current: 0.6, stock_min: 0.8, stock_max: 8 },
+    { id: "nvl05", name: "N\u1EA5m tuy\u1EBFt", unit: "kg", stock_current: 1.5, stock_min: 0.5, stock_max: 5 },
+    { id: "nvl06", name: "\u0110\u1EADu h\u0169 non", unit: "kg", stock_current: 16, stock_min: 2, stock_max: 15 },
+    { id: "nvl07", name: "N\u01B0\u1EDBc d\xF9ng", unit: "l", stock_current: 110, stock_min: 20, stock_max: 250 },
+    { id: "nvl08", name: "G\xE0 \u0111en", unit: "kg", stock_current: 0, stock_min: 2, stock_max: 15 },
+    { id: "nvl09", name: "Th\u1ECBt b\xF2 M\u1EF9", unit: "kg", stock_current: 25, stock_min: 5, stock_max: 50 },
     { id: "nvl10", name: "N\u01B0\u1EDBc su\u1ED1i chai", unit: "chai", stock_current: 48, stock_min: 20, stock_max: 200 }
   ],
   table_sessions: [
@@ -378,6 +378,46 @@ function logAction(employeeId, employeeName, action, changedData) {
   };
   db.save("system_logs", [newLog, ...logs]);
 }
+function closeStaleSessions() {
+  const sessions = db.get("table_sessions");
+  const tables = db.get("dining_tables");
+  let changed = false;
+  let tablesChanged = false;
+  const now = /* @__PURE__ */ new Date();
+  sessions.forEach((session) => {
+    if (session.status === "active") {
+      const startTime = new Date(session.start_time);
+      if (isNaN(startTime.getTime())) return;
+      const diffHours = (now.getTime() - startTime.getTime()) / (1e3 * 60 * 60);
+      const isOver6Hours = diffHours >= 6;
+      const sessionLocalDate = new Date(startTime.getTime() + 7 * 60 * 60 * 1e3).toISOString().split("T")[0];
+      const currentLocalDate = new Date(now.getTime() + 7 * 60 * 60 * 1e3).toISOString().split("T")[0];
+      const isPreviousDay = sessionLocalDate !== currentLocalDate;
+      if (isOver6Hours || isPreviousDay) {
+        session.status = "completed";
+        session.end_time = now.toISOString();
+        changed = true;
+        const tblIdx = tables.findIndex((t) => t.id === session.table_id);
+        if (tblIdx !== -1 && tables[tblIdx].status !== "trong") {
+          tables[tblIdx].status = "trong";
+          tablesChanged = true;
+        }
+        logAction(
+          "system",
+          "H\u1EC7 th\u1ED1ng t\u1EF1 \u0111\u1ED9ng",
+          "T\u1EF1 \u0111\u1ED9ng \u0111\xF3ng phi\xEAn qu\xE1 h\u1EA1n",
+          `Phi\xEAn ${session.id} c\u1EE7a b\xE0n ${session.table_id} \u0111\xE3 \u0111\u01B0\u1EE3c \u0111\xF3ng t\u1EF1 \u0111\u1ED9ng do qu\xE1 6 ti\u1EBFng ho\u1EB7c qu\xE1 ca.`
+        );
+      }
+    }
+  });
+  if (changed) {
+    db.save("table_sessions", sessions);
+  }
+  if (tablesChanged) {
+    db.save("dining_tables", tables);
+  }
+}
 app.post("/api/auth/login", (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -457,6 +497,7 @@ app.post("/api/auth/logout", (req, res) => {
   return res.json({ success: true });
 });
 app.get("/api/tables", (req, res) => {
+  closeStaleSessions();
   return res.json(db.get("dining_tables"));
 });
 app.post("/api/tables/:id/status", (req, res) => {
@@ -497,6 +538,7 @@ app.post("/api/tables/:id/deactivate", (req, res) => {
   return res.json({ success: true, table: tables[tblIdx] });
 });
 app.get("/api/sessions", (req, res) => {
+  closeStaleSessions();
   return res.json(db.get("table_sessions"));
 });
 app.post(["/api/sessions", "/api/sessions/start"], (req, res) => {
@@ -902,7 +944,8 @@ app.post("/api/materials", (req, res) => {
     unit,
     stock_current: stock_current ? Number(stock_current) : 0,
     stock_min: stock_min ? Number(stock_min) : 0,
-    stock_max: stock_max ? Number(stock_max) : 1e4
+    stock_max: stock_max ? Number(stock_max) : 1e4,
+    status: "Ho\u1EA1t \u0111\u1ED9ng"
   };
   db.save("raw_materials", [...materials, newMat]);
   logAction(operatorId || "system", operatorName || "Kho", "Khai b\xE1o nguy\xEAn li\u1EC7u", `Th\xEAm m\u1EDBi v\u1EADt t\u01B0 "${name}" v\xE0o danh m\u1EE5c`);
@@ -910,23 +953,29 @@ app.post("/api/materials", (req, res) => {
 });
 app.put("/api/materials/:id", (req, res) => {
   const { id } = req.params;
-  const { name, unit, stock_current, stock_min, stock_max, operatorId, operatorName } = req.body;
-  if (stock_min >= stock_max) {
+  const { name, unit, stock_current, stock_min, stock_max, status, operatorId, operatorName } = req.body;
+  if (stock_min !== void 0 && stock_max !== void 0 && Number(stock_min) >= Number(stock_max)) {
     return res.status(400).json({ error: "Ng\u01B0\u1EE1ng t\u1ED3n t\u1ED1i thi\u1EC3u ph\u1EA3i nh\u1ECF h\u01A1n ng\u01B0\u1EE1ng t\u1ED3n t\u1ED1i \u0111a! (BR05)" });
   }
   const materials = db.get("raw_materials");
   const mIdx = materials.findIndex((m) => m.id === id);
   if (mIdx === -1) return res.status(404).json({ error: "Kh\xF4ng t\xECm th\u1EA5y nguy\xEAn v\u1EADt li\u1EC7u." });
+  const oldStatus = materials[mIdx].status || "Ho\u1EA1t \u0111\u1ED9ng";
   materials[mIdx] = {
     id,
     name: name || materials[mIdx].name,
     unit: unit || materials[mIdx].unit,
     stock_current: stock_current !== void 0 ? Number(stock_current) : materials[mIdx].stock_current,
-    stock_min: Number(stock_min),
-    stock_max: Number(stock_max)
+    stock_min: stock_min !== void 0 ? Number(stock_min) : materials[mIdx].stock_min,
+    stock_max: stock_max !== void 0 ? Number(stock_max) : materials[mIdx].stock_max,
+    status: status || materials[mIdx].status || "Ho\u1EA1t \u0111\u1ED9ng"
   };
   db.save("raw_materials", materials);
-  logAction(operatorId || "system", operatorName || "Kho", "C\u1EADp nh\u1EADt nguy\xEAn li\u1EC7u", `S\u1EEDa c\u1EA5u h\xECnh \u0111\u1ECBnh m\u1EE9c t\u1ED3n kho cho "${materials[mIdx].name}"`);
+  let actionDesc = `S\u1EEDa c\u1EA5u h\xECnh \u0111\u1ECBnh m\u1EE9c t\u1ED3n kho cho "${materials[mIdx].name}"`;
+  if (status && status !== oldStatus) {
+    actionDesc = status === "Ng\u1EEBng ho\u1EA1t \u0111\u1ED9ng" ? `Ng\u1EEBng s\u1EED d\u1EE5ng v\u1EADt t\u01B0 "${materials[mIdx].name}"` : `K\xEDch ho\u1EA1t l\u1EA1i v\u1EADt t\u01B0 "${materials[mIdx].name}"`;
+  }
+  logAction(operatorId || "system", operatorName || "Kho", "C\u1EADp nh\u1EADt nguy\xEAn li\u1EC7u", actionDesc);
   return res.json({ success: true, material: materials[mIdx] });
 });
 app.post("/api/materials/:id/adjust", (req, res) => {
@@ -1075,7 +1124,7 @@ app.post("/api/logs", (req, res) => {
 app.get("/api/reports/materials", (req, res) => {
   const from = req.query.from;
   const to = req.query.to;
-  const materials = db.get("raw_materials");
+  const materials = db.get("raw_materials").filter((mat) => mat.status !== "Ng\u1EEBng ho\u1EA1t \u0111\u1ED9ng");
   const txs = db.get("inventory_transactions");
   const filteredTxs = txs.filter((tx) => {
     const d = tx.created_at.split("T")[0];
@@ -1142,7 +1191,7 @@ app.get("/api/reports/export", (req, res) => {
     });
   } else if (type === "materials") {
     csvContent += "M\xE3 NVL,T\xEAn Nguy\xEAn Li\u1EC7u,\u0110\u01A1n V\u1ECB,T\u1ED3n \u0110\u1EA7u K\u1EF3,Nh\u1EADp Trong K\u1EF3,Xu\u1EA5t Ti\xEAu Th\u1EE5,T\u1ED3n Hi\u1EC7n T\u1EA1i\n";
-    const materials = db.get("raw_materials");
+    const materials = db.get("raw_materials").filter((mat) => mat.status !== "Ng\u1EEBng ho\u1EA1t \u0111\u1ED9ng");
     const txs = db.get("inventory_transactions");
     const filteredTxs = txs.filter((tx) => {
       const d = tx.created_at.split("T")[0];

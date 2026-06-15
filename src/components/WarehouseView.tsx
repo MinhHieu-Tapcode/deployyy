@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRestaurantStore } from '../data/store';
-import { Search, Plus, Trash2, PackageOpen, X, CheckCircle2 } from 'lucide-react';
+import { Search, Plus, Trash2, PackageOpen, X, CheckCircle2, Ban, RotateCcw } from 'lucide-react';
 import { RawMaterial } from '../types';
 
 type ImportRow = {
@@ -49,7 +49,7 @@ export default function WarehouseView() {
 
   // Tab 1 States
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'ok' | 'low' | 'out'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'ok' | 'low' | 'out' | 'inactive'>('all');
 
   // Tab 2 (Modal) States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -69,8 +69,9 @@ export default function WarehouseView() {
     let filtered = materials.filter(m => isMatch(m, searchQuery));
 
     filtered = filtered.map(m => {
-      let status: 'ok' | 'low' | 'out' = 'ok';
-      if (m.Ton_kho_hien_tai === 0) status = 'out';
+      let status: 'ok' | 'low' | 'out' | 'inactive' = 'ok';
+      if (m.Trang_thai === 'Ngừng hoạt động') status = 'inactive';
+      else if (m.Ton_kho_hien_tai === 0) status = 'out';
       else if (m.Ton_kho_hien_tai <= m.Ton_kho_toi_thieu) status = 'low';
       
       return { ...m, _status: status };
@@ -80,9 +81,9 @@ export default function WarehouseView() {
       filtered = filtered.filter(m => m._status === statusFilter);
     }
 
-    // Sort: 'out' -> 'low' -> 'ok'
+    // Sort: 'out' -> 'low' -> 'ok' -> 'inactive'
     filtered.sort((a, b) => {
-      const order = { 'out': 0, 'low': 1, 'ok': 2 };
+      const order = { 'out': 0, 'low': 1, 'ok': 2, 'inactive': 3 };
       return order[a._status] - order[b._status];
     });
 
@@ -201,8 +202,17 @@ export default function WarehouseView() {
   };
 
   const getFilteredMaterials = (query: string) => {
-    if (!query) return materials;
-    return materials.filter(m => isMatch(m, query));
+    const activeMaterials = materials.filter(m => m.Trang_thai !== 'Ngừng hoạt động');
+    if (!query) return activeMaterials;
+    return activeMaterials.filter(m => isMatch(m, query));
+  };
+
+  const handleToggleStatus = async (mat: RawMaterial) => {
+    const newStatus = mat.Trang_thai === 'Ngừng hoạt động' ? 'Hoạt động' : 'Ngừng hoạt động';
+    await updateMaterial({
+      ...mat,
+      Trang_thai: newStatus
+    });
   };
 
   const handleSubmitImport = async () => {
@@ -332,6 +342,7 @@ export default function WarehouseView() {
             <option value="ok">Đủ hàng</option>
             <option value="low">Sắp hết</option>
             <option value="out">Hết hàng</option>
+            <option value="inactive">Ngừng sử dụng</option>
           </select>
 
           <button
@@ -348,14 +359,15 @@ export default function WarehouseView() {
       <div className="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
         <div className="overflow-x-auto flex-1">
           {processedMaterials.length > 0 ? (
-            <table className="w-full text-left border-collapse min-w-[700px]">
+            <table className="w-full text-left border-collapse min-w-[750px]">
               <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase font-extrabold tracking-wider">
                   <th className="py-4 px-6 w-1/3">Tên nguyên liệu</th>
-                  <th className="py-4 px-6 w-1/6">Đơn vị tính</th>
+                  <th className="py-4 px-6 w-1/12">Đơn vị tính</th>
                   <th className="py-4 px-6 w-1/6 text-right">Tồn hiện tại</th>
                   <th className="py-4 px-6 w-1/6 text-right">Mức tối thiểu</th>
                   <th className="py-4 px-6 w-1/6 text-center">Trạng thái</th>
+                  <th className="py-4 px-6 w-1/6 text-center">Hành động</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -363,7 +375,10 @@ export default function WarehouseView() {
                   let badgeClass = '';
                   let badgeText = '';
 
-                  if (mat._status === 'ok') {
+                  if (mat._status === 'inactive') {
+                    badgeClass = 'bg-gray-100 text-gray-500 border border-gray-200';
+                    badgeText = 'Ngừng SD';
+                  } else if (mat._status === 'ok') {
                     badgeClass = 'bg-green-100 text-green-700';
                     badgeText = 'Đủ';
                   } else if (mat._status === 'low') {
@@ -374,15 +389,24 @@ export default function WarehouseView() {
                     badgeText = 'Hết';
                   }
 
+                  const isInactive = mat.Trang_thai === 'Ngừng hoạt động';
+
                   return (
-                    <tr key={mat.Ma_nvl} className="hover:bg-gray-50 transition-colors">
-                      <td className="py-4 px-6 font-bold text-gray-800 text-sm">
+                    <tr
+                      key={mat.Ma_nvl}
+                      className={`transition-colors ${
+                        isInactive
+                          ? 'bg-gray-50/40 text-gray-400 opacity-70 hover:bg-gray-100/40'
+                          : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      <td className={`py-4 px-6 font-bold text-sm ${isInactive ? 'text-gray-400 italic font-semibold' : 'text-gray-800'}`}>
                         {mat.Ten_nvl}
                       </td>
                       <td className="py-4 px-6 text-gray-500 text-sm font-medium">
                         {mat.Don_vi_tinh}
                       </td>
-                      <td className="py-4 px-6 text-right font-bold text-gray-800 text-base tabular-nums">
+                      <td className={`py-4 px-6 text-right font-bold text-base tabular-nums ${isInactive ? 'text-gray-400' : 'text-gray-800'}`}>
                         {mat.Ton_kho_hien_tai.toLocaleString()}
                       </td>
                       <td className="py-4 px-6 text-right text-gray-500 text-sm tabular-nums font-semibold">
@@ -392,6 +416,25 @@ export default function WarehouseView() {
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wide ${badgeClass}`}>
                           {badgeText}
                         </span>
+                      </td>
+                      <td className="py-4 px-6 text-center">
+                        {isInactive ? (
+                          <button
+                            onClick={() => handleToggleStatus(mat)}
+                            className="inline-flex items-center space-x-1 text-xs font-bold text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1.5 rounded-xl cursor-pointer transition-all active:scale-95 shadow-sm"
+                          >
+                            <RotateCcw size={12} />
+                            <span>Kích hoạt lại</span>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleToggleStatus(mat)}
+                            className="inline-flex items-center space-x-1 text-xs font-bold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1.5 rounded-xl cursor-pointer transition-all active:scale-95 shadow-sm"
+                          >
+                            <Ban size={12} />
+                            <span>Ngừng sử dụng</span>
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );

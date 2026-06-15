@@ -513,7 +513,9 @@ export default function KitchenKanban() {
                           <tbody className="divide-y divide-gray-100 font-medium">
                             {dishRecipes.map((rp, i) => {
                               const rawM = materials.find((m) => m.Ma_nvl === rp.Ma_nvl);
-                              const isLow = rawM ? rawM.Ton_kho_hien_tai <= rawM.Ton_kho_toi_thieu : false;
+                              const isLow = rawM
+                                ? rawM.Trang_thai !== 'Ngừng hoạt động' && rawM.Ton_kho_hien_tai <= rawM.Ton_kho_toi_thieu
+                                : false;
 
                               return (
                                 <tr key={i} className="hover:bg-gray-50/50">

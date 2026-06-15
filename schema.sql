@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS `raw_materials` (
   `stock_current` DECIMAL(12,2) NOT NULL,
   `stock_min` DECIMAL(12,2) NOT NULL,
   `stock_max` DECIMAL(12,2) NOT NULL,
+  `status` VARCHAR(50) NOT NULL DEFAULT 'Hoạt động',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

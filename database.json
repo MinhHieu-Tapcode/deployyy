@@ -78,7 +78,7 @@
       "id": "B04",
       "floor": 1,
       "capacity": 6,
-      "status": "co_khach"
+      "status": "trong"
     },
     {
       "id": "B05",
@@ -421,6 +421,10 @@
     {
       "id": "cust_1781467568088",
       "phone": "0327417039"
+    },
+    {
+      "id": "cust_1781496882675",
+      "phone": "0379174255"
     }
   ],
   "categories": [
@@ -2216,7 +2220,8 @@
       "unit": "kg",
       "stock_current": 0,
       "stock_min": 20,
-      "stock_max": 200
+      "stock_max": 200,
+      "status": "Ngừng hoạt động"
     },
     {
       "id": "nvl77",
@@ -2224,323 +2229,4285 @@
       "unit": "kg",
       "stock_current": 9,
       "stock_min": 10,
-      "stock_max": 100
+      "stock_max": 100,
+      "status": "Ngừng hoạt động"
     }
   ],
   "table_sessions": [
     {
-      "id": "s_B04_8092",
-      "table_id": "B04",
-      "customer_id": "cust_1781467568088",
-      "customer_phone": "0327417039",
-      "start_time": "2026-06-14T20:06:08.092Z",
-      "end_time": null,
-      "share_code": "EA97",
-      "status": "active",
-      "guests_count": 4,
-      "created_by": "mv001"
-    },
-    {
-      "id": "s_B01_1915",
+      "id": "s_B01_2681",
       "table_id": "B01",
-      "customer_id": "cust_1781465981908",
-      "customer_phone": "0977665544",
-      "start_time": "2026-06-14T19:39:41.915Z",
-      "end_time": "2026-06-15T01:39:42.127Z",
-      "share_code": "8S9G",
+      "customer_id": "cust_1781496882675",
+      "customer_phone": "0379174255",
+      "start_time": "2026-06-15T04:14:42.681Z",
+      "end_time": "2026-06-15T04:14:51.178Z",
+      "share_code": "KVQZ",
       "status": "completed",
-      "guests_count": 4,
+      "guests_count": 2,
+      "customer_name": "è",
       "created_by": "mv001"
     },
     {
-      "id": "s_B02_3485",
-      "table_id": "B02",
-      "customer_id": "cust_1781463102436",
-      "customer_phone": "0334750593",
-      "start_time": "2026-06-14T19:01:33.485Z",
-      "end_time": "2026-06-15T00:34:24.090Z",
-      "share_code": "COQ9",
+      "id": "s_hist_001",
+      "table_id": "B23",
+      "customer_id": null,
+      "start_time": "2026-06-12T18:46:07.058Z",
+      "end_time": "2026-06-12T18:46:07.058Z",
+      "share_code": "H001",
       "status": "completed",
-      "guests_count": 4,
-      "created_by": "mv001"
+      "guests_count": 7
     },
     {
-      "id": "s_B02_7102",
-      "table_id": "B02",
-      "customer_id": "cust_1781463102436",
-      "customer_phone": "0334750593",
-      "start_time": "2026-06-14T18:59:47.102Z",
-      "end_time": "2026-06-14T19:01:18.263Z",
-      "share_code": "GIPK",
-      "status": "completed",
-      "guests_count": 4,
-      "created_by": "mv001"
-    },
-    {
-      "id": "s_B02_1140",
-      "table_id": "B02",
-      "customer_id": "cust_1781463102436",
-      "customer_phone": "0334750593",
-      "start_time": "2026-06-14T18:58:41.140Z",
-      "end_time": "2026-06-14T18:59:38.641Z",
-      "share_code": "LUIX",
-      "status": "completed",
-      "guests_count": 4,
-      "created_by": "mv001"
-    },
-    {
-      "id": "s_B02_2441",
-      "table_id": "B02",
-      "customer_id": "cust_1781463102436",
-      "customer_phone": "0334750593",
-      "start_time": "2026-06-14T18:51:42.441Z",
-      "end_time": "2026-06-14T18:51:52.437Z",
-      "share_code": "8GPM",
-      "status": "completed",
-      "guests_count": 4,
-      "created_by": "mv001"
-    },
-    {
-      "id": "s_B03_4971",
-      "table_id": "B03",
-      "customer_id": "cust_1781449854968",
-      "customer_phone": "0986154978",
-      "start_time": "2026-06-14T15:10:54.971Z",
-      "end_time": "2026-06-15T00:36:42.004Z",
-      "share_code": "44W8",
-      "status": "completed",
-      "guests_count": 6,
-      "created_by": "mv002"
-    },
-    {
-      "id": "s_B04",
-      "table_id": "B04",
-      "customer_id": "kh001",
-      "start_time": "2026-06-13T20:01:37.659Z",
-      "end_time": "2026-06-14T20:03:39.551Z",
-      "share_code": "0987.654.321",
-      "status": "completed",
-      "guests_count": 4
-    },
-    {
-      "id": "s_B09",
-      "table_id": "B09",
-      "customer_id": "kh002",
-      "start_time": "2026-06-13T19:16:37.659Z",
-      "end_time": "2026-06-15T00:36:42.004Z",
-      "share_code": "0912.345.678",
+      "id": "s_hist_002",
+      "table_id": "B24",
+      "customer_id": null,
+      "start_time": "2026-06-08T12:13:49.091Z",
+      "end_time": "2026-06-08T12:13:49.091Z",
+      "share_code": "H002",
       "status": "completed",
       "guests_count": 5
     },
     {
-      "id": "s_B14",
-      "table_id": "B14",
-      "customer_id": "kh003",
-      "start_time": "2026-06-13T11:31:37.659Z",
-      "end_time": "2026-06-15T00:36:42.004Z",
-      "share_code": "0934.567.890",
+      "id": "s_hist_003",
+      "table_id": "B19",
+      "customer_id": null,
+      "start_time": "2026-06-12T09:29:26.392Z",
+      "end_time": "2026-06-12T09:29:26.392Z",
+      "share_code": "H003",
+      "status": "completed",
+      "guests_count": 5
+    },
+    {
+      "id": "s_hist_004",
+      "table_id": "B16",
+      "customer_id": null,
+      "start_time": "2026-06-09T03:48:44.956Z",
+      "end_time": "2026-06-09T03:48:44.956Z",
+      "share_code": "H004",
+      "status": "completed",
+      "guests_count": 6
+    },
+    {
+      "id": "s_hist_005",
+      "table_id": "B40",
+      "customer_id": null,
+      "start_time": "2026-06-12T22:55:48.958Z",
+      "end_time": "2026-06-12T22:55:48.958Z",
+      "share_code": "H005",
+      "status": "completed",
+      "guests_count": 5
+    },
+    {
+      "id": "s_hist_006",
+      "table_id": "B52",
+      "customer_id": null,
+      "start_time": "2026-06-12T13:40:45.052Z",
+      "end_time": "2026-06-12T13:40:45.052Z",
+      "share_code": "H006",
+      "status": "completed",
+      "guests_count": 4
+    },
+    {
+      "id": "s_hist_007",
+      "table_id": "B25",
+      "customer_id": null,
+      "start_time": "2026-06-15T00:00:41.680Z",
+      "end_time": "2026-06-15T00:00:41.680Z",
+      "share_code": "H007",
+      "status": "completed",
+      "guests_count": 6
+    },
+    {
+      "id": "s_hist_008",
+      "table_id": "B47",
+      "customer_id": null,
+      "start_time": "2026-06-14T13:59:21.884Z",
+      "end_time": "2026-06-14T13:59:21.884Z",
+      "share_code": "H008",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_009",
+      "table_id": "B41",
+      "customer_id": null,
+      "start_time": "2026-06-10T07:06:05.624Z",
+      "end_time": "2026-06-10T07:06:05.624Z",
+      "share_code": "H009",
+      "status": "completed",
+      "guests_count": 7
+    },
+    {
+      "id": "s_hist_010",
+      "table_id": "B27",
+      "customer_id": null,
+      "start_time": "2026-06-11T19:27:02.569Z",
+      "end_time": "2026-06-11T19:27:02.569Z",
+      "share_code": "H010",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_011",
+      "table_id": "B01",
+      "customer_id": null,
+      "start_time": "2026-06-10T02:43:19.370Z",
+      "end_time": "2026-06-10T02:43:19.370Z",
+      "share_code": "H011",
+      "status": "completed",
+      "guests_count": 4
+    },
+    {
+      "id": "s_hist_012",
+      "table_id": "B52",
+      "customer_id": null,
+      "start_time": "2026-06-14T15:48:19.001Z",
+      "end_time": "2026-06-14T15:48:19.001Z",
+      "share_code": "H012",
+      "status": "completed",
+      "guests_count": 6
+    },
+    {
+      "id": "s_hist_013",
+      "table_id": "B20",
+      "customer_id": null,
+      "start_time": "2026-06-12T17:26:38.664Z",
+      "end_time": "2026-06-12T17:26:38.664Z",
+      "share_code": "H013",
+      "status": "completed",
+      "guests_count": 3
+    },
+    {
+      "id": "s_hist_014",
+      "table_id": "B32",
+      "customer_id": null,
+      "start_time": "2026-06-10T09:09:15.690Z",
+      "end_time": "2026-06-10T09:09:15.690Z",
+      "share_code": "H014",
       "status": "completed",
       "guests_count": 2
+    },
+    {
+      "id": "s_hist_015",
+      "table_id": "B50",
+      "customer_id": null,
+      "start_time": "2026-06-13T21:26:52.182Z",
+      "end_time": "2026-06-13T21:26:52.182Z",
+      "share_code": "H015",
+      "status": "completed",
+      "guests_count": 2
+    },
+    {
+      "id": "s_hist_016",
+      "table_id": "B40",
+      "customer_id": null,
+      "start_time": "2026-06-08T13:12:24.024Z",
+      "end_time": "2026-06-08T13:12:24.024Z",
+      "share_code": "H016",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_017",
+      "table_id": "B04",
+      "customer_id": null,
+      "start_time": "2026-06-10T11:54:17.881Z",
+      "end_time": "2026-06-10T11:54:17.881Z",
+      "share_code": "H017",
+      "status": "completed",
+      "guests_count": 3
+    },
+    {
+      "id": "s_hist_018",
+      "table_id": "B41",
+      "customer_id": null,
+      "start_time": "2026-06-10T12:27:31.523Z",
+      "end_time": "2026-06-10T12:27:31.523Z",
+      "share_code": "H018",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_019",
+      "table_id": "B46",
+      "customer_id": null,
+      "start_time": "2026-06-09T06:32:54.096Z",
+      "end_time": "2026-06-09T06:32:54.096Z",
+      "share_code": "H019",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_020",
+      "table_id": "B55",
+      "customer_id": null,
+      "start_time": "2026-06-10T21:05:46.759Z",
+      "end_time": "2026-06-10T21:05:46.759Z",
+      "share_code": "H020",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_021",
+      "table_id": "B50",
+      "customer_id": null,
+      "start_time": "2026-06-09T23:18:37.063Z",
+      "end_time": "2026-06-09T23:18:37.063Z",
+      "share_code": "H021",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_022",
+      "table_id": "B19",
+      "customer_id": null,
+      "start_time": "2026-06-08T16:41:10.265Z",
+      "end_time": "2026-06-08T16:41:10.265Z",
+      "share_code": "H022",
+      "status": "completed",
+      "guests_count": 6
+    },
+    {
+      "id": "s_hist_023",
+      "table_id": "B22",
+      "customer_id": null,
+      "start_time": "2026-06-09T03:36:25.107Z",
+      "end_time": "2026-06-09T03:36:25.107Z",
+      "share_code": "H023",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_024",
+      "table_id": "B11",
+      "customer_id": null,
+      "start_time": "2026-06-09T21:38:30.177Z",
+      "end_time": "2026-06-09T21:38:30.177Z",
+      "share_code": "H024",
+      "status": "completed",
+      "guests_count": 4
+    },
+    {
+      "id": "s_hist_025",
+      "table_id": "B55",
+      "customer_id": null,
+      "start_time": "2026-06-12T04:09:17.061Z",
+      "end_time": "2026-06-12T04:09:17.061Z",
+      "share_code": "H025",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_026",
+      "table_id": "B39",
+      "customer_id": null,
+      "start_time": "2026-06-10T23:15:58.781Z",
+      "end_time": "2026-06-10T23:15:58.781Z",
+      "share_code": "H026",
+      "status": "completed",
+      "guests_count": 6
+    },
+    {
+      "id": "s_hist_027",
+      "table_id": "B08",
+      "customer_id": null,
+      "start_time": "2026-06-13T00:05:16.808Z",
+      "end_time": "2026-06-13T00:05:16.808Z",
+      "share_code": "H027",
+      "status": "completed",
+      "guests_count": 5
+    },
+    {
+      "id": "s_hist_028",
+      "table_id": "B23",
+      "customer_id": null,
+      "start_time": "2026-06-11T18:50:55.001Z",
+      "end_time": "2026-06-11T18:50:55.001Z",
+      "share_code": "H028",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_029",
+      "table_id": "B11",
+      "customer_id": null,
+      "start_time": "2026-06-11T18:33:18.428Z",
+      "end_time": "2026-06-11T18:33:18.428Z",
+      "share_code": "H029",
+      "status": "completed",
+      "guests_count": 2
+    },
+    {
+      "id": "s_hist_030",
+      "table_id": "B37",
+      "customer_id": null,
+      "start_time": "2026-06-12T22:59:42.314Z",
+      "end_time": "2026-06-12T22:59:42.314Z",
+      "share_code": "H030",
+      "status": "completed",
+      "guests_count": 7
+    },
+    {
+      "id": "s_hist_031",
+      "table_id": "B02",
+      "customer_id": null,
+      "start_time": "2026-06-13T15:07:27.310Z",
+      "end_time": "2026-06-13T15:07:27.310Z",
+      "share_code": "H031",
+      "status": "completed",
+      "guests_count": 2
+    },
+    {
+      "id": "s_hist_032",
+      "table_id": "B23",
+      "customer_id": null,
+      "start_time": "2026-06-12T22:05:07.270Z",
+      "end_time": "2026-06-12T22:05:07.270Z",
+      "share_code": "H032",
+      "status": "completed",
+      "guests_count": 3
+    },
+    {
+      "id": "s_hist_033",
+      "table_id": "B16",
+      "customer_id": null,
+      "start_time": "2026-06-09T00:50:57.389Z",
+      "end_time": "2026-06-09T00:50:57.389Z",
+      "share_code": "H033",
+      "status": "completed",
+      "guests_count": 7
+    },
+    {
+      "id": "s_hist_034",
+      "table_id": "B12",
+      "customer_id": null,
+      "start_time": "2026-06-11T08:46:05.650Z",
+      "end_time": "2026-06-11T08:46:05.650Z",
+      "share_code": "H034",
+      "status": "completed",
+      "guests_count": 7
+    },
+    {
+      "id": "s_hist_035",
+      "table_id": "B32",
+      "customer_id": null,
+      "start_time": "2026-06-11T08:13:41.313Z",
+      "end_time": "2026-06-11T08:13:41.313Z",
+      "share_code": "H035",
+      "status": "completed",
+      "guests_count": 2
+    },
+    {
+      "id": "s_hist_036",
+      "table_id": "B15",
+      "customer_id": null,
+      "start_time": "2026-06-14T00:32:20.444Z",
+      "end_time": "2026-06-14T00:32:20.444Z",
+      "share_code": "H036",
+      "status": "completed",
+      "guests_count": 7
+    },
+    {
+      "id": "s_hist_037",
+      "table_id": "B49",
+      "customer_id": null,
+      "start_time": "2026-06-14T01:11:06.506Z",
+      "end_time": "2026-06-14T01:11:06.506Z",
+      "share_code": "H037",
+      "status": "completed",
+      "guests_count": 7
+    },
+    {
+      "id": "s_hist_038",
+      "table_id": "B39",
+      "customer_id": null,
+      "start_time": "2026-06-12T03:33:25.808Z",
+      "end_time": "2026-06-12T03:33:25.808Z",
+      "share_code": "H038",
+      "status": "completed",
+      "guests_count": 7
+    },
+    {
+      "id": "s_hist_039",
+      "table_id": "B34",
+      "customer_id": null,
+      "start_time": "2026-06-09T12:48:13.739Z",
+      "end_time": "2026-06-09T12:48:13.739Z",
+      "share_code": "H039",
+      "status": "completed",
+      "guests_count": 5
+    },
+    {
+      "id": "s_hist_040",
+      "table_id": "B30",
+      "customer_id": null,
+      "start_time": "2026-06-11T06:41:24.890Z",
+      "end_time": "2026-06-11T06:41:24.890Z",
+      "share_code": "H040",
+      "status": "completed",
+      "guests_count": 3
+    },
+    {
+      "id": "s_hist_041",
+      "table_id": "B36",
+      "customer_id": null,
+      "start_time": "2026-06-13T03:27:26.873Z",
+      "end_time": "2026-06-13T03:27:26.873Z",
+      "share_code": "H041",
+      "status": "completed",
+      "guests_count": 2
+    },
+    {
+      "id": "s_hist_042",
+      "table_id": "B56",
+      "customer_id": null,
+      "start_time": "2026-06-10T17:33:09.037Z",
+      "end_time": "2026-06-10T17:33:09.037Z",
+      "share_code": "H042",
+      "status": "completed",
+      "guests_count": 3
+    },
+    {
+      "id": "s_hist_043",
+      "table_id": "B50",
+      "customer_id": null,
+      "start_time": "2026-06-11T21:03:27.176Z",
+      "end_time": "2026-06-11T21:03:27.176Z",
+      "share_code": "H043",
+      "status": "completed",
+      "guests_count": 2
+    },
+    {
+      "id": "s_hist_044",
+      "table_id": "B11",
+      "customer_id": null,
+      "start_time": "2026-06-14T11:05:29.722Z",
+      "end_time": "2026-06-14T11:05:29.722Z",
+      "share_code": "H044",
+      "status": "completed",
+      "guests_count": 7
+    },
+    {
+      "id": "s_hist_045",
+      "table_id": "B01",
+      "customer_id": null,
+      "start_time": "2026-06-11T12:24:03.326Z",
+      "end_time": "2026-06-11T12:24:03.326Z",
+      "share_code": "H045",
+      "status": "completed",
+      "guests_count": 7
+    },
+    {
+      "id": "s_hist_046",
+      "table_id": "B21",
+      "customer_id": null,
+      "start_time": "2026-06-10T06:55:20.959Z",
+      "end_time": "2026-06-10T06:55:20.959Z",
+      "share_code": "H046",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_047",
+      "table_id": "B44",
+      "customer_id": null,
+      "start_time": "2026-06-11T17:06:19.484Z",
+      "end_time": "2026-06-11T17:06:19.484Z",
+      "share_code": "H047",
+      "status": "completed",
+      "guests_count": 3
+    },
+    {
+      "id": "s_hist_048",
+      "table_id": "B20",
+      "customer_id": null,
+      "start_time": "2026-06-09T09:54:03.359Z",
+      "end_time": "2026-06-09T09:54:03.359Z",
+      "share_code": "H048",
+      "status": "completed",
+      "guests_count": 5
+    },
+    {
+      "id": "s_hist_049",
+      "table_id": "B49",
+      "customer_id": null,
+      "start_time": "2026-06-11T14:47:47.004Z",
+      "end_time": "2026-06-11T14:47:47.004Z",
+      "share_code": "H049",
+      "status": "completed",
+      "guests_count": 5
+    },
+    {
+      "id": "s_hist_050",
+      "table_id": "B30",
+      "customer_id": null,
+      "start_time": "2026-06-15T02:01:46.324Z",
+      "end_time": "2026-06-15T02:01:46.324Z",
+      "share_code": "H050",
+      "status": "completed",
+      "guests_count": 2
+    },
+    {
+      "id": "s_hist_051",
+      "table_id": "B18",
+      "customer_id": null,
+      "start_time": "2026-06-11T10:14:18.428Z",
+      "end_time": "2026-06-11T10:14:18.428Z",
+      "share_code": "H051",
+      "status": "completed",
+      "guests_count": 2
+    },
+    {
+      "id": "s_hist_052",
+      "table_id": "B45",
+      "customer_id": null,
+      "start_time": "2026-06-08T22:07:40.633Z",
+      "end_time": "2026-06-08T22:07:40.633Z",
+      "share_code": "H052",
+      "status": "completed",
+      "guests_count": 2
+    },
+    {
+      "id": "s_hist_053",
+      "table_id": "B30",
+      "customer_id": null,
+      "start_time": "2026-06-14T06:23:31.318Z",
+      "end_time": "2026-06-14T06:23:31.318Z",
+      "share_code": "H053",
+      "status": "completed",
+      "guests_count": 6
+    },
+    {
+      "id": "s_hist_054",
+      "table_id": "B07",
+      "customer_id": null,
+      "start_time": "2026-06-10T09:04:39.524Z",
+      "end_time": "2026-06-10T09:04:39.524Z",
+      "share_code": "H054",
+      "status": "completed",
+      "guests_count": 6
+    },
+    {
+      "id": "s_hist_055",
+      "table_id": "B25",
+      "customer_id": null,
+      "start_time": "2026-06-09T23:47:23.695Z",
+      "end_time": "2026-06-09T23:47:23.695Z",
+      "share_code": "H055",
+      "status": "completed",
+      "guests_count": 3
+    },
+    {
+      "id": "s_hist_056",
+      "table_id": "B09",
+      "customer_id": null,
+      "start_time": "2026-06-09T14:00:27.258Z",
+      "end_time": "2026-06-09T14:00:27.258Z",
+      "share_code": "H056",
+      "status": "completed",
+      "guests_count": 5
+    },
+    {
+      "id": "s_hist_057",
+      "table_id": "B04",
+      "customer_id": null,
+      "start_time": "2026-06-14T01:31:59.719Z",
+      "end_time": "2026-06-14T01:31:59.719Z",
+      "share_code": "H057",
+      "status": "completed",
+      "guests_count": 4
+    },
+    {
+      "id": "s_hist_058",
+      "table_id": "B11",
+      "customer_id": null,
+      "start_time": "2026-06-12T16:06:43.186Z",
+      "end_time": "2026-06-12T16:06:43.186Z",
+      "share_code": "H058",
+      "status": "completed",
+      "guests_count": 6
+    },
+    {
+      "id": "s_hist_059",
+      "table_id": "B39",
+      "customer_id": null,
+      "start_time": "2026-06-09T20:51:11.444Z",
+      "end_time": "2026-06-09T20:51:11.444Z",
+      "share_code": "H059",
+      "status": "completed",
+      "guests_count": 4
+    },
+    {
+      "id": "s_hist_060",
+      "table_id": "B06",
+      "customer_id": null,
+      "start_time": "2026-06-09T22:30:24.320Z",
+      "end_time": "2026-06-09T22:30:24.320Z",
+      "share_code": "H060",
+      "status": "completed",
+      "guests_count": 5
+    },
+    {
+      "id": "s_hist_061",
+      "table_id": "B30",
+      "customer_id": null,
+      "start_time": "2026-06-10T03:30:25.749Z",
+      "end_time": "2026-06-10T03:30:25.749Z",
+      "share_code": "H061",
+      "status": "completed",
+      "guests_count": 8
+    },
+    {
+      "id": "s_hist_062",
+      "table_id": "B48",
+      "customer_id": null,
+      "start_time": "2026-06-13T19:19:21.113Z",
+      "end_time": "2026-06-13T19:19:21.113Z",
+      "share_code": "H062",
+      "status": "completed",
+      "guests_count": 6
+    },
+    {
+      "id": "s_hist_063",
+      "table_id": "B32",
+      "customer_id": null,
+      "start_time": "2026-06-12T03:59:50.049Z",
+      "end_time": "2026-06-12T03:59:50.049Z",
+      "share_code": "H063",
+      "status": "completed",
+      "guests_count": 4
+    },
+    {
+      "id": "s_hist_064",
+      "table_id": "B45",
+      "customer_id": null,
+      "start_time": "2026-06-09T05:38:57.257Z",
+      "end_time": "2026-06-09T05:38:57.257Z",
+      "share_code": "H064",
+      "status": "completed",
+      "guests_count": 6
     }
   ],
   "orders": [
     {
-      "id": "o_B02_1424",
-      "session_id": "s_B02_3485",
-      "created_at": "2026-06-15T00:28:41.428Z",
-      "service_status": "Đang chuẩn bị",
-      "total_amount": 25000
-    },
-    {
-      "id": "o_B02_7973",
-      "session_id": "s_B02_3485",
-      "created_at": "2026-06-14T20:19:07.979Z",
+      "id": "o_hist_001",
+      "session_id": "s_hist_001",
+      "created_at": "2026-06-12T18:46:07.058Z",
       "service_status": "Đã phục vụ",
-      "total_amount": 320000
+      "total_amount": 1709000
     },
     {
-      "id": "o_B02_7789",
-      "session_id": "s_B02_3485",
-      "created_at": "2026-06-14T19:18:17.792Z",
-      "service_status": "Đang chuẩn bị",
-      "total_amount": 1678000
-    },
-    {
-      "id": "o_B02_4479",
-      "session_id": "s_B02_3485",
-      "created_at": "2026-06-14T19:14:04.481Z",
-      "service_status": "Đang chế biến",
-      "total_amount": 1220000
-    },
-    {
-      "id": "o_B02_1657",
-      "session_id": "s_B02_3485",
-      "created_at": "2026-06-14T19:04:01.660Z",
+      "id": "o_hist_002",
+      "session_id": "s_hist_002",
+      "created_at": "2026-06-08T12:13:49.091Z",
       "service_status": "Đã phục vụ",
-      "total_amount": 1540000
+      "total_amount": 1649000
     },
     {
-      "id": "o_B04_1",
-      "session_id": "s_B04",
-      "created_at": "2026-06-13T20:06:37.659Z",
-      "service_status": "Đang chế biến",
-      "total_amount": 617000
-    },
-    {
-      "id": "o_B09_1",
-      "session_id": "s_B09",
-      "created_at": "2026-06-13T20:36:37.659Z",
-      "service_status": "Đang chế biến",
-      "total_amount": 1680000
-    },
-    {
-      "id": "o_B14_1",
-      "session_id": "s_B14",
-      "created_at": "2026-06-13T19:21:37.659Z",
+      "id": "o_hist_003",
+      "session_id": "s_hist_003",
+      "created_at": "2026-06-12T09:29:26.392Z",
       "service_status": "Đã phục vụ",
-      "total_amount": 1250000
+      "total_amount": 2097000
+    },
+    {
+      "id": "o_hist_004",
+      "session_id": "s_hist_004",
+      "created_at": "2026-06-09T03:48:44.956Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1962000
+    },
+    {
+      "id": "o_hist_005",
+      "session_id": "s_hist_005",
+      "created_at": "2026-06-12T22:55:48.958Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1479000
+    },
+    {
+      "id": "o_hist_006",
+      "session_id": "s_hist_006",
+      "created_at": "2026-06-12T13:40:45.052Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1707000
+    },
+    {
+      "id": "o_hist_007",
+      "session_id": "s_hist_007",
+      "created_at": "2026-06-15T00:00:41.680Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1776000
+    },
+    {
+      "id": "o_hist_008",
+      "session_id": "s_hist_008",
+      "created_at": "2026-06-14T13:59:21.884Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2047000
+    },
+    {
+      "id": "o_hist_009",
+      "session_id": "s_hist_009",
+      "created_at": "2026-06-10T07:06:05.624Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2423000
+    },
+    {
+      "id": "o_hist_010",
+      "session_id": "s_hist_010",
+      "created_at": "2026-06-11T19:27:02.569Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2389000
+    },
+    {
+      "id": "o_hist_011",
+      "session_id": "s_hist_011",
+      "created_at": "2026-06-10T02:43:19.370Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1727000
+    },
+    {
+      "id": "o_hist_012",
+      "session_id": "s_hist_012",
+      "created_at": "2026-06-14T15:48:19.001Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2054000
+    },
+    {
+      "id": "o_hist_013",
+      "session_id": "s_hist_013",
+      "created_at": "2026-06-12T17:26:38.664Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1341000
+    },
+    {
+      "id": "o_hist_014",
+      "session_id": "s_hist_014",
+      "created_at": "2026-06-10T09:09:15.690Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1227000
+    },
+    {
+      "id": "o_hist_015",
+      "session_id": "s_hist_015",
+      "created_at": "2026-06-13T21:26:52.182Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1380000
+    },
+    {
+      "id": "o_hist_016",
+      "session_id": "s_hist_016",
+      "created_at": "2026-06-08T13:12:24.024Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2414000
+    },
+    {
+      "id": "o_hist_017",
+      "session_id": "s_hist_017",
+      "created_at": "2026-06-10T11:54:17.881Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1625000
+    },
+    {
+      "id": "o_hist_018",
+      "session_id": "s_hist_018",
+      "created_at": "2026-06-10T12:27:31.523Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2354000
+    },
+    {
+      "id": "o_hist_019",
+      "session_id": "s_hist_019",
+      "created_at": "2026-06-09T06:32:54.096Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2010000
+    },
+    {
+      "id": "o_hist_020",
+      "session_id": "s_hist_020",
+      "created_at": "2026-06-10T21:05:46.759Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1909000
+    },
+    {
+      "id": "o_hist_021",
+      "session_id": "s_hist_021",
+      "created_at": "2026-06-09T23:18:37.063Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2722000
+    },
+    {
+      "id": "o_hist_022",
+      "session_id": "s_hist_022",
+      "created_at": "2026-06-08T16:41:10.265Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2606000
+    },
+    {
+      "id": "o_hist_023",
+      "session_id": "s_hist_023",
+      "created_at": "2026-06-09T03:36:25.107Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2239000
+    },
+    {
+      "id": "o_hist_024",
+      "session_id": "s_hist_024",
+      "created_at": "2026-06-09T21:38:30.177Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1241000
+    },
+    {
+      "id": "o_hist_025",
+      "session_id": "s_hist_025",
+      "created_at": "2026-06-12T04:09:17.061Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1644000
+    },
+    {
+      "id": "o_hist_026",
+      "session_id": "s_hist_026",
+      "created_at": "2026-06-10T23:15:58.781Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2120000
+    },
+    {
+      "id": "o_hist_027",
+      "session_id": "s_hist_027",
+      "created_at": "2026-06-13T00:05:16.808Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1361000
+    },
+    {
+      "id": "o_hist_028",
+      "session_id": "s_hist_028",
+      "created_at": "2026-06-11T18:50:55.001Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2354000
+    },
+    {
+      "id": "o_hist_029",
+      "session_id": "s_hist_029",
+      "created_at": "2026-06-11T18:33:18.428Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 937000
+    },
+    {
+      "id": "o_hist_030",
+      "session_id": "s_hist_030",
+      "created_at": "2026-06-12T22:59:42.314Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2039000
+    },
+    {
+      "id": "o_hist_031",
+      "session_id": "s_hist_031",
+      "created_at": "2026-06-13T15:07:27.310Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 991000
+    },
+    {
+      "id": "o_hist_032",
+      "session_id": "s_hist_032",
+      "created_at": "2026-06-12T22:05:07.270Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1914000
+    },
+    {
+      "id": "o_hist_033",
+      "session_id": "s_hist_033",
+      "created_at": "2026-06-09T00:50:57.389Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1955000
+    },
+    {
+      "id": "o_hist_034",
+      "session_id": "s_hist_034",
+      "created_at": "2026-06-11T08:46:05.650Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2202000
+    },
+    {
+      "id": "o_hist_035",
+      "session_id": "s_hist_035",
+      "created_at": "2026-06-11T08:13:41.313Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 861000
+    },
+    {
+      "id": "o_hist_036",
+      "session_id": "s_hist_036",
+      "created_at": "2026-06-14T00:32:20.444Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2041000
+    },
+    {
+      "id": "o_hist_037",
+      "session_id": "s_hist_037",
+      "created_at": "2026-06-14T01:11:06.506Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1659000
+    },
+    {
+      "id": "o_hist_038",
+      "session_id": "s_hist_038",
+      "created_at": "2026-06-12T03:33:25.808Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2516000
+    },
+    {
+      "id": "o_hist_039",
+      "session_id": "s_hist_039",
+      "created_at": "2026-06-09T12:48:13.739Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1291000
+    },
+    {
+      "id": "o_hist_040",
+      "session_id": "s_hist_040",
+      "created_at": "2026-06-11T06:41:24.890Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 801000
+    },
+    {
+      "id": "o_hist_041",
+      "session_id": "s_hist_041",
+      "created_at": "2026-06-13T03:27:26.873Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 835000
+    },
+    {
+      "id": "o_hist_042",
+      "session_id": "s_hist_042",
+      "created_at": "2026-06-10T17:33:09.037Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1236000
+    },
+    {
+      "id": "o_hist_043",
+      "session_id": "s_hist_043",
+      "created_at": "2026-06-11T21:03:27.176Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1394000
+    },
+    {
+      "id": "o_hist_044",
+      "session_id": "s_hist_044",
+      "created_at": "2026-06-14T11:05:29.722Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1729000
+    },
+    {
+      "id": "o_hist_045",
+      "session_id": "s_hist_045",
+      "created_at": "2026-06-11T12:24:03.326Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2342000
+    },
+    {
+      "id": "o_hist_046",
+      "session_id": "s_hist_046",
+      "created_at": "2026-06-10T06:55:20.959Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1967000
+    },
+    {
+      "id": "o_hist_047",
+      "session_id": "s_hist_047",
+      "created_at": "2026-06-11T17:06:19.484Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1486000
+    },
+    {
+      "id": "o_hist_048",
+      "session_id": "s_hist_048",
+      "created_at": "2026-06-09T09:54:03.359Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1764000
+    },
+    {
+      "id": "o_hist_049",
+      "session_id": "s_hist_049",
+      "created_at": "2026-06-11T14:47:47.004Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1201000
+    },
+    {
+      "id": "o_hist_050",
+      "session_id": "s_hist_050",
+      "created_at": "2026-06-15T02:01:46.324Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 929000
+    },
+    {
+      "id": "o_hist_051",
+      "session_id": "s_hist_051",
+      "created_at": "2026-06-11T10:14:18.428Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 863000
+    },
+    {
+      "id": "o_hist_052",
+      "session_id": "s_hist_052",
+      "created_at": "2026-06-08T22:07:40.633Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 681000
+    },
+    {
+      "id": "o_hist_053",
+      "session_id": "s_hist_053",
+      "created_at": "2026-06-14T06:23:31.318Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1914000
+    },
+    {
+      "id": "o_hist_054",
+      "session_id": "s_hist_054",
+      "created_at": "2026-06-10T09:04:39.524Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1171000
+    },
+    {
+      "id": "o_hist_055",
+      "session_id": "s_hist_055",
+      "created_at": "2026-06-09T23:47:23.695Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1829000
+    },
+    {
+      "id": "o_hist_056",
+      "session_id": "s_hist_056",
+      "created_at": "2026-06-09T14:00:27.258Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1975000
+    },
+    {
+      "id": "o_hist_057",
+      "session_id": "s_hist_057",
+      "created_at": "2026-06-14T01:31:59.719Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 949000
+    },
+    {
+      "id": "o_hist_058",
+      "session_id": "s_hist_058",
+      "created_at": "2026-06-12T16:06:43.186Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2240000
+    },
+    {
+      "id": "o_hist_059",
+      "session_id": "s_hist_059",
+      "created_at": "2026-06-09T20:51:11.444Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 821000
+    },
+    {
+      "id": "o_hist_060",
+      "session_id": "s_hist_060",
+      "created_at": "2026-06-09T22:30:24.320Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1315000
+    },
+    {
+      "id": "o_hist_061",
+      "session_id": "s_hist_061",
+      "created_at": "2026-06-10T03:30:25.749Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 2273000
+    },
+    {
+      "id": "o_hist_062",
+      "session_id": "s_hist_062",
+      "created_at": "2026-06-13T19:19:21.113Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1644000
+    },
+    {
+      "id": "o_hist_063",
+      "session_id": "s_hist_063",
+      "created_at": "2026-06-12T03:59:50.049Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1509000
+    },
+    {
+      "id": "o_hist_064",
+      "session_id": "s_hist_064",
+      "created_at": "2026-06-09T05:38:57.257Z",
+      "service_status": "Đã phục vụ",
+      "total_amount": 1979000
     }
   ],
   "order_details": [
     {
-      "id": "od_1781483321428_0",
-      "order_id": "o_B02_1424",
-      "dish_id": "m10",
+      "id": "od_hist_001_m03",
+      "order_id": "o_hist_001",
+      "dish_id": "m03",
       "quantity": 1,
-      "price_at_time": 25000,
-      "item_status": "Đang chờ",
-      "notes": "",
-      "ordered_at": "2026-06-15T00:28:41.428Z"
-    },
-    {
-      "id": "od_1781468347978_0",
-      "order_id": "o_B02_7973",
-      "dish_id": "m34",
-      "quantity": 1,
-      "price_at_time": 320000,
+      "price_at_time": 1519000,
       "item_status": "Đã phục vụ",
       "notes": "",
-      "ordered_at": "2026-06-14T20:19:07.978Z"
+      "ordered_at": "2026-06-12T18:46:07.058Z"
     },
     {
-      "id": "od_1781464697792_0",
-      "order_id": "o_B02_7789",
+      "id": "od_hist_001_m11",
+      "order_id": "o_hist_001",
+      "dish_id": "m11",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T18:46:07.058Z"
+    },
+    {
+      "id": "od_hist_001_m24",
+      "order_id": "o_hist_001",
+      "dish_id": "m24",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T18:46:07.058Z"
+    },
+    {
+      "id": "od_hist_001_m43",
+      "order_id": "o_hist_001",
+      "dish_id": "m43",
+      "quantity": 4,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T18:46:07.058Z"
+    },
+    {
+      "id": "od_hist_001_m13",
+      "order_id": "o_hist_001",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T18:46:07.058Z"
+    },
+    {
+      "id": "od_hist_002_m03",
+      "order_id": "o_hist_002",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T12:13:49.091Z"
+    },
+    {
+      "id": "od_hist_002_m11",
+      "order_id": "o_hist_002",
+      "dish_id": "m11",
+      "quantity": 3,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T12:13:49.091Z"
+    },
+    {
+      "id": "od_hist_002_m24",
+      "order_id": "o_hist_002",
+      "dish_id": "m24",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T12:13:49.091Z"
+    },
+    {
+      "id": "od_hist_002_m43",
+      "order_id": "o_hist_002",
+      "dish_id": "m43",
+      "quantity": 4,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T12:13:49.091Z"
+    },
+    {
+      "id": "od_hist_003_m01",
+      "order_id": "o_hist_003",
+      "dish_id": "m01",
+      "quantity": 1,
+      "price_at_time": 1730000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T09:29:26.392Z"
+    },
+    {
+      "id": "od_hist_003_m40",
+      "order_id": "o_hist_003",
+      "dish_id": "m40",
+      "quantity": 1,
+      "price_at_time": 65000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T09:29:26.392Z"
+    },
+    {
+      "id": "od_hist_003_m35",
+      "order_id": "o_hist_003",
+      "dish_id": "m35",
+      "quantity": 1,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T09:29:26.392Z"
+    },
+    {
+      "id": "od_hist_003_m18",
+      "order_id": "o_hist_003",
+      "dish_id": "m18",
+      "quantity": 7,
+      "price_at_time": 12000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T09:29:26.392Z"
+    },
+    {
+      "id": "od_hist_003_m10",
+      "order_id": "o_hist_003",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T09:29:26.392Z"
+    },
+    {
+      "id": "od_hist_003_m21",
+      "order_id": "o_hist_003",
+      "dish_id": "m21",
+      "quantity": 2,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T09:29:26.392Z"
+    },
+    {
+      "id": "od_hist_004_m04",
+      "order_id": "o_hist_004",
+      "dish_id": "m04",
+      "quantity": 1,
+      "price_at_time": 1220000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T03:48:44.956Z"
+    },
+    {
+      "id": "od_hist_004_m32",
+      "order_id": "o_hist_004",
+      "dish_id": "m32",
+      "quantity": 2,
+      "price_at_time": 270000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T03:48:44.956Z"
+    },
+    {
+      "id": "od_hist_004_m38",
+      "order_id": "o_hist_004",
+      "dish_id": "m38",
+      "quantity": 1,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T03:48:44.956Z"
+    },
+    {
+      "id": "od_hist_004_m17",
+      "order_id": "o_hist_004",
+      "dish_id": "m17",
+      "quantity": 2,
+      "price_at_time": 45000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T03:48:44.956Z"
+    },
+    {
+      "id": "od_hist_004_m10",
+      "order_id": "o_hist_004",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T03:48:44.956Z"
+    },
+    {
+      "id": "od_hist_005_m08",
+      "order_id": "o_hist_005",
+      "dish_id": "m08",
+      "quantity": 1,
+      "price_at_time": 1055000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:55:48.958Z"
+    },
+    {
+      "id": "od_hist_005_m35",
+      "order_id": "o_hist_005",
+      "dish_id": "m35",
+      "quantity": 1,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:55:48.958Z"
+    },
+    {
+      "id": "od_hist_005_m39",
+      "order_id": "o_hist_005",
+      "dish_id": "m39",
+      "quantity": 2,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:55:48.958Z"
+    },
+    {
+      "id": "od_hist_005_m16",
+      "order_id": "o_hist_005",
+      "dish_id": "m16",
+      "quantity": 1,
+      "price_at_time": 30000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:55:48.958Z"
+    },
+    {
+      "id": "od_hist_005_m43",
+      "order_id": "o_hist_005",
+      "dish_id": "m43",
+      "quantity": 4,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:55:48.958Z"
+    },
+    {
+      "id": "od_hist_005_m10",
+      "order_id": "o_hist_005",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:55:48.958Z"
+    },
+    {
+      "id": "od_hist_005_m21",
+      "order_id": "o_hist_005",
+      "dish_id": "m21",
+      "quantity": 2,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:55:48.958Z"
+    },
+    {
+      "id": "od_hist_006_m04",
+      "order_id": "o_hist_006",
+      "dish_id": "m04",
+      "quantity": 1,
+      "price_at_time": 1220000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T13:40:45.052Z"
+    },
+    {
+      "id": "od_hist_006_m32",
+      "order_id": "o_hist_006",
+      "dish_id": "m32",
+      "quantity": 1,
+      "price_at_time": 270000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T13:40:45.052Z"
+    },
+    {
+      "id": "od_hist_006_m38",
+      "order_id": "o_hist_006",
+      "dish_id": "m38",
+      "quantity": 1,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T13:40:45.052Z"
+    },
+    {
+      "id": "od_hist_006_m17",
+      "order_id": "o_hist_006",
+      "dish_id": "m17",
+      "quantity": 1,
+      "price_at_time": 45000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T13:40:45.052Z"
+    },
+    {
+      "id": "od_hist_006_m43",
+      "order_id": "o_hist_006",
+      "dish_id": "m43",
+      "quantity": 4,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T13:40:45.052Z"
+    },
+    {
+      "id": "od_hist_006_m10",
+      "order_id": "o_hist_006",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T13:40:45.052Z"
+    },
+    {
+      "id": "od_hist_007_m04",
+      "order_id": "o_hist_007",
+      "dish_id": "m04",
+      "quantity": 1,
+      "price_at_time": 1220000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-15T00:00:41.680Z"
+    },
+    {
+      "id": "od_hist_007_m32",
+      "order_id": "o_hist_007",
+      "dish_id": "m32",
+      "quantity": 1,
+      "price_at_time": 270000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-15T00:00:41.680Z"
+    },
+    {
+      "id": "od_hist_007_m38",
+      "order_id": "o_hist_007",
+      "dish_id": "m38",
+      "quantity": 3,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-15T00:00:41.680Z"
+    },
+    {
+      "id": "od_hist_007_m19",
+      "order_id": "o_hist_007",
+      "dish_id": "m19",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-15T00:00:41.680Z"
+    },
+    {
+      "id": "od_hist_007_m21",
+      "order_id": "o_hist_007",
+      "dish_id": "m21",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-15T00:00:41.680Z"
+    },
+    {
+      "id": "od_hist_008_m02",
+      "order_id": "o_hist_008",
       "dish_id": "m02",
       "quantity": 1,
       "price_at_time": 1678000,
-      "item_status": "Đang chờ",
-      "notes": "ít cay nha béo",
-      "ordered_at": "2026-06-14T19:18:17.792Z"
-    },
-    {
-      "id": "od_1781464444481_0",
-      "order_id": "o_B02_4479",
-      "dish_id": "m04",
-      "quantity": 1,
-      "price_at_time": 1220000,
-      "item_status": "Đang chế biến",
+      "item_status": "Đã phục vụ",
       "notes": "",
-      "ordered_at": "2026-06-14T19:14:04.481Z"
+      "ordered_at": "2026-06-14T13:59:21.884Z"
     },
     {
-      "id": "od_1781463841660_0",
-      "order_id": "o_B02_1657",
+      "id": "od_hist_008_m35",
+      "order_id": "o_hist_008",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T13:59:21.884Z"
+    },
+    {
+      "id": "od_hist_008_m39",
+      "order_id": "o_hist_008",
+      "dish_id": "m39",
+      "quantity": 1,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T13:59:21.884Z"
+    },
+    {
+      "id": "od_hist_008_m43",
+      "order_id": "o_hist_008",
+      "dish_id": "m43",
+      "quantity": 5,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T13:59:21.884Z"
+    },
+    {
+      "id": "od_hist_008_m10",
+      "order_id": "o_hist_008",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T13:59:21.884Z"
+    },
+    {
+      "id": "od_hist_008_m13",
+      "order_id": "o_hist_008",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T13:59:21.884Z"
+    },
+    {
+      "id": "od_hist_009_m03",
+      "order_id": "o_hist_009",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T07:06:05.624Z"
+    },
+    {
+      "id": "od_hist_009_m11",
+      "order_id": "o_hist_009",
+      "dish_id": "m11",
+      "quantity": 1,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T07:06:05.624Z"
+    },
+    {
+      "id": "od_hist_009_m29",
+      "order_id": "o_hist_009",
+      "dish_id": "m29",
+      "quantity": 2,
+      "price_at_time": 320000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T07:06:05.624Z"
+    },
+    {
+      "id": "od_hist_009_m22",
+      "order_id": "o_hist_009",
+      "dish_id": "m22",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T07:06:05.624Z"
+    },
+    {
+      "id": "od_hist_009_m43",
+      "order_id": "o_hist_009",
+      "dish_id": "m43",
+      "quantity": 5,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T07:06:05.624Z"
+    },
+    {
+      "id": "od_hist_009_m36",
+      "order_id": "o_hist_009",
+      "dish_id": "m36",
+      "quantity": 2,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T07:06:05.624Z"
+    },
+    {
+      "id": "od_hist_010_m03",
+      "order_id": "o_hist_010",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T19:27:02.569Z"
+    },
+    {
+      "id": "od_hist_010_m11",
+      "order_id": "o_hist_010",
+      "dish_id": "m11",
+      "quantity": 1,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T19:27:02.569Z"
+    },
+    {
+      "id": "od_hist_010_m29",
+      "order_id": "o_hist_010",
+      "dish_id": "m29",
+      "quantity": 2,
+      "price_at_time": 320000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T19:27:02.569Z"
+    },
+    {
+      "id": "od_hist_010_m22",
+      "order_id": "o_hist_010",
+      "dish_id": "m22",
+      "quantity": 3,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T19:27:02.569Z"
+    },
+    {
+      "id": "od_hist_010_m24",
+      "order_id": "o_hist_010",
+      "dish_id": "m24",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T19:27:02.569Z"
+    },
+    {
+      "id": "od_hist_010_m43",
+      "order_id": "o_hist_010",
+      "dish_id": "m43",
+      "quantity": 6,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T19:27:02.569Z"
+    },
+    {
+      "id": "od_hist_011_m04",
+      "order_id": "o_hist_011",
       "dish_id": "m04",
       "quantity": 1,
       "price_at_time": 1220000,
       "item_status": "Đã phục vụ",
       "notes": "",
-      "ordered_at": "2026-06-14T19:04:01.660Z"
+      "ordered_at": "2026-06-10T02:43:19.370Z"
     },
     {
-      "id": "od_1781463841660_1",
-      "order_id": "o_B02_1657",
-      "dish_id": "m34",
+      "id": "od_hist_011_m32",
+      "order_id": "o_hist_011",
+      "dish_id": "m32",
+      "quantity": 1,
+      "price_at_time": 270000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T02:43:19.370Z"
+    },
+    {
+      "id": "od_hist_011_m43",
+      "order_id": "o_hist_011",
+      "dish_id": "m43",
+      "quantity": 5,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T02:43:19.370Z"
+    },
+    {
+      "id": "od_hist_011_m10",
+      "order_id": "o_hist_011",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T02:43:19.370Z"
+    },
+    {
+      "id": "od_hist_011_m13",
+      "order_id": "o_hist_011",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T02:43:19.370Z"
+    },
+    {
+      "id": "od_hist_011_m36",
+      "order_id": "o_hist_011",
+      "dish_id": "m36",
+      "quantity": 1,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T02:43:19.370Z"
+    },
+    {
+      "id": "od_hist_012_m03",
+      "order_id": "o_hist_012",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T15:48:19.001Z"
+    },
+    {
+      "id": "od_hist_012_m11",
+      "order_id": "o_hist_012",
+      "dish_id": "m11",
+      "quantity": 1,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T15:48:19.001Z"
+    },
+    {
+      "id": "od_hist_012_m29",
+      "order_id": "o_hist_012",
+      "dish_id": "m29",
       "quantity": 1,
       "price_at_time": 320000,
       "item_status": "Đã phục vụ",
       "notes": "",
-      "ordered_at": "2026-06-14T19:04:01.660Z"
+      "ordered_at": "2026-06-14T15:48:19.001Z"
     },
     {
-      "id": "od_1",
-      "order_id": "o_B04_1",
-      "dish_id": "m01",
-      "quantity": 1,
-      "price_at_time": 299000,
-      "item_status": "Đã phục vụ",
-      "notes": "Ít cay, không hành",
-      "ordered_at": "2026-06-13T20:06:37.659Z"
-    },
-    {
-      "id": "od_2",
-      "order_id": "o_B04_1",
-      "dish_id": "m04",
-      "quantity": 2,
-      "price_at_time": 159000,
-      "item_status": "Đã phục vụ",
-      "notes": "",
-      "ordered_at": "2026-06-13T20:06:37.659Z"
-    },
-    {
-      "id": "od_3",
-      "order_id": "o_B09_1",
-      "dish_id": "m01",
-      "quantity": 4,
-      "price_at_time": 299000,
-      "item_status": "Đang chờ",
-      "notes": "",
-      "ordered_at": "2026-06-13T20:36:37.659Z"
-    },
-    {
-      "id": "od_4",
-      "order_id": "o_B09_1",
-      "dish_id": "m04",
+      "id": "od_hist_012_m22",
+      "order_id": "o_hist_012",
+      "dish_id": "m22",
       "quantity": 3,
-      "price_at_time": 159000,
-      "item_status": "Đã hoàn thành",
-      "notes": "Nước dùng nhiều sả",
-      "ordered_at": "2026-06-13T20:36:37.659Z"
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T15:48:19.001Z"
     },
     {
-      "id": "od_5",
-      "order_id": "o_B09_1",
+      "id": "od_hist_012_m43",
+      "order_id": "o_hist_012",
+      "dish_id": "m43",
+      "quantity": 5,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T15:48:19.001Z"
+    },
+    {
+      "id": "od_hist_012_m10",
+      "order_id": "o_hist_012",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T15:48:19.001Z"
+    },
+    {
+      "id": "od_hist_013_m08",
+      "order_id": "o_hist_013",
       "dish_id": "m08",
+      "quantity": 1,
+      "price_at_time": 1055000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T17:26:38.664Z"
+    },
+    {
+      "id": "od_hist_013_m35",
+      "order_id": "o_hist_013",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T17:26:38.664Z"
+    },
+    {
+      "id": "od_hist_013_m39",
+      "order_id": "o_hist_013",
+      "dish_id": "m39",
+      "quantity": 1,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T17:26:38.664Z"
+    },
+    {
+      "id": "od_hist_013_m16",
+      "order_id": "o_hist_013",
+      "dish_id": "m16",
+      "quantity": 1,
+      "price_at_time": 30000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T17:26:38.664Z"
+    },
+    {
+      "id": "od_hist_013_m36",
+      "order_id": "o_hist_013",
+      "dish_id": "m36",
+      "quantity": 1,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T17:26:38.664Z"
+    },
+    {
+      "id": "od_hist_014_m07",
+      "order_id": "o_hist_014",
+      "dish_id": "m07",
+      "quantity": 1,
+      "price_at_time": 825000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T09:09:15.690Z"
+    },
+    {
+      "id": "od_hist_014_m28",
+      "order_id": "o_hist_014",
+      "dish_id": "m28",
+      "quantity": 2,
+      "price_at_time": 130000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T09:09:15.690Z"
+    },
+    {
+      "id": "od_hist_014_m38",
+      "order_id": "o_hist_014",
+      "dish_id": "m38",
+      "quantity": 1,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T09:09:15.690Z"
+    },
+    {
+      "id": "od_hist_014_m43",
+      "order_id": "o_hist_014",
+      "dish_id": "m43",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T09:09:15.690Z"
+    },
+    {
+      "id": "od_hist_014_m21",
+      "order_id": "o_hist_014",
+      "dish_id": "m21",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T09:09:15.690Z"
+    },
+    {
+      "id": "od_hist_015_m07",
+      "order_id": "o_hist_015",
+      "dish_id": "m07",
+      "quantity": 1,
+      "price_at_time": 825000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T21:26:52.182Z"
+    },
+    {
+      "id": "od_hist_015_m28",
+      "order_id": "o_hist_015",
+      "dish_id": "m28",
+      "quantity": 2,
+      "price_at_time": 130000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T21:26:52.182Z"
+    },
+    {
+      "id": "od_hist_015_m32",
+      "order_id": "o_hist_015",
+      "dish_id": "m32",
+      "quantity": 1,
+      "price_at_time": 270000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T21:26:52.182Z"
+    },
+    {
+      "id": "od_hist_015_m10",
+      "order_id": "o_hist_015",
+      "dish_id": "m10",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T21:26:52.182Z"
+    },
+    {
+      "id": "od_hist_016_m03",
+      "order_id": "o_hist_016",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T13:12:24.024Z"
+    },
+    {
+      "id": "od_hist_016_m11",
+      "order_id": "o_hist_016",
+      "dish_id": "m11",
+      "quantity": 3,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T13:12:24.024Z"
+    },
+    {
+      "id": "od_hist_016_m29",
+      "order_id": "o_hist_016",
+      "dish_id": "m29",
+      "quantity": 2,
+      "price_at_time": 320000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T13:12:24.024Z"
+    },
+    {
+      "id": "od_hist_016_m22",
+      "order_id": "o_hist_016",
+      "dish_id": "m22",
+      "quantity": 3,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T13:12:24.024Z"
+    },
+    {
+      "id": "od_hist_016_m24",
+      "order_id": "o_hist_016",
+      "dish_id": "m24",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T13:12:24.024Z"
+    },
+    {
+      "id": "od_hist_016_m43",
+      "order_id": "o_hist_016",
+      "dish_id": "m43",
+      "quantity": 4,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T13:12:24.024Z"
+    },
+    {
+      "id": "od_hist_016_m10",
+      "order_id": "o_hist_016",
+      "dish_id": "m10",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T13:12:24.024Z"
+    },
+    {
+      "id": "od_hist_017_m08",
+      "order_id": "o_hist_017",
+      "dish_id": "m08",
+      "quantity": 1,
+      "price_at_time": 1055000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T11:54:17.881Z"
+    },
+    {
+      "id": "od_hist_017_m35",
+      "order_id": "o_hist_017",
+      "dish_id": "m35",
+      "quantity": 1,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T11:54:17.881Z"
+    },
+    {
+      "id": "od_hist_017_m30",
+      "order_id": "o_hist_017",
+      "dish_id": "m30",
+      "quantity": 1,
+      "price_at_time": 200000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T11:54:17.881Z"
+    },
+    {
+      "id": "od_hist_017_m16",
+      "order_id": "o_hist_017",
+      "dish_id": "m16",
+      "quantity": 1,
+      "price_at_time": 30000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T11:54:17.881Z"
+    },
+    {
+      "id": "od_hist_017_m43",
+      "order_id": "o_hist_017",
+      "dish_id": "m43",
+      "quantity": 4,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T11:54:17.881Z"
+    },
+    {
+      "id": "od_hist_017_m10",
+      "order_id": "o_hist_017",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T11:54:17.881Z"
+    },
+    {
+      "id": "od_hist_017_m21",
+      "order_id": "o_hist_017",
+      "dish_id": "m21",
+      "quantity": 2,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T11:54:17.881Z"
+    },
+    {
+      "id": "od_hist_017_m36",
+      "order_id": "o_hist_017",
+      "dish_id": "m36",
+      "quantity": 1,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T11:54:17.881Z"
+    },
+    {
+      "id": "od_hist_018_m03",
+      "order_id": "o_hist_018",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T12:27:31.523Z"
+    },
+    {
+      "id": "od_hist_018_m11",
+      "order_id": "o_hist_018",
+      "dish_id": "m11",
+      "quantity": 3,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T12:27:31.523Z"
+    },
+    {
+      "id": "od_hist_018_m29",
+      "order_id": "o_hist_018",
+      "dish_id": "m29",
+      "quantity": 2,
+      "price_at_time": 320000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T12:27:31.523Z"
+    },
+    {
+      "id": "od_hist_018_m22",
+      "order_id": "o_hist_018",
+      "dish_id": "m22",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T12:27:31.523Z"
+    },
+    {
+      "id": "od_hist_018_m43",
+      "order_id": "o_hist_018",
+      "dish_id": "m43",
+      "quantity": 5,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T12:27:31.523Z"
+    },
+    {
+      "id": "od_hist_018_m10",
+      "order_id": "o_hist_018",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T12:27:31.523Z"
+    },
+    {
+      "id": "od_hist_019_m02",
+      "order_id": "o_hist_019",
+      "dish_id": "m02",
+      "quantity": 1,
+      "price_at_time": 1678000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T06:32:54.096Z"
+    },
+    {
+      "id": "od_hist_019_m35",
+      "order_id": "o_hist_019",
+      "dish_id": "m35",
+      "quantity": 1,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T06:32:54.096Z"
+    },
+    {
+      "id": "od_hist_019_m39",
+      "order_id": "o_hist_019",
+      "dish_id": "m39",
+      "quantity": 3,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T06:32:54.096Z"
+    },
+    {
+      "id": "od_hist_019_m43",
+      "order_id": "o_hist_019",
+      "dish_id": "m43",
       "quantity": 6,
       "price_at_time": 15000,
-      "item_status": "Đã hoàn thành",
-      "notes": "Lấy nhiều đá",
-      "ordered_at": "2026-06-13T20:36:37.659Z"
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T06:32:54.096Z"
     },
     {
-      "id": "od_6",
-      "order_id": "o_B14_1",
+      "id": "od_hist_020_m03",
+      "order_id": "o_hist_020",
       "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T21:05:46.759Z"
+    },
+    {
+      "id": "od_hist_020_m11",
+      "order_id": "o_hist_020",
+      "dish_id": "m11",
       "quantity": 3,
-      "price_at_time": 329000,
+      "price_at_time": 15000,
       "item_status": "Đã phục vụ",
       "notes": "",
-      "ordered_at": "2026-06-13T19:21:37.659Z"
+      "ordered_at": "2026-06-10T21:05:46.759Z"
     },
     {
-      "id": "od_7",
-      "order_id": "o_B14_1",
-      "dish_id": "m05",
-      "quantity": 5,
-      "price_at_time": 39000,
+      "id": "od_hist_020_m22",
+      "order_id": "o_hist_020",
+      "dish_id": "m22",
+      "quantity": 3,
+      "price_at_time": 25000,
       "item_status": "Đã phục vụ",
       "notes": "",
-      "ordered_at": "2026-06-13T19:21:37.659Z"
+      "ordered_at": "2026-06-10T21:05:46.759Z"
     },
     {
-      "id": "od_8",
-      "order_id": "o_B14_1",
+      "id": "od_hist_020_m24",
+      "order_id": "o_hist_020",
+      "dish_id": "m24",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T21:05:46.759Z"
+    },
+    {
+      "id": "od_hist_020_m43",
+      "order_id": "o_hist_020",
+      "dish_id": "m43",
+      "quantity": 3,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T21:05:46.759Z"
+    },
+    {
+      "id": "od_hist_020_m10",
+      "order_id": "o_hist_020",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T21:05:46.759Z"
+    },
+    {
+      "id": "od_hist_020_m13",
+      "order_id": "o_hist_020",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T21:05:46.759Z"
+    },
+    {
+      "id": "od_hist_020_m21",
+      "order_id": "o_hist_020",
+      "dish_id": "m21",
+      "quantity": 2,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T21:05:46.759Z"
+    },
+    {
+      "id": "od_hist_021_m01",
+      "order_id": "o_hist_021",
+      "dish_id": "m01",
+      "quantity": 1,
+      "price_at_time": 1730000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:18:37.063Z"
+    },
+    {
+      "id": "od_hist_021_m31",
+      "order_id": "o_hist_021",
+      "dish_id": "m31",
+      "quantity": 2,
+      "price_at_time": 280000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:18:37.063Z"
+    },
+    {
+      "id": "od_hist_021_m40",
+      "order_id": "o_hist_021",
+      "dish_id": "m40",
+      "quantity": 2,
+      "price_at_time": 65000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:18:37.063Z"
+    },
+    {
+      "id": "od_hist_021_m35",
+      "order_id": "o_hist_021",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:18:37.063Z"
+    },
+    {
+      "id": "od_hist_021_m18",
+      "order_id": "o_hist_021",
+      "dish_id": "m18",
+      "quantity": 8,
+      "price_at_time": 12000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:18:37.063Z"
+    },
+    {
+      "id": "od_hist_021_m43",
+      "order_id": "o_hist_021",
+      "dish_id": "m43",
+      "quantity": 3,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:18:37.063Z"
+    },
+    {
+      "id": "od_hist_021_m10",
+      "order_id": "o_hist_021",
+      "dish_id": "m10",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:18:37.063Z"
+    },
+    {
+      "id": "od_hist_022_m01",
+      "order_id": "o_hist_022",
+      "dish_id": "m01",
+      "quantity": 1,
+      "price_at_time": 1730000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T16:41:10.265Z"
+    },
+    {
+      "id": "od_hist_022_m31",
+      "order_id": "o_hist_022",
+      "dish_id": "m31",
+      "quantity": 2,
+      "price_at_time": 280000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T16:41:10.265Z"
+    },
+    {
+      "id": "od_hist_022_m40",
+      "order_id": "o_hist_022",
+      "dish_id": "m40",
+      "quantity": 2,
+      "price_at_time": 65000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T16:41:10.265Z"
+    },
+    {
+      "id": "od_hist_022_m35",
+      "order_id": "o_hist_022",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T16:41:10.265Z"
+    },
+    {
+      "id": "od_hist_022_m10",
+      "order_id": "o_hist_022",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T16:41:10.265Z"
+    },
+    {
+      "id": "od_hist_023_m03",
+      "order_id": "o_hist_023",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T03:36:25.107Z"
+    },
+    {
+      "id": "od_hist_023_m11",
+      "order_id": "o_hist_023",
+      "dish_id": "m11",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T03:36:25.107Z"
+    },
+    {
+      "id": "od_hist_023_m29",
+      "order_id": "o_hist_023",
+      "dish_id": "m29",
+      "quantity": 2,
+      "price_at_time": 320000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T03:36:25.107Z"
+    },
+    {
+      "id": "od_hist_023_m24",
+      "order_id": "o_hist_023",
+      "dish_id": "m24",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T03:36:25.107Z"
+    },
+    {
+      "id": "od_hist_023_m10",
+      "order_id": "o_hist_023",
+      "dish_id": "m10",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T03:36:25.107Z"
+    },
+    {
+      "id": "od_hist_024_m08",
+      "order_id": "o_hist_024",
       "dish_id": "m08",
+      "quantity": 1,
+      "price_at_time": 1055000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T21:38:30.177Z"
+    },
+    {
+      "id": "od_hist_024_m35",
+      "order_id": "o_hist_024",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T21:38:30.177Z"
+    },
+    {
+      "id": "od_hist_024_m13",
+      "order_id": "o_hist_024",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T21:38:30.177Z"
+    },
+    {
+      "id": "od_hist_025_m03",
+      "order_id": "o_hist_025",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T04:09:17.061Z"
+    },
+    {
+      "id": "od_hist_025_m11",
+      "order_id": "o_hist_025",
+      "dish_id": "m11",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T04:09:17.061Z"
+    },
+    {
+      "id": "od_hist_025_m22",
+      "order_id": "o_hist_025",
+      "dish_id": "m22",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T04:09:17.061Z"
+    },
+    {
+      "id": "od_hist_025_m24",
+      "order_id": "o_hist_025",
+      "dish_id": "m24",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T04:09:17.061Z"
+    },
+    {
+      "id": "od_hist_025_m43",
+      "order_id": "o_hist_025",
+      "dish_id": "m43",
+      "quantity": 3,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T04:09:17.061Z"
+    },
+    {
+      "id": "od_hist_026_m02",
+      "order_id": "o_hist_026",
+      "dish_id": "m02",
+      "quantity": 1,
+      "price_at_time": 1678000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T23:15:58.781Z"
+    },
+    {
+      "id": "od_hist_026_m35",
+      "order_id": "o_hist_026",
+      "dish_id": "m35",
+      "quantity": 1,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T23:15:58.781Z"
+    },
+    {
+      "id": "od_hist_026_m39",
+      "order_id": "o_hist_026",
+      "dish_id": "m39",
+      "quantity": 3,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T23:15:58.781Z"
+    },
+    {
+      "id": "od_hist_026_m30",
+      "order_id": "o_hist_026",
+      "dish_id": "m30",
+      "quantity": 1,
+      "price_at_time": 200000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T23:15:58.781Z"
+    },
+    {
+      "id": "od_hist_027_m08",
+      "order_id": "o_hist_027",
+      "dish_id": "m08",
+      "quantity": 1,
+      "price_at_time": 1055000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T00:05:16.808Z"
+    },
+    {
+      "id": "od_hist_027_m35",
+      "order_id": "o_hist_027",
+      "dish_id": "m35",
+      "quantity": 1,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T00:05:16.808Z"
+    },
+    {
+      "id": "od_hist_027_m39",
+      "order_id": "o_hist_027",
+      "dish_id": "m39",
+      "quantity": 1,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T00:05:16.808Z"
+    },
+    {
+      "id": "od_hist_027_m43",
+      "order_id": "o_hist_027",
+      "dish_id": "m43",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T00:05:16.808Z"
+    },
+    {
+      "id": "od_hist_027_m13",
+      "order_id": "o_hist_027",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T00:05:16.808Z"
+    },
+    {
+      "id": "od_hist_027_m21",
+      "order_id": "o_hist_027",
+      "dish_id": "m21",
+      "quantity": 2,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T00:05:16.808Z"
+    },
+    {
+      "id": "od_hist_028_m02",
+      "order_id": "o_hist_028",
+      "dish_id": "m02",
+      "quantity": 1,
+      "price_at_time": 1678000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T18:50:55.001Z"
+    },
+    {
+      "id": "od_hist_028_m35",
+      "order_id": "o_hist_028",
+      "dish_id": "m35",
+      "quantity": 3,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T18:50:55.001Z"
+    },
+    {
+      "id": "od_hist_028_m39",
+      "order_id": "o_hist_028",
+      "dish_id": "m39",
+      "quantity": 1,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T18:50:55.001Z"
+    },
+    {
+      "id": "od_hist_028_m30",
+      "order_id": "o_hist_028",
+      "dish_id": "m30",
+      "quantity": 1,
+      "price_at_time": 200000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T18:50:55.001Z"
+    },
+    {
+      "id": "od_hist_028_m43",
+      "order_id": "o_hist_028",
+      "dish_id": "m43",
+      "quantity": 6,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T18:50:55.001Z"
+    },
+    {
+      "id": "od_hist_028_m36",
+      "order_id": "o_hist_028",
+      "dish_id": "m36",
+      "quantity": 2,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T18:50:55.001Z"
+    },
+    {
+      "id": "od_hist_029_m07",
+      "order_id": "o_hist_029",
+      "dish_id": "m07",
+      "quantity": 1,
+      "price_at_time": 825000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T18:33:18.428Z"
+    },
+    {
+      "id": "od_hist_029_m38",
+      "order_id": "o_hist_029",
+      "dish_id": "m38",
+      "quantity": 1,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T18:33:18.428Z"
+    },
+    {
+      "id": "od_hist_029_m10",
+      "order_id": "o_hist_029",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T18:33:18.428Z"
+    },
+    {
+      "id": "od_hist_030_m03",
+      "order_id": "o_hist_030",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:59:42.314Z"
+    },
+    {
+      "id": "od_hist_030_m11",
+      "order_id": "o_hist_030",
+      "dish_id": "m11",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:59:42.314Z"
+    },
+    {
+      "id": "od_hist_030_m29",
+      "order_id": "o_hist_030",
+      "dish_id": "m29",
+      "quantity": 1,
+      "price_at_time": 320000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:59:42.314Z"
+    },
+    {
+      "id": "od_hist_030_m22",
+      "order_id": "o_hist_030",
+      "dish_id": "m22",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:59:42.314Z"
+    },
+    {
+      "id": "od_hist_030_m43",
+      "order_id": "o_hist_030",
+      "dish_id": "m43",
+      "quantity": 3,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:59:42.314Z"
+    },
+    {
+      "id": "od_hist_030_m21",
+      "order_id": "o_hist_030",
+      "dish_id": "m21",
+      "quantity": 2,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:59:42.314Z"
+    },
+    {
+      "id": "od_hist_031_m06",
+      "order_id": "o_hist_031",
+      "dish_id": "m06",
+      "quantity": 1,
+      "price_at_time": 725000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T15:07:27.310Z"
+    },
+    {
+      "id": "od_hist_031_m35",
+      "order_id": "o_hist_031",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T15:07:27.310Z"
+    },
+    {
+      "id": "od_hist_031_m28",
+      "order_id": "o_hist_031",
+      "dish_id": "m28",
+      "quantity": 1,
+      "price_at_time": 130000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T15:07:27.310Z"
+    },
+    {
+      "id": "od_hist_032_m04",
+      "order_id": "o_hist_032",
+      "dish_id": "m04",
+      "quantity": 1,
+      "price_at_time": 1220000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:05:07.270Z"
+    },
+    {
+      "id": "od_hist_032_m32",
+      "order_id": "o_hist_032",
+      "dish_id": "m32",
+      "quantity": 2,
+      "price_at_time": 270000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:05:07.270Z"
+    },
+    {
+      "id": "od_hist_032_m38",
+      "order_id": "o_hist_032",
+      "dish_id": "m38",
+      "quantity": 2,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:05:07.270Z"
+    },
+    {
+      "id": "od_hist_032_m43",
+      "order_id": "o_hist_032",
+      "dish_id": "m43",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T22:05:07.270Z"
+    },
+    {
+      "id": "od_hist_033_m01",
+      "order_id": "o_hist_033",
+      "dish_id": "m01",
+      "quantity": 1,
+      "price_at_time": 1730000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T00:50:57.389Z"
+    },
+    {
+      "id": "od_hist_033_m40",
+      "order_id": "o_hist_033",
+      "dish_id": "m40",
+      "quantity": 1,
+      "price_at_time": 65000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T00:50:57.389Z"
+    },
+    {
+      "id": "od_hist_033_m43",
+      "order_id": "o_hist_033",
+      "dish_id": "m43",
       "quantity": 4,
       "price_at_time": 15000,
       "item_status": "Đã phục vụ",
       "notes": "",
-      "ordered_at": "2026-06-13T19:21:37.659Z"
+      "ordered_at": "2026-06-09T00:50:57.389Z"
+    },
+    {
+      "id": "od_hist_033_m21",
+      "order_id": "o_hist_033",
+      "dish_id": "m21",
+      "quantity": 2,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T00:50:57.389Z"
+    },
+    {
+      "id": "od_hist_034_m01",
+      "order_id": "o_hist_034",
+      "dish_id": "m01",
+      "quantity": 1,
+      "price_at_time": 1730000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T08:46:05.650Z"
+    },
+    {
+      "id": "od_hist_034_m40",
+      "order_id": "o_hist_034",
+      "dish_id": "m40",
+      "quantity": 1,
+      "price_at_time": 65000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T08:46:05.650Z"
+    },
+    {
+      "id": "od_hist_034_m35",
+      "order_id": "o_hist_034",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T08:46:05.650Z"
+    },
+    {
+      "id": "od_hist_034_m18",
+      "order_id": "o_hist_034",
+      "dish_id": "m18",
+      "quantity": 6,
+      "price_at_time": 12000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T08:46:05.650Z"
+    },
+    {
+      "id": "od_hist_034_m43",
+      "order_id": "o_hist_034",
+      "dish_id": "m43",
+      "quantity": 5,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T08:46:05.650Z"
+    },
+    {
+      "id": "od_hist_034_m36",
+      "order_id": "o_hist_034",
+      "dish_id": "m36",
+      "quantity": 2,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T08:46:05.650Z"
+    },
+    {
+      "id": "od_hist_035_m06",
+      "order_id": "o_hist_035",
+      "dish_id": "m06",
+      "quantity": 1,
+      "price_at_time": 725000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T08:13:41.313Z"
+    },
+    {
+      "id": "od_hist_035_m35",
+      "order_id": "o_hist_035",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T08:13:41.313Z"
+    },
+    {
+      "id": "od_hist_036_m01",
+      "order_id": "o_hist_036",
+      "dish_id": "m01",
+      "quantity": 1,
+      "price_at_time": 1730000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T00:32:20.444Z"
+    },
+    {
+      "id": "od_hist_036_m40",
+      "order_id": "o_hist_036",
+      "dish_id": "m40",
+      "quantity": 1,
+      "price_at_time": 65000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T00:32:20.444Z"
+    },
+    {
+      "id": "od_hist_036_m35",
+      "order_id": "o_hist_036",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T00:32:20.444Z"
+    },
+    {
+      "id": "od_hist_036_m43",
+      "order_id": "o_hist_036",
+      "dish_id": "m43",
+      "quantity": 4,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T00:32:20.444Z"
+    },
+    {
+      "id": "od_hist_036_m10",
+      "order_id": "o_hist_036",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T00:32:20.444Z"
+    },
+    {
+      "id": "od_hist_037_m03",
+      "order_id": "o_hist_037",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T01:11:06.506Z"
+    },
+    {
+      "id": "od_hist_037_m22",
+      "order_id": "o_hist_037",
+      "dish_id": "m22",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T01:11:06.506Z"
+    },
+    {
+      "id": "od_hist_037_m43",
+      "order_id": "o_hist_037",
+      "dish_id": "m43",
+      "quantity": 6,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T01:11:06.506Z"
+    },
+    {
+      "id": "od_hist_037_m10",
+      "order_id": "o_hist_037",
+      "dish_id": "m10",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T01:11:06.506Z"
+    },
+    {
+      "id": "od_hist_038_m01",
+      "order_id": "o_hist_038",
+      "dish_id": "m01",
+      "quantity": 1,
+      "price_at_time": 1730000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T03:33:25.808Z"
+    },
+    {
+      "id": "od_hist_038_m31",
+      "order_id": "o_hist_038",
+      "dish_id": "m31",
+      "quantity": 2,
+      "price_at_time": 280000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T03:33:25.808Z"
+    },
+    {
+      "id": "od_hist_038_m35",
+      "order_id": "o_hist_038",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T03:33:25.808Z"
+    },
+    {
+      "id": "od_hist_038_m43",
+      "order_id": "o_hist_038",
+      "dish_id": "m43",
+      "quantity": 6,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T03:33:25.808Z"
+    },
+    {
+      "id": "od_hist_039_m08",
+      "order_id": "o_hist_039",
+      "dish_id": "m08",
+      "quantity": 1,
+      "price_at_time": 1055000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T12:48:13.739Z"
+    },
+    {
+      "id": "od_hist_039_m35",
+      "order_id": "o_hist_039",
+      "dish_id": "m35",
+      "quantity": 1,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T12:48:13.739Z"
+    },
+    {
+      "id": "od_hist_039_m39",
+      "order_id": "o_hist_039",
+      "dish_id": "m39",
+      "quantity": 1,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T12:48:13.739Z"
+    },
+    {
+      "id": "od_hist_039_m16",
+      "order_id": "o_hist_039",
+      "dish_id": "m16",
+      "quantity": 1,
+      "price_at_time": 30000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T12:48:13.739Z"
+    },
+    {
+      "id": "od_hist_039_m43",
+      "order_id": "o_hist_039",
+      "dish_id": "m43",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T12:48:13.739Z"
+    },
+    {
+      "id": "od_hist_039_m13",
+      "order_id": "o_hist_039",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T12:48:13.739Z"
+    },
+    {
+      "id": "od_hist_040_m05",
+      "order_id": "o_hist_040",
+      "dish_id": "m05",
+      "quantity": 1,
+      "price_at_time": 645000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T06:41:24.890Z"
+    },
+    {
+      "id": "od_hist_040_m18",
+      "order_id": "o_hist_040",
+      "dish_id": "m18",
+      "quantity": 3,
+      "price_at_time": 12000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T06:41:24.890Z"
+    },
+    {
+      "id": "od_hist_040_m12",
+      "order_id": "o_hist_040",
+      "dish_id": "m12",
+      "quantity": 1,
+      "price_at_time": 55000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T06:41:24.890Z"
+    },
+    {
+      "id": "od_hist_040_m43",
+      "order_id": "o_hist_040",
+      "dish_id": "m43",
+      "quantity": 1,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T06:41:24.890Z"
+    },
+    {
+      "id": "od_hist_040_m10",
+      "order_id": "o_hist_040",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T06:41:24.890Z"
+    },
+    {
+      "id": "od_hist_041_m05",
+      "order_id": "o_hist_041",
+      "dish_id": "m05",
+      "quantity": 1,
+      "price_at_time": 645000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T03:27:26.873Z"
+    },
+    {
+      "id": "od_hist_041_m20",
+      "order_id": "o_hist_041",
+      "dish_id": "m20",
+      "quantity": 1,
+      "price_at_time": 110000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T03:27:26.873Z"
+    },
+    {
+      "id": "od_hist_041_m12",
+      "order_id": "o_hist_041",
+      "dish_id": "m12",
+      "quantity": 1,
+      "price_at_time": 55000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T03:27:26.873Z"
+    },
+    {
+      "id": "od_hist_041_m10",
+      "order_id": "o_hist_041",
+      "dish_id": "m10",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T03:27:26.873Z"
+    },
+    {
+      "id": "od_hist_042_m08",
+      "order_id": "o_hist_042",
+      "dish_id": "m08",
+      "quantity": 1,
+      "price_at_time": 1055000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T17:33:09.037Z"
+    },
+    {
+      "id": "od_hist_042_m35",
+      "order_id": "o_hist_042",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T17:33:09.037Z"
+    },
+    {
+      "id": "od_hist_042_m43",
+      "order_id": "o_hist_042",
+      "dish_id": "m43",
+      "quantity": 3,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T17:33:09.037Z"
+    },
+    {
+      "id": "od_hist_043_m07",
+      "order_id": "o_hist_043",
+      "dish_id": "m07",
+      "quantity": 1,
+      "price_at_time": 825000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T21:03:27.176Z"
+    },
+    {
+      "id": "od_hist_043_m28",
+      "order_id": "o_hist_043",
+      "dish_id": "m28",
+      "quantity": 1,
+      "price_at_time": 130000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T21:03:27.176Z"
+    },
+    {
+      "id": "od_hist_043_m32",
+      "order_id": "o_hist_043",
+      "dish_id": "m32",
+      "quantity": 1,
+      "price_at_time": 270000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T21:03:27.176Z"
+    },
+    {
+      "id": "od_hist_043_m38",
+      "order_id": "o_hist_043",
+      "dish_id": "m38",
+      "quantity": 2,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T21:03:27.176Z"
+    },
+    {
+      "id": "od_hist_043_m43",
+      "order_id": "o_hist_043",
+      "dish_id": "m43",
+      "quantity": 3,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T21:03:27.176Z"
+    },
+    {
+      "id": "od_hist_044_m03",
+      "order_id": "o_hist_044",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T11:05:29.722Z"
+    },
+    {
+      "id": "od_hist_044_m24",
+      "order_id": "o_hist_044",
+      "dish_id": "m24",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T11:05:29.722Z"
+    },
+    {
+      "id": "od_hist_044_m43",
+      "order_id": "o_hist_044",
+      "dish_id": "m43",
+      "quantity": 4,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T11:05:29.722Z"
+    },
+    {
+      "id": "od_hist_044_m10",
+      "order_id": "o_hist_044",
+      "dish_id": "m10",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T11:05:29.722Z"
+    },
+    {
+      "id": "od_hist_044_m13",
+      "order_id": "o_hist_044",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T11:05:29.722Z"
+    },
+    {
+      "id": "od_hist_045_m01",
+      "order_id": "o_hist_045",
+      "dish_id": "m01",
+      "quantity": 1,
+      "price_at_time": 1730000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T12:24:03.326Z"
+    },
+    {
+      "id": "od_hist_045_m31",
+      "order_id": "o_hist_045",
+      "dish_id": "m31",
+      "quantity": 1,
+      "price_at_time": 280000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T12:24:03.326Z"
+    },
+    {
+      "id": "od_hist_045_m40",
+      "order_id": "o_hist_045",
+      "dish_id": "m40",
+      "quantity": 1,
+      "price_at_time": 65000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T12:24:03.326Z"
+    },
+    {
+      "id": "od_hist_045_m35",
+      "order_id": "o_hist_045",
+      "dish_id": "m35",
+      "quantity": 1,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T12:24:03.326Z"
+    },
+    {
+      "id": "od_hist_045_m43",
+      "order_id": "o_hist_045",
+      "dish_id": "m43",
+      "quantity": 5,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T12:24:03.326Z"
+    },
+    {
+      "id": "od_hist_045_m36",
+      "order_id": "o_hist_045",
+      "dish_id": "m36",
+      "quantity": 2,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T12:24:03.326Z"
+    },
+    {
+      "id": "od_hist_046_m02",
+      "order_id": "o_hist_046",
+      "dish_id": "m02",
+      "quantity": 1,
+      "price_at_time": 1678000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T06:55:20.959Z"
+    },
+    {
+      "id": "od_hist_046_m35",
+      "order_id": "o_hist_046",
+      "dish_id": "m35",
+      "quantity": 1,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T06:55:20.959Z"
+    },
+    {
+      "id": "od_hist_046_m39",
+      "order_id": "o_hist_046",
+      "dish_id": "m39",
+      "quantity": 2,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T06:55:20.959Z"
+    },
+    {
+      "id": "od_hist_046_m16",
+      "order_id": "o_hist_046",
+      "dish_id": "m16",
+      "quantity": 2,
+      "price_at_time": 30000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T06:55:20.959Z"
+    },
+    {
+      "id": "od_hist_046_m43",
+      "order_id": "o_hist_046",
+      "dish_id": "m43",
+      "quantity": 3,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T06:55:20.959Z"
+    },
+    {
+      "id": "od_hist_047_m08",
+      "order_id": "o_hist_047",
+      "dish_id": "m08",
+      "quantity": 1,
+      "price_at_time": 1055000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T17:06:19.484Z"
+    },
+    {
+      "id": "od_hist_047_m35",
+      "order_id": "o_hist_047",
+      "dish_id": "m35",
+      "quantity": 1,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T17:06:19.484Z"
+    },
+    {
+      "id": "od_hist_047_m39",
+      "order_id": "o_hist_047",
+      "dish_id": "m39",
+      "quantity": 1,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T17:06:19.484Z"
+    },
+    {
+      "id": "od_hist_047_m30",
+      "order_id": "o_hist_047",
+      "dish_id": "m30",
+      "quantity": 1,
+      "price_at_time": 200000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T17:06:19.484Z"
+    },
+    {
+      "id": "od_hist_047_m43",
+      "order_id": "o_hist_047",
+      "dish_id": "m43",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T17:06:19.484Z"
+    },
+    {
+      "id": "od_hist_047_m10",
+      "order_id": "o_hist_047",
+      "dish_id": "m10",
+      "quantity": 1,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T17:06:19.484Z"
+    },
+    {
+      "id": "od_hist_047_m13",
+      "order_id": "o_hist_047",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T17:06:19.484Z"
+    },
+    {
+      "id": "od_hist_048_m03",
+      "order_id": "o_hist_048",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T09:54:03.359Z"
+    },
+    {
+      "id": "od_hist_048_m11",
+      "order_id": "o_hist_048",
+      "dish_id": "m11",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T09:54:03.359Z"
+    },
+    {
+      "id": "od_hist_048_m22",
+      "order_id": "o_hist_048",
+      "dish_id": "m22",
+      "quantity": 3,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T09:54:03.359Z"
+    },
+    {
+      "id": "od_hist_048_m43",
+      "order_id": "o_hist_048",
+      "dish_id": "m43",
+      "quantity": 6,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T09:54:03.359Z"
+    },
+    {
+      "id": "od_hist_048_m13",
+      "order_id": "o_hist_048",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T09:54:03.359Z"
+    },
+    {
+      "id": "od_hist_049_m08",
+      "order_id": "o_hist_049",
+      "dish_id": "m08",
+      "quantity": 1,
+      "price_at_time": 1055000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T14:47:47.004Z"
+    },
+    {
+      "id": "od_hist_049_m39",
+      "order_id": "o_hist_049",
+      "dish_id": "m39",
+      "quantity": 2,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T14:47:47.004Z"
+    },
+    {
+      "id": "od_hist_049_m16",
+      "order_id": "o_hist_049",
+      "dish_id": "m16",
+      "quantity": 1,
+      "price_at_time": 30000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T14:47:47.004Z"
+    },
+    {
+      "id": "od_hist_050_m05",
+      "order_id": "o_hist_050",
+      "dish_id": "m05",
+      "quantity": 1,
+      "price_at_time": 645000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-15T02:01:46.324Z"
+    },
+    {
+      "id": "od_hist_050_m18",
+      "order_id": "o_hist_050",
+      "dish_id": "m18",
+      "quantity": 2,
+      "price_at_time": 12000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-15T02:01:46.324Z"
+    },
+    {
+      "id": "od_hist_050_m20",
+      "order_id": "o_hist_050",
+      "dish_id": "m20",
+      "quantity": 1,
+      "price_at_time": 110000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-15T02:01:46.324Z"
+    },
+    {
+      "id": "od_hist_050_m13",
+      "order_id": "o_hist_050",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-15T02:01:46.324Z"
+    },
+    {
+      "id": "od_hist_050_m21",
+      "order_id": "o_hist_050",
+      "dish_id": "m21",
+      "quantity": 2,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-15T02:01:46.324Z"
+    },
+    {
+      "id": "od_hist_051_m05",
+      "order_id": "o_hist_051",
+      "dish_id": "m05",
+      "quantity": 1,
+      "price_at_time": 645000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T10:14:18.428Z"
+    },
+    {
+      "id": "od_hist_051_m18",
+      "order_id": "o_hist_051",
+      "dish_id": "m18",
+      "quantity": 3,
+      "price_at_time": 12000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T10:14:18.428Z"
+    },
+    {
+      "id": "od_hist_051_m12",
+      "order_id": "o_hist_051",
+      "dish_id": "m12",
+      "quantity": 1,
+      "price_at_time": 55000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T10:14:18.428Z"
+    },
+    {
+      "id": "od_hist_051_m43",
+      "order_id": "o_hist_051",
+      "dish_id": "m43",
+      "quantity": 1,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T10:14:18.428Z"
+    },
+    {
+      "id": "od_hist_051_m13",
+      "order_id": "o_hist_051",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T10:14:18.428Z"
+    },
+    {
+      "id": "od_hist_051_m36",
+      "order_id": "o_hist_051",
+      "dish_id": "m36",
+      "quantity": 1,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-11T10:14:18.428Z"
+    },
+    {
+      "id": "od_hist_052_m05",
+      "order_id": "o_hist_052",
+      "dish_id": "m05",
+      "quantity": 1,
+      "price_at_time": 645000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T22:07:40.633Z"
+    },
+    {
+      "id": "od_hist_052_m18",
+      "order_id": "o_hist_052",
+      "dish_id": "m18",
+      "quantity": 3,
+      "price_at_time": 12000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-08T22:07:40.633Z"
+    },
+    {
+      "id": "od_hist_053_m04",
+      "order_id": "o_hist_053",
+      "dish_id": "m04",
+      "quantity": 1,
+      "price_at_time": 1220000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T06:23:31.318Z"
+    },
+    {
+      "id": "od_hist_053_m32",
+      "order_id": "o_hist_053",
+      "dish_id": "m32",
+      "quantity": 1,
+      "price_at_time": 270000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T06:23:31.318Z"
+    },
+    {
+      "id": "od_hist_053_m17",
+      "order_id": "o_hist_053",
+      "dish_id": "m17",
+      "quantity": 2,
+      "price_at_time": 45000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T06:23:31.318Z"
+    },
+    {
+      "id": "od_hist_053_m43",
+      "order_id": "o_hist_053",
+      "dish_id": "m43",
+      "quantity": 4,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T06:23:31.318Z"
+    },
+    {
+      "id": "od_hist_053_m13",
+      "order_id": "o_hist_053",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T06:23:31.318Z"
+    },
+    {
+      "id": "od_hist_053_m21",
+      "order_id": "o_hist_053",
+      "dish_id": "m21",
+      "quantity": 2,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T06:23:31.318Z"
+    },
+    {
+      "id": "od_hist_053_m36",
+      "order_id": "o_hist_053",
+      "dish_id": "m36",
+      "quantity": 2,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T06:23:31.318Z"
+    },
+    {
+      "id": "od_hist_054_m08",
+      "order_id": "o_hist_054",
+      "dish_id": "m08",
+      "quantity": 1,
+      "price_at_time": 1055000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T09:04:39.524Z"
+    },
+    {
+      "id": "od_hist_054_m39",
+      "order_id": "o_hist_054",
+      "dish_id": "m39",
+      "quantity": 2,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T09:04:39.524Z"
+    },
+    {
+      "id": "od_hist_055_m04",
+      "order_id": "o_hist_055",
+      "dish_id": "m04",
+      "quantity": 1,
+      "price_at_time": 1220000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:47:23.695Z"
+    },
+    {
+      "id": "od_hist_055_m32",
+      "order_id": "o_hist_055",
+      "dish_id": "m32",
+      "quantity": 1,
+      "price_at_time": 270000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:47:23.695Z"
+    },
+    {
+      "id": "od_hist_055_m38",
+      "order_id": "o_hist_055",
+      "dish_id": "m38",
+      "quantity": 2,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:47:23.695Z"
+    },
+    {
+      "id": "od_hist_055_m17",
+      "order_id": "o_hist_055",
+      "dish_id": "m17",
+      "quantity": 2,
+      "price_at_time": 45000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:47:23.695Z"
+    },
+    {
+      "id": "od_hist_055_m43",
+      "order_id": "o_hist_055",
+      "dish_id": "m43",
+      "quantity": 5,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:47:23.695Z"
+    },
+    {
+      "id": "od_hist_055_m13",
+      "order_id": "o_hist_055",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T23:47:23.695Z"
+    },
+    {
+      "id": "od_hist_056_m01",
+      "order_id": "o_hist_056",
+      "dish_id": "m01",
+      "quantity": 1,
+      "price_at_time": 1730000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T14:00:27.258Z"
+    },
+    {
+      "id": "od_hist_056_m40",
+      "order_id": "o_hist_056",
+      "dish_id": "m40",
+      "quantity": 1,
+      "price_at_time": 65000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T14:00:27.258Z"
+    },
+    {
+      "id": "od_hist_056_m35",
+      "order_id": "o_hist_056",
+      "dish_id": "m35",
+      "quantity": 1,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T14:00:27.258Z"
+    },
+    {
+      "id": "od_hist_056_m13",
+      "order_id": "o_hist_056",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T14:00:27.258Z"
+    },
+    {
+      "id": "od_hist_056_m36",
+      "order_id": "o_hist_056",
+      "dish_id": "m36",
+      "quantity": 1,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T14:00:27.258Z"
+    },
+    {
+      "id": "od_hist_057_m07",
+      "order_id": "o_hist_057",
+      "dish_id": "m07",
+      "quantity": 1,
+      "price_at_time": 825000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T01:31:59.719Z"
+    },
+    {
+      "id": "od_hist_057_m38",
+      "order_id": "o_hist_057",
+      "dish_id": "m38",
+      "quantity": 2,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-14T01:31:59.719Z"
+    },
+    {
+      "id": "od_hist_058_m02",
+      "order_id": "o_hist_058",
+      "dish_id": "m02",
+      "quantity": 1,
+      "price_at_time": 1678000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T16:06:43.186Z"
+    },
+    {
+      "id": "od_hist_058_m35",
+      "order_id": "o_hist_058",
+      "dish_id": "m35",
+      "quantity": 3,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T16:06:43.186Z"
+    },
+    {
+      "id": "od_hist_058_m39",
+      "order_id": "o_hist_058",
+      "dish_id": "m39",
+      "quantity": 3,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T16:06:43.186Z"
+    },
+    {
+      "id": "od_hist_058_m43",
+      "order_id": "o_hist_058",
+      "dish_id": "m43",
+      "quantity": 4,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T16:06:43.186Z"
+    },
+    {
+      "id": "od_hist_058_m36",
+      "order_id": "o_hist_058",
+      "dish_id": "m36",
+      "quantity": 2,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T16:06:43.186Z"
+    },
+    {
+      "id": "od_hist_059_m05",
+      "order_id": "o_hist_059",
+      "dish_id": "m05",
+      "quantity": 1,
+      "price_at_time": 645000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T20:51:11.444Z"
+    },
+    {
+      "id": "od_hist_059_m18",
+      "order_id": "o_hist_059",
+      "dish_id": "m18",
+      "quantity": 3,
+      "price_at_time": 12000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T20:51:11.444Z"
+    },
+    {
+      "id": "od_hist_059_m20",
+      "order_id": "o_hist_059",
+      "dish_id": "m20",
+      "quantity": 1,
+      "price_at_time": 110000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T20:51:11.444Z"
+    },
+    {
+      "id": "od_hist_059_m43",
+      "order_id": "o_hist_059",
+      "dish_id": "m43",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T20:51:11.444Z"
+    },
+    {
+      "id": "od_hist_060_m04",
+      "order_id": "o_hist_060",
+      "dish_id": "m04",
+      "quantity": 1,
+      "price_at_time": 1220000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T22:30:24.320Z"
+    },
+    {
+      "id": "od_hist_060_m17",
+      "order_id": "o_hist_060",
+      "dish_id": "m17",
+      "quantity": 1,
+      "price_at_time": 45000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T22:30:24.320Z"
+    },
+    {
+      "id": "od_hist_060_m13",
+      "order_id": "o_hist_060",
+      "dish_id": "m13",
+      "quantity": 1,
+      "price_at_time": 50000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T22:30:24.320Z"
+    },
+    {
+      "id": "od_hist_061_m02",
+      "order_id": "o_hist_061",
+      "dish_id": "m02",
+      "quantity": 1,
+      "price_at_time": 1678000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T03:30:25.749Z"
+    },
+    {
+      "id": "od_hist_061_m35",
+      "order_id": "o_hist_061",
+      "dish_id": "m35",
+      "quantity": 3,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T03:30:25.749Z"
+    },
+    {
+      "id": "od_hist_061_m39",
+      "order_id": "o_hist_061",
+      "dish_id": "m39",
+      "quantity": 2,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T03:30:25.749Z"
+    },
+    {
+      "id": "od_hist_061_m30",
+      "order_id": "o_hist_061",
+      "dish_id": "m30",
+      "quantity": 1,
+      "price_at_time": 200000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T03:30:25.749Z"
+    },
+    {
+      "id": "od_hist_061_m43",
+      "order_id": "o_hist_061",
+      "dish_id": "m43",
+      "quantity": 5,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-10T03:30:25.749Z"
+    },
+    {
+      "id": "od_hist_062_m04",
+      "order_id": "o_hist_062",
+      "dish_id": "m04",
+      "quantity": 1,
+      "price_at_time": 1220000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T19:19:21.113Z"
+    },
+    {
+      "id": "od_hist_062_m32",
+      "order_id": "o_hist_062",
+      "dish_id": "m32",
+      "quantity": 1,
+      "price_at_time": 270000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T19:19:21.113Z"
+    },
+    {
+      "id": "od_hist_062_m38",
+      "order_id": "o_hist_062",
+      "dish_id": "m38",
+      "quantity": 2,
+      "price_at_time": 62000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T19:19:21.113Z"
+    },
+    {
+      "id": "od_hist_062_m43",
+      "order_id": "o_hist_062",
+      "dish_id": "m43",
+      "quantity": 2,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-13T19:19:21.113Z"
+    },
+    {
+      "id": "od_hist_063_m08",
+      "order_id": "o_hist_063",
+      "dish_id": "m08",
+      "quantity": 1,
+      "price_at_time": 1055000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T03:59:50.049Z"
+    },
+    {
+      "id": "od_hist_063_m35",
+      "order_id": "o_hist_063",
+      "dish_id": "m35",
+      "quantity": 2,
+      "price_at_time": 68000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T03:59:50.049Z"
+    },
+    {
+      "id": "od_hist_063_m39",
+      "order_id": "o_hist_063",
+      "dish_id": "m39",
+      "quantity": 1,
+      "price_at_time": 58000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T03:59:50.049Z"
+    },
+    {
+      "id": "od_hist_063_m30",
+      "order_id": "o_hist_063",
+      "dish_id": "m30",
+      "quantity": 1,
+      "price_at_time": 200000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T03:59:50.049Z"
+    },
+    {
+      "id": "od_hist_063_m43",
+      "order_id": "o_hist_063",
+      "dish_id": "m43",
+      "quantity": 4,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-12T03:59:50.049Z"
+    },
+    {
+      "id": "od_hist_064_m03",
+      "order_id": "o_hist_064",
+      "dish_id": "m03",
+      "quantity": 1,
+      "price_at_time": 1519000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T05:38:57.257Z"
+    },
+    {
+      "id": "od_hist_064_m11",
+      "order_id": "o_hist_064",
+      "dish_id": "m11",
+      "quantity": 1,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T05:38:57.257Z"
+    },
+    {
+      "id": "od_hist_064_m29",
+      "order_id": "o_hist_064",
+      "dish_id": "m29",
+      "quantity": 1,
+      "price_at_time": 320000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T05:38:57.257Z"
+    },
+    {
+      "id": "od_hist_064_m24",
+      "order_id": "o_hist_064",
+      "dish_id": "m24",
+      "quantity": 2,
+      "price_at_time": 25000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T05:38:57.257Z"
+    },
+    {
+      "id": "od_hist_064_m43",
+      "order_id": "o_hist_064",
+      "dish_id": "m43",
+      "quantity": 5,
+      "price_at_time": 15000,
+      "item_status": "Đã phục vụ",
+      "notes": "",
+      "ordered_at": "2026-06-09T05:38:57.257Z"
     }
   ],
   "import_receipts": [
@@ -2590,6 +6557,126 @@
     }
   ],
   "system_logs": [
+    {
+      "id": "log_1781496891198_u70h",
+      "employee_id": "mv001",
+      "employee_name": "Nguyễn Văn A",
+      "action": "Thanh toán & Đóng phiên",
+      "created_at": "2026-06-15T04:14:51.198Z",
+      "changed_data": "Hoàn tất phiên s_B01_2681 cho bàn B01. Bàn trả về trạng thái Trống."
+    },
+    {
+      "id": "log_1781496882697_jxqm",
+      "employee_id": "mv001",
+      "employee_name": "Nhân viên lễ tân",
+      "action": "Mở phiên đặt bàn",
+      "created_at": "2026-06-15T04:14:42.697Z",
+      "changed_data": "Kích hoạt bàn B01 cho è cùng SĐT 0379174255 - Khách ngồi: 2 - Mã: KVQZ"
+    },
+    {
+      "id": "log_1781496366355_fpmi",
+      "employee_id": "system",
+      "employee_name": "Nhân viên lễ tân",
+      "action": "Đặt bàn trước",
+      "created_at": "2026-06-15T04:06:06.355Z",
+      "changed_data": "Tạo lịch đặt bàn cho âx SĐT 1111111111 nhắm bàn B03 ngày 2026-06-15 lúc 18:00"
+    },
+    {
+      "id": "log_1781496326495_ey11",
+      "employee_id": "system",
+      "employee_name": "Nhân viên lễ tân",
+      "action": "Đặt bàn trước",
+      "created_at": "2026-06-15T04:05:26.495Z",
+      "changed_data": "Tạo lịch đặt bàn cho sdsd SĐT 0999999999 nhắm bàn B01 ngày 2026-06-15 lúc 18:00"
+    },
+    {
+      "id": "log_1781496242469_pavr",
+      "employee_id": "system",
+      "employee_name": "Nhân viên lễ tân",
+      "action": "Đặt bàn trước",
+      "created_at": "2026-06-15T04:04:02.469Z",
+      "changed_data": "Tạo lịch đặt bàn cho sfcdsf SĐT 0999999999 nhắm bàn B02 ngày 2026-06-15 lúc 18:00"
+    },
+    {
+      "id": "log_1781496188088_0uf9",
+      "employee_id": "system",
+      "employee_name": "Nhân viên lễ tân",
+      "action": "Đặt bàn trước",
+      "created_at": "2026-06-15T04:03:08.088Z",
+      "changed_data": "Tạo lịch đặt bàn cho Hieu SĐT 0379174255 nhắm bàn B01 ngày 2026-06-15 lúc 12:00"
+    },
+    {
+      "id": "log_1781489744278_k9pw",
+      "employee_id": "mv001",
+      "employee_name": "Nguyễn Văn A",
+      "action": "Cập nhật nguyên liệu",
+      "created_at": "2026-06-15T02:15:44.278Z",
+      "changed_data": "Ngừng sử dụng vật tư \"hiếu test\""
+    },
+    {
+      "id": "log_1781489739920_o5n4",
+      "employee_id": "mv001",
+      "employee_name": "Nguyễn Văn A",
+      "action": "Cập nhật nguyên liệu",
+      "created_at": "2026-06-15T02:15:39.920Z",
+      "changed_data": "Ngừng sử dụng vật tư \"test\""
+    },
+    {
+      "id": "log_1781489528935_l4r4",
+      "employee_id": "mv001",
+      "employee_name": "Nguyễn Văn A",
+      "action": "Cập nhật nguyên liệu",
+      "created_at": "2026-06-15T02:12:08.935Z",
+      "changed_data": "Sửa cấu hình định mức tồn kho cho \"hiếu test\""
+    },
+    {
+      "id": "log_1781489528919_x761",
+      "employee_id": "mv001",
+      "employee_name": "Nguyễn Văn A",
+      "action": "Cập nhật nguyên liệu",
+      "created_at": "2026-06-15T02:12:08.919Z",
+      "changed_data": "Sửa cấu hình định mức tồn kho cho \"hiếu test\""
+    },
+    {
+      "id": "log_1781489527943_asl1",
+      "employee_id": "mv001",
+      "employee_name": "Nguyễn Văn A",
+      "action": "Cập nhật nguyên liệu",
+      "created_at": "2026-06-15T02:12:07.943Z",
+      "changed_data": "Sửa cấu hình định mức tồn kho cho \"hiếu test\""
+    },
+    {
+      "id": "log_1781489526319_071e",
+      "employee_id": "mv001",
+      "employee_name": "Nguyễn Văn A",
+      "action": "Cập nhật nguyên liệu",
+      "created_at": "2026-06-15T02:12:06.319Z",
+      "changed_data": "Sửa cấu hình định mức tồn kho cho \"hiếu test\""
+    },
+    {
+      "id": "log_1781489519294_b7dd",
+      "employee_id": "mv001",
+      "employee_name": "Nguyễn Văn A",
+      "action": "Cập nhật nguyên liệu",
+      "created_at": "2026-06-15T02:11:59.294Z",
+      "changed_data": "Sửa cấu hình định mức tồn kho cho \"test\""
+    },
+    {
+      "id": "log_1781489513192_5246",
+      "employee_id": "mv001",
+      "employee_name": "Nguyễn Văn A",
+      "action": "Cập nhật nguyên liệu",
+      "created_at": "2026-06-15T02:11:53.192Z",
+      "changed_data": "Sửa cấu hình định mức tồn kho cho \"test\""
+    },
+    {
+      "id": "log_1781489214314_p3t8",
+      "employee_id": "system",
+      "employee_name": "Hệ thống tự động",
+      "action": "Tự động đóng phiên quá hạn",
+      "created_at": "2026-06-15T02:06:54.315Z",
+      "changed_data": "Phiên s_B04_8092 của bàn B04 đã được đóng tự động do quá 6 tiếng hoặc quá ca."
+    },
     {
       "id": "log_1781487582130_82c3",
       "employee_id": "system",
@@ -3584,6 +7671,42 @@
     }
   ],
   "table_reservations": [
+    {
+      "id": "db_1781496366346",
+      "table_id": "B03",
+      "customer_name": "âx",
+      "phone": "1111111111",
+      "reservation_date": "2026-06-15",
+      "reservation_time": "18:00",
+      "status": "Chờ đến"
+    },
+    {
+      "id": "db_1781496326488",
+      "table_id": "B01",
+      "customer_name": "sdsd",
+      "phone": "0999999999",
+      "reservation_date": "2026-06-15",
+      "reservation_time": "18:00",
+      "status": "Chờ đến"
+    },
+    {
+      "id": "db_1781496242459",
+      "table_id": "B02",
+      "customer_name": "sfcdsf",
+      "phone": "0999999999",
+      "reservation_date": "2026-06-15",
+      "reservation_time": "18:00",
+      "status": "Chờ đến"
+    },
+    {
+      "id": "db_1781496188078",
+      "table_id": "B01",
+      "customer_name": "Hieu",
+      "phone": "0379174255",
+      "reservation_date": "2026-06-15",
+      "reservation_time": "12:00",
+      "status": "Chờ đến"
+    },
     {
       "id": "db_1781487018776",
       "table_id": "B09",

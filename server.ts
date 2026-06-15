@@ -920,7 +920,34 @@ app.post('/api/reservations', (req, res) => {
     return res.status(400).json({ error: 'Vui lòng nhập đầy đủ các thông tin đặt bàn trước.' });
   }
 
+  // ── 2.5-hour lock validation ───────────────────────────────────────────────
+  const LOCK_MINUTES = 150; // 2 hours 30 minutes
   const reservations = db.get('table_reservations');
+  const [newH, newM] = time.split(':').map(Number);
+  const newTotalMin = newH * 60 + newM;
+
+  const conflict = reservations.find((r: TableReservation) => {
+    if (r.table_id !== tableId) return false;
+    if (r.reservation_date !== date) return false;
+    if (r.status !== 'Chờ đến') return false;
+    const [exH, exM] = r.reservation_time.split(':').map(Number);
+    const exTotalMin = exH * 60 + exM;
+    return Math.abs(newTotalMin - exTotalMin) < LOCK_MINUTES;
+  });
+
+  if (conflict) {
+    const [cH, cM] = conflict.reservation_time.split(':').map(Number);
+    const unlockMin = cH * 60 + cM + LOCK_MINUTES;
+    const unlockStr = `${String(Math.floor(unlockMin / 60)).padStart(2, '0')}:${String(unlockMin % 60).padStart(2, '0')}`;
+    return res.status(409).json({
+      success: false,
+      error: `Bàn ${tableId} đã được đặt lúc ${conflict.reservation_time}. Slot tiếp theo chỉ được đặt từ ${unlockStr}.`,
+      conflictTime: conflict.reservation_time,
+      unlockTime: unlockStr
+    });
+  }
+  // ──────────────────────────────────────────────────────────────────────────
+
   const newRes: TableReservation = {
     id: `db_${Date.now()}`,
     table_id: tableId,

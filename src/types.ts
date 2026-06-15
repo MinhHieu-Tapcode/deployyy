@@ -122,6 +122,7 @@ export interface RawMaterial {
   Ton_kho_hien_tai: number;
   Ton_kho_toi_thieu: number;
   Ton_kho_toi_da: number;
+  Trang_thai?: 'Hoạt động' | 'Ngừng hoạt động';
 }
 
 export interface ImportReceipt {

@@ -86,9 +86,11 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
 
   const activeTablesCount = tables.filter(t => t.Trang_thai === 'co_khach').length;
   const totalTables = tables.length;
+  const isActiveMaterial = (material: typeof materials[number]) => material.Trang_thai !== 'Ngừng hoạt động';
+  const activeMaterials = materials.filter(isActiveMaterial);
   
   // Under minimum: current < minimum
-  const depletedMaterials = materials.filter(m => m.Ton_kho_hien_tai < m.Ton_kho_toi_thieu);
+  const depletedMaterials = activeMaterials.filter(m => m.Ton_kho_hien_tai < m.Ton_kho_toi_thieu);
   const depletedCount = depletedMaterials.length;
 
   const totalRevenue = filteredOrders.reduce((sum, o) => sum + o.Tong_tien, 0);
@@ -567,7 +569,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
                     </tr>
                   </thead>
                   <tbody>
-                    {materials.map((m, idx) => {
+                    {activeMaterials.map((m, idx) => {
                       const isCrisis = m.Ton_kho_hien_tai < m.Ton_kho_toi_thieu;
                       return (
                         <tr key={idx} className={`border-b border-gray-100 hover:bg-gray-50/5 transition ${isCrisis ? 'bg-red-50/20' : ''}`}>

@@ -709,13 +709,21 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
         unit: material.Don_vi_tinh,
         stock_min: material.Ton_kho_toi_thieu,
         stock_max: material.Ton_kho_toi_da,
+        status: material.Trang_thai,
         operatorId: currentUser?.Ma_nhan_vien,
         operatorName: currentUser?.Ho_ten
       })
     });
     const data = await res.json();
     if (data.success) {
-      addToast(`Cập nhật định mức "${material.Ten_nvl}" thành công!`, 'success');
+      const oldMat = materials.find(m => m.Ma_nvl === material.Ma_nvl);
+      let msg = `Cập nhật định mức "${material.Ten_nvl}" thành công!`;
+      if (oldMat && oldMat.Trang_thai !== material.Trang_thai) {
+        msg = material.Trang_thai === 'Ngừng hoạt động'
+          ? `Đã ngừng sử dụng nguyên liệu "${material.Ten_nvl}".`
+          : `Đã kích hoạt lại nguyên liệu "${material.Ten_nvl}".`;
+      }
+      addToast(msg, 'success');
       refreshData();
       return true;
     }
