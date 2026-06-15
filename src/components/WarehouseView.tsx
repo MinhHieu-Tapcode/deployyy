@@ -205,7 +205,7 @@ export default function WarehouseView() {
     return materials.filter(m => isMatch(m, query));
   };
 
-  const handleSubmitImport = () => {
+  const handleSubmitImport = async () => {
     let isValid = true;
     const validatedRows = importRows.map(row => {
       const error: ImportRow['error'] = {};
@@ -241,20 +241,19 @@ export default function WarehouseView() {
     setImportRows(validatedRows);
 
     if (isValid) {
-      // Process imports
-      validatedRows.forEach(row => {
+      // Process imports sequentially to avoid race conditions
+      for (const row of validatedRows) {
         let finalMaterialId = row.materialId;
 
         // If it's a new material, register it in the store first
         if (row.isNew && row.newMaterialName && row.newMaterialUnit) {
-          const newId = `nvl_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
           const minStock = row.newMinStock !== '' ? Number(row.newMinStock) : 0;
           
           // Max stock must be larger than min stock for BR05
           const maxStock = minStock > 0 ? minStock * 10 : 1000;
 
-          addNewMaterial({
-            Ma_nvl: newId,
+          const createdMat = await addNewMaterial({
+            Ma_nvl: '', // backend will generate anyway
             Ten_nvl: row.newMaterialName.trim(),
             Don_vi_tinh: row.newMaterialUnit.trim(),
             Ton_kho_hien_tai: 0,
@@ -262,12 +261,14 @@ export default function WarehouseView() {
             Ton_kho_toi_da: maxStock
           });
 
-          finalMaterialId = newId;
+          if (createdMat) {
+            finalMaterialId = createdMat.id; // Use backend-generated id
+          }
         }
 
         if (finalMaterialId) {
           // Adjust inventory (add new stock)
-          adjustInventory(finalMaterialId, Number(row.quantity), row.notes || 'Nhập kho trực tiếp');
+          await adjustInventory(finalMaterialId, Number(row.quantity), row.notes || 'Nhập kho trực tiếp');
           
           // Update min stock if changed for existing material
           if (!row.isNew) {
@@ -275,12 +276,12 @@ export default function WarehouseView() {
             if (mat) {
               const newMin = Number(row.newMinStock);
               if (newMin >= 0 && newMin !== mat.Ton_kho_toi_thieu) {
-                updateMaterial({ ...mat, Ton_kho_toi_thieu: newMin });
+                await updateMaterial({ ...mat, Ton_kho_toi_thieu: newMin });
               }
             }
           }
         }
-      });
+      }
 
       setToastMessage('Nhập kho thành công');
       closeModal();

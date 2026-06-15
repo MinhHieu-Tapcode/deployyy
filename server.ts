@@ -24,6 +24,60 @@ function logAction(employeeId: string, employeeName: string, action: string, cha
   db.save('system_logs', [newLog, ...logs]);
 }
 
+// Helper to automatically close stale/overdue sessions from previous day or > 6 hours
+function closeStaleSessions() {
+  const sessions = db.get('table_sessions');
+  const tables = db.get('dining_tables');
+  let changed = false;
+  let tablesChanged = false;
+
+  const now = new Date();
+
+  sessions.forEach(session => {
+    if (session.status === 'active') {
+      const startTime = new Date(session.start_time);
+      if (isNaN(startTime.getTime())) return;
+
+      const diffHours = (now.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+
+      // Check if it's older than 6 hours OR if it was created on a previous calendar day (Vietnam timezone local date)
+      const isOver6Hours = diffHours >= 6;
+
+      const sessionLocalDate = new Date(startTime.getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const currentLocalDate = new Date(now.getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const isPreviousDay = sessionLocalDate !== currentLocalDate;
+
+      if (isOver6Hours || isPreviousDay) {
+        session.status = 'completed';
+        session.end_time = now.toISOString();
+        changed = true;
+
+        // Reset table status to 'trong'
+        const tblIdx = tables.findIndex(t => t.id === session.table_id);
+        if (tblIdx !== -1 && tables[tblIdx].status !== 'trong') {
+          tables[tblIdx].status = 'trong';
+          tablesChanged = true;
+        }
+
+        logAction(
+          'system',
+          'Hệ thống tự động',
+          'Tự động đóng phiên quá hạn',
+          `Phiên ${session.id} của bàn ${session.table_id} đã được đóng tự động do quá 6 tiếng hoặc quá ca.`
+        );
+      }
+    }
+  });
+
+  if (changed) {
+    db.save('table_sessions', sessions);
+  }
+  if (tablesChanged) {
+    db.save('dining_tables', tables);
+  }
+}
+
+
 // ================= AUTHENTICATION =================
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
@@ -125,6 +179,7 @@ app.post('/api/auth/logout', (req, res) => {
 
 // ================= DINING TABLES =================
 app.get('/api/tables', (req, res) => {
+  closeStaleSessions();
   return res.json(db.get('dining_tables'));
 });
 
@@ -180,6 +235,7 @@ app.post('/api/tables/:id/deactivate', (req, res) => {
 
 // ================= TABLE SESSIONS =================
 app.get('/api/sessions', (req, res) => {
+  closeStaleSessions();
   return res.json(db.get('table_sessions'));
 });
 

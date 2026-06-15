@@ -179,7 +179,14 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
             <input
               type="date"
               value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
+              max={toDate}
+              onChange={(e) => {
+                if (e.target.value > toDate) {
+                  alert('Ngày bắt đầu không được lớn hơn ngày kết thúc!');
+                  return;
+                }
+                setFromDate(e.target.value);
+              }}
               className="bg-transparent border-none focus:outline-none focus:ring-0 text-xs font-semibold cursor-pointer py-0.5"
             />
             <span className="text-gray-300">|</span>
@@ -187,7 +194,20 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (tab: strin
             <input
               type="date"
               value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
+              min={fromDate}
+              max={new Date().toISOString().split('T')[0]}
+              onChange={(e) => {
+                const todayStr = new Date().toISOString().split('T')[0];
+                if (e.target.value < fromDate) {
+                  alert('Ngày kết thúc không được nhỏ hơn ngày bắt đầu!');
+                  return;
+                }
+                if (e.target.value > todayStr) {
+                  alert('Ngày kết thúc không được ở tương lai!');
+                  return;
+                }
+                setToDate(e.target.value);
+              }}
               className="bg-transparent border-none focus:outline-none focus:ring-0 text-xs font-semibold cursor-pointer py-0.5"
             />
           </div>

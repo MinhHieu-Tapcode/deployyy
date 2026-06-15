@@ -148,7 +148,7 @@ export default function CustomerOrderView() {
     return params.get('table') || params.get('tableId') || hashParams.get('table') || hashParams.get('tableId') || 'B04';
   });
   const [enteredCode, setEnteredCode] = useState('');
-  const [activeStep, setActiveStep] = useState<'phone' | 'join_code' | 'menu' | 'dish_detail' | 'cart' | 'success' | 'tracking'>('phone');
+  const [activeStep, setActiveStep] = useState<'phone' | 'menu' | 'dish_detail' | 'cart' | 'success' | 'tracking'>('phone');
   
   const [currentSessionCode, setCurrentSessionCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -210,22 +210,6 @@ export default function CustomerOrderView() {
     setCurrentSessionCode(activeSess.Ma_phien_code);
     setActiveStep('menu');
     setErrorMessage('');
-  };
-
-  // Join Existing Shared Session
-  const handleJoinSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!enteredCode) return;
-
-    const foundSess = sessions.find(s => s.Ma_phien_code.toUpperCase() === enteredCode.toUpperCase() && s.Trang_thai === 'active');
-    if (foundSess) {
-      setCurrentSessionCode(foundSess.Ma_phien_code);
-      setTableId(foundSess.Ma_ban);
-      setActiveStep('menu');
-      setErrorMessage('');
-    } else {
-      setErrorMessage('Mã phiên không chính xác hoặc đã hết hiệu lực.');
-    }
   };
 
   // Cart operations
@@ -505,7 +489,7 @@ export default function CustomerOrderView() {
 
   // Floating widgets JSX
   const renderFloatingWidgets = () => {
-    if (activeStep === 'phone' || activeStep === 'join_code') return null;
+    if (activeStep === 'phone') return null;
 
     const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -811,7 +795,7 @@ export default function CustomerOrderView() {
     <div className="min-h-screen bg-[#F9F9F9] w-full flex flex-col justify-between font-sans overflow-x-hidden relative" id="customer-root-wrapper">
       
       {/* HEADER: Only render when activeStep is not welcome step */}
-      {activeStep !== 'phone' && activeStep !== 'join_code' && renderHeader()}
+      {activeStep !== 'phone' && renderHeader()}
 
       {/* VIEWPORT BODY CONTAINER */}
       <main className="flex-1 flex flex-col justify-start relative w-full pb-20">
@@ -841,7 +825,7 @@ export default function CustomerOrderView() {
                 </div>
                 <div>
                   <h4 className="text-xs font-black text-[#800F14] uppercase tracking-wider">Bàn ăn hiện tại</h4>
-                  <p className="text-[10px] text-gray-400 mt-0.5">Vui lòng nhập số điện thoại để bắt đầu gọi món</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">Nhập số điện thoại (hoặc SĐT trưởng bàn nếu ăn chung)</p>
                 </div>
               </div>
             </div>
@@ -919,61 +903,6 @@ export default function CustomerOrderView() {
                   </div>
                 </div>
 
-          </div>
-        )}
-
-        {/* ================= SCREEN 2: JOIN SHARE CODE ================= */}
-        {activeStep === 'join_code' && (
-          <div className="w-full max-w-md mx-auto px-4 py-20 z-10 flex-1 flex flex-col justify-center animate-slide-up" id="customer-join-view">
-            <div className="bg-white border border-gray-150 rounded-3xl p-6 md:p-8 shadow-md text-center space-y-6">
-              <div className="flex justify-center">
-                <BrandLogo size={100} />
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-lg font-black text-[#800F14] uppercase tracking-wider">Nhập mã gộp bàn</h3>
-                <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
-                  Nhập mã code gồm 4 ký tự từ người quét đầu tiên (Host) để dùng chung giỏ hàng trực tuyến.
-                </p>
-              </div>
-
-              {errorMessage && (
-                <div className="p-3 bg-red-50 text-[#EE3124] text-xs rounded-xl border border-red-200 font-bold text-center">
-                  {errorMessage}
-                </div>
-              )}
-
-              <form onSubmit={handleJoinSubmit} className="space-y-4">
-                <input
-                  id="join-code-inp"
-                  type="text"
-                  required
-                  maxLength={6}
-                  className="w-full p-3.5 border border-gray-200 focus:border-[#EE3124] rounded-xl font-mono font-black text-center tracking-[0.4em] text-xl bg-gray-50 focus:bg-white transition uppercase"
-                  placeholder="EX: 7X2B"
-                  value={enteredCode}
-                  onChange={e => setEnteredCode(e.target.value.toUpperCase())}
-                />
-
-                <button
-                  id="btn-join-code"
-                  type="submit"
-                  className="w-full py-4 bg-[#EE3124] hover:bg-[#800F14] text-white font-black text-xs tracking-widest rounded-xl shadow cursor-pointer uppercase active:scale-95 transition"
-                >
-                  XÁC NHẬN THAM GIA
-                </button>
-              </form>
-
-              <button
-                onClick={() => {
-                  setErrorMessage('');
-                  setActiveStep('phone');
-                }}
-                className="text-xs text-gray-500 hover:text-gray-800 font-bold tracking-wider block mx-auto uppercase hover:underline pt-2"
-              >
-                ← Quay lại đăng nhập SĐT
-              </button>
-            </div>
           </div>
         )}
 
@@ -1393,12 +1322,12 @@ export default function CustomerOrderView() {
                 </p>
               </div>
 
-              {/* Shared Code card */}
+              {/* Shared Phone number card */}
               <div className="bg-[#800F14]/5 border border-[#800F14]/10 p-5 rounded-2xl space-y-2.5 max-w-[280px] mx-auto shadow-2xs">
-                <span className="text-[9px] text-[#800F14] font-black uppercase tracking-wider block">Mã phiên chia sẻ cho bạn đi cùng:</span>
-                <span className="font-mono text-2xl font-black text-[#800F14] tracking-widest">{currentSessionCode || '7X2B'}</span>
+                <span className="text-[9px] text-[#800F14] font-black uppercase tracking-wider block">Số điện thoại bàn ăn:</span>
+                <span className="font-mono text-lg font-black text-[#800F14] tracking-wider">{phoneNumber || '---'}</span>
                 <p className="text-[9px] text-gray-400 leading-normal font-medium">
-                  Người đi ăn cùng bàn chỉ cần quét mã QR và điền mã này ở phần "ĂN CHUNG" để đặt cùng bạn.
+                  Người đi ăn cùng bàn chỉ cần quét mã QR và nhập đúng số điện thoại này để cùng gọi món chung.
                 </p>
               </div>
 
@@ -1548,7 +1477,7 @@ export default function CustomerOrderView() {
       {renderFloatingWidgets()}
 
       {/* GLOBAL BOTTOM TAB NAVIGATION BAR (Mobile layout) */}
-      {activeStep !== 'phone' && activeStep !== 'join_code' && activeStep !== 'dish_detail' && (
+      {activeStep !== 'phone' && activeStep !== 'dish_detail' && (
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-150 py-2.5 flex justify-around text-gray-500 z-40" id="cart-bottom-navbar">
           <button
             onClick={() => setActiveStep('menu')}

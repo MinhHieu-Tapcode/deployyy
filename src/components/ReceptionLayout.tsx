@@ -88,8 +88,7 @@ export default function ReceptionLayout() {
 
   const getCurrentWorkingTimeValue = () => {
     const now = new Date();
-    const bounded = clampTimeToBookingWindow(now.getHours(), now.getMinutes());
-    return `${String(bounded.hours).padStart(2, '0')}:${String(bounded.minutes).padStart(2, '0')}`;
+    return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   };
 
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>(() => {
@@ -219,8 +218,31 @@ export default function ReceptionLayout() {
       return 'BOOKED'; // Custom state indicating active pre-booked
     }
 
-    if (selectedCalendarDate === todayString) {
+    if (isViewingCurrent) {
       return baseStatus;
+    }
+
+    // In calendar view mode (isViewingCurrent === false), check if the active session
+    // is expected to have ended (assuming average dining duration of 2 hours / 120 minutes)
+    try {
+      const timePart = selectedCalendarTime && selectedCalendarTime.length >= 4 ? selectedCalendarTime : '00:00';
+      const selectedDateTime = new Date(`${selectedCalendarDate}T${timePart}:00`);
+      
+      if (!isNaN(selectedDateTime.getTime())) {
+        const activeSess = sessions.find(s => s.Ma_ban === tableId && s.Trang_thai === 'active');
+        if (activeSess) {
+          const startTime = new Date(activeSess.Thoi_gian_bat_dau);
+          if (!isNaN(startTime.getTime())) {
+            const diffMinutes = (selectedDateTime.getTime() - startTime.getTime()) / 60000;
+            // The table is considered occupied if the viewed calendar time falls within 2 hours from startTime
+            if (diffMinutes >= 0 && diffMinutes <= 120) {
+              return TableStatus.CO_KHACH;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // fallback to TRONG
     }
 
     return TableStatus.TRONG;
@@ -681,8 +703,14 @@ export default function ReceptionLayout() {
                     type="date"
                     className="bg-transparent border-none font-extrabold text-[#EE3124] focus:outline-none cursor-pointer text-sm"
                     value={selectedCalendarDate}
+                    min={getLocalDateValue()}
                     onChange={e => {
-                      setSelectedCalendarDate(e.target.value);
+                      const val = e.target.value;
+                      if (val < getLocalDateValue()) {
+                        alert('Không được chọn ngày trong quá khứ để xem sơ đồ bàn.');
+                        return;
+                      }
+                      setSelectedCalendarDate(val);
                       setIsViewingCurrent(false);
                       setSelectedTableId(null);
                     }}
@@ -693,16 +721,10 @@ export default function ReceptionLayout() {
                   <Clock size={16} className="text-gray-600 shrink-0" />
                   <input
                     type="time"
-                    min="10:00"
-                    max="22:00"
-                    step={60}
                     className="bg-transparent border-none font-bold text-gray-700 focus:outline-none text-sm"
                     value={selectedCalendarTime}
                     onChange={e => {
-                      const [rawHour, rawMinute] = e.target.value.split(':').map(Number);
-                      if (Number.isNaN(rawHour) || Number.isNaN(rawMinute)) return;
-                      const bounded = clampTimeToBookingWindow(rawHour, rawMinute);
-                      setSelectedCalendarTime(`${String(bounded.hours).padStart(2, '0')}:${String(bounded.minutes).padStart(2, '0')}`);
+                      setSelectedCalendarTime(e.target.value);
                       setIsViewingCurrent(false);
                       setSelectedTableId(null);
                     }}
@@ -1375,10 +1397,16 @@ export default function ReceptionLayout() {
                             <input
                               type="date"
                               title="Chọn ngày đặt"
+                              min={getLocalDateValue()}
                               className="w-full pl-10 pr-2 py-2 border border-gray-200 bg-white rounded-lg text-sm font-semibold focus:border-purple-500 focus:outline-none"
                               value={selectedCalendarDate}
                               onChange={e => {
-                                setSelectedCalendarDate(e.target.value);
+                                const val = e.target.value;
+                                if (!bookingDateIsTodayOrAfter(val)) {
+                                  setBookingDateError('Ngày đặt không được ở quá khứ');
+                                  return;
+                                }
+                                setSelectedCalendarDate(val);
                                 setBookingDateError('');
                                 setBookingTimeError('');
                                 setIsViewingCurrent(false);

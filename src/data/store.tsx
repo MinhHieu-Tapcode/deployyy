@@ -165,7 +165,7 @@ interface RestaurantContextType {
   updateCategory: (cat: Category) => void;
   deleteCategory: (id: string) => void;
   adjustInventory: (materialId: string, amount: number, reason: string) => Promise<{ success: boolean; error?: string }>;
-  addNewMaterial: (material: RawMaterial) => void;
+  addNewMaterial: (material: RawMaterial) => Promise<any>;
   updateMaterial: (material: RawMaterial) => Promise<boolean>;
   addImportReceipt: (receipt: { shipper: string; note: string; anhDonNhap?: string; items: { materialId: string; quantity: number; price: number }[] }) => Promise<{ success: boolean; error?: string }>;
   logSystemAction: (action: string, changeDetails: string) => void;
@@ -677,8 +677,8 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
     return { success: false, error: data.error };
   };
 
-  const addNewMaterial = (material: RawMaterial) => {
-    fetch('/api/materials', {
+  const addNewMaterial = async (material: RawMaterial): Promise<any> => {
+    const res = await fetch('/api/materials', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -690,12 +690,14 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
         operatorId: currentUser?.Ma_nhan_vien,
         operatorName: currentUser?.Ho_ten
       })
-    }).then(res => res.json()).then(data => {
-      if (data.success) {
-        addToast(`Thêm nguyên liệu "${material.Ten_nvl}" thành công.`, 'success');
-        refreshData();
-      }
     });
+    const data = await res.json();
+    if (data.success) {
+      addToast(`Thêm nguyên liệu "${material.Ten_nvl}" thành công.`, 'success');
+      refreshData();
+      return data.material;
+    }
+    return null;
   };
 
   const updateMaterial = async (material: RawMaterial): Promise<boolean> => {
